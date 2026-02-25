@@ -1,8 +1,47 @@
 import logging
+from uuid import uuid4
+
+import requests
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+
+
+def _download_media_to_s3(media_url: str, report_id: int) -> str:
+    """Download Twilio voice note and upload to S3. Returns S3 key or original URL as fallback."""
+    import boto3
+
+    try:
+        response = requests.get(
+            media_url,
+            auth=(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN),
+            timeout=30,
+        )
+        response.raise_for_status()
+
+        content_type = response.headers.get('Content-Type', 'audio/ogg')
+        ext = 'ogg' if 'ogg' in content_type else ('m4a' if 'm4a' in content_type else 'ogg')
+        s3_key = f"voice/{report_id}/{uuid4().hex}.{ext}"
+
+        s3 = boto3.client(
+            's3',
+            region_name=settings.AWS_REGION,
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        )
+        s3.put_object(
+            Bucket=settings.AWS_S3_AUDIO_BUCKET,
+            Key=s3_key,
+            Body=response.content,
+            ContentType=content_type,
+        )
+        logger.info(f"Voice note uploaded to S3: {s3_key}")
+        return s3_key
+    except Exception as e:
+        logger.error(f"Failed to upload voice note to S3, falling back to URL: {e}")
+        return media_url  # fallback for local dev without AWS
 
 HELP_TEXT_HINDI = """PrajaShakti AI - Aapka Gaon, Aapki Awaaz
 
@@ -75,14 +114,19 @@ def handle_voice_note(user, media_url: str) -> str:
         reporter=user,
         village=village,
         description_text='[Voice note - transcription pending]',
-        audio_s3_key=media_url,
+        audio_s3_key='pending',  # will be updated after S3 upload
         ward=user.ward,
     )
 
-    # Trigger async transcription
+    # Download from Twilio and upload to S3 (Twilio URLs expire in 24h)
+    s3_key = _download_media_to_s3(media_url, report.id)
+    report.audio_s3_key = s3_key
+    report.save(update_fields=['audio_s3_key'])
+
+    # Trigger async transcription with the S3 key
     try:
         from apps.ai_engine.tasks import transcribe_voice_note
-        transcribe_voice_note.delay(report.id, media_url)
+        transcribe_voice_note.delay(report.id, s3_key)
     except Exception:
         pass
 
