@@ -4,21 +4,22 @@ import 'app/app.dart';
 import 'app/router.dart';
 import 'core/api/api_client.dart';
 import 'features/auth/cubit/auth_cubit.dart';
-import 'features/auth/repository/auth_repository.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final apiClient = ApiClient();
-  final authRepository = AuthRepository(apiClient: apiClient);
+  final authCubit = AuthCubit(apiClient)..checkAuth();
+  final router = createRouter(authCubit);
 
   runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => AuthCubit(authRepository: authRepository)..checkAuth(),
-        ),
-      ],
-      child: const PrajaShaktiApp(),
+    RepositoryProvider<ApiClient>.value(
+      value: apiClient,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthCubit>.value(value: authCubit),
+        ],
+        child: PrajaShaktiApp(router: router),
+      ),
     ),
   );
 }

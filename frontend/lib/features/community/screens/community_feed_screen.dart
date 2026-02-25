@@ -1,0 +1,312 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../cubit/community_cubit.dart';
+import '../cubit/community_state.dart';
+import '../../../core/api/api_client.dart';
+import '../../../core/models/report.dart';
+
+class CommunityFeedScreen extends StatelessWidget {
+  const CommunityFeedScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => CommunityCubit(context.read<ApiClient>())..loadReports(),
+      child: const _FeedView(),
+    );
+  }
+}
+
+class _FeedView extends StatelessWidget {
+  const _FeedView();
+
+  static const _filters = [
+    (null, 'सभी'),
+    ('water', 'पानी'),
+    ('road', 'सड़क'),
+    ('health', 'स्वास्थ्य'),
+    ('education', 'शिक्षा'),
+    ('electricity', 'बिजली'),
+    ('sanitation', 'स्वच्छता'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('सामुदायिक फ़ीड'),
+        backgroundColor: Colors.green.shade700,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => context.read<CommunityCubit>().loadReports(),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Filter chips
+          Container(
+            height: 48,
+            color: Colors.white,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              itemCount: _filters.length,
+              itemBuilder: (context, i) {
+                final (key, label) = _filters[i];
+                return BlocBuilder<CommunityCubit, CommunityState>(
+                  builder: (context, state) {
+                    final active = state is CommunityLoaded && state.activeFilter == key;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: FilterChip(
+                        label: Text(label, style: const TextStyle(fontSize: 12)),
+                        selected: active,
+                        onSelected: (_) => context.read<CommunityCubit>().loadReports(category: key),
+                        selectedColor: Colors.green.shade100,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          // Feed
+          Expanded(
+            child: BlocBuilder<CommunityCubit, CommunityState>(
+              builder: (context, state) {
+                if (state is CommunityLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is CommunityError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                        const SizedBox(height: 8),
+                        Text(state.message),
+                        TextButton(
+                          onPressed: () => context.read<CommunityCubit>().loadReports(),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                if (state is CommunityLoaded) {
+                  if (state.reports.isEmpty) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                          SizedBox(height: 12),
+                          Text('कोई रिपोर्ट नहीं मिली', style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    );
+                  }
+                  return NotificationListener<ScrollNotification>(
+                    onNotification: (n) {
+                      if (n.metrics.pixels >= n.metrics.maxScrollExtent - 100) {
+                        context.read<CommunityCubit>().loadMore();
+                      }
+                      return false;
+                    },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      itemCount: state.reports.length + (state.hasMore ? 1 : 0),
+                      itemBuilder: (context, i) {
+                        if (i == state.reports.length) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+                        return ReportCard(
+                          report: state.reports[i],
+                          onVote: () => context.read<CommunityCubit>().vote(state.reports[i].id),
+                          onTap: () => context.push('/report/${state.reports[i].id}'),
+                        );
+                      },
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.go('/report'),
+        icon: const Icon(Icons.add),
+        label: const Text('रिपोर्ट करें'),
+        backgroundColor: Colors.green.shade700,
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+}
+
+class ReportCard extends StatelessWidget {
+  final Report report;
+  final VoidCallback onVote;
+  final VoidCallback onTap;
+
+  const ReportCard({super.key, required this.report, required this.onVote, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Vote button
+              Column(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      report.hasVoted ? Icons.thumb_up : Icons.thumb_up_outlined,
+                      color: report.hasVoted ? Colors.green.shade700 : null,
+                    ),
+                    onPressed: onVote,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  Text(
+                    '${report.voteCount}',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 10),
+              // Category icon
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: _categoryColor(report.category).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(_categoryIcon(report.category), color: _categoryColor(report.category)),
+              ),
+              const SizedBox(width: 10),
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            report.subCategory.isNotEmpty ? report.subCategory : report.descriptionText,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        _statusDot(report.status),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      report.descriptionText,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        if (report.ward != null) ...[
+                          Icon(Icons.map, size: 12, color: Colors.grey.shade500),
+                          const SizedBox(width: 2),
+                          Text('Ward ${report.ward}', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                          const SizedBox(width: 8),
+                        ],
+                        _urgencyBadge(report.urgency),
+                        const Spacer(),
+                        Text(
+                          _timeAgo(report.createdAt),
+                          style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _statusDot(String status) {
+    final color = status == 'completed' ? Colors.green
+        : status == 'in_progress' ? Colors.blue
+        : status == 'adopted' ? Colors.amber.shade700
+        : status == 'delayed' ? Colors.red.shade900
+        : Colors.red;
+    return Container(
+      width: 8, height: 8,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+
+  Widget _urgencyBadge(String urgency) {
+    final color = urgency == 'critical' ? Colors.red
+        : urgency == 'high' ? Colors.deepOrange
+        : urgency == 'medium' ? Colors.orange
+        : Colors.green;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
+      child: Text(urgency, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Color _categoryColor(String cat) {
+    switch (cat) {
+      case 'water': return Colors.blue;
+      case 'road': return Colors.orange;
+      case 'health': return Colors.red;
+      case 'education': return Colors.purple;
+      case 'electricity': return Colors.yellow.shade800;
+      case 'sanitation': return Colors.teal;
+      default: return Colors.grey;
+    }
+  }
+
+  IconData _categoryIcon(String cat) {
+    switch (cat) {
+      case 'water': return Icons.water_drop;
+      case 'road': return Icons.add_road;
+      case 'health': return Icons.local_hospital;
+      case 'education': return Icons.school;
+      case 'electricity': return Icons.bolt;
+      case 'sanitation': return Icons.wc;
+      default: return Icons.report_problem;
+    }
+  }
+
+  String _timeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inDays > 0) return '${diff.inDays}d ago';
+    if (diff.inHours > 0) return '${diff.inHours}h ago';
+    return '${diff.inMinutes}m ago';
+  }
+}
