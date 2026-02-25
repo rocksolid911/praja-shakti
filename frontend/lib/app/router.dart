@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../features/auth/cubit/auth_cubit.dart';
+import '../features/auth/cubit/auth_state.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/otp_screen.dart';
 import '../features/auth/screens/profile_screen.dart';
@@ -13,38 +16,60 @@ import '../features/schemes/screens/scheme_explorer_screen.dart';
 import '../features/dashboard/screens/leader_dashboard_screen.dart';
 import '../features/gram_sabha/screens/gram_sabha_screen.dart';
 
-final appRouter = GoRouter(
-  initialLocation: '/login',
-  routes: [
-    GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
-    GoRoute(path: '/otp', builder: (_, state) => OTPScreen(phone: state.extra as String? ?? '')),
-    GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
-    ShellRoute(
-      builder: (context, state, child) => AppShell(child: child),
-      routes: [
-        GoRoute(path: '/map', builder: (_, __) => const MapScreen()),
-        GoRoute(path: '/report', builder: (_, __) => const ReportScreen()),
-        GoRoute(
-          path: '/report/:id',
-          builder: (_, state) => ReportDetailScreen(
-            reportId: int.parse(state.pathParameters['id']!),
+GoRouter createRouter(AuthCubit authCubit) {
+  return GoRouter(
+    initialLocation: '/login',
+    refreshListenable: _AuthNotifier(authCubit),
+    redirect: (context, state) {
+      final authState = authCubit.state;
+      final isAuthenticated = authState is AuthAuthenticated;
+      final isOnAuthPage = state.uri.path == '/login' || state.uri.path == '/otp';
+
+      if (!isAuthenticated && !isOnAuthPage) return '/login';
+      if (isAuthenticated && isOnAuthPage) return '/map';
+      return null;
+    },
+    routes: [
+      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+      GoRoute(
+        path: '/otp',
+        builder: (_, state) => OTPScreen(phone: state.extra as String? ?? ''),
+      ),
+      GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(path: '/map', builder: (_, __) => const MapScreen()),
+          GoRoute(path: '/report', builder: (_, __) => const ReportScreen()),
+          GoRoute(
+            path: '/report/:id',
+            builder: (_, state) => ReportDetailScreen(
+              reportId: int.parse(state.pathParameters['id']!),
+            ),
           ),
-        ),
-        GoRoute(path: '/feed', builder: (_, __) => const CommunityFeedScreen()),
-        GoRoute(path: '/projects', builder: (_, __) => const ProjectListScreen()),
-        GoRoute(
-          path: '/project/:id',
-          builder: (_, state) => ProjectDetailScreen(
-            projectId: int.parse(state.pathParameters['id']!),
+          GoRoute(path: '/feed', builder: (_, __) => const CommunityFeedScreen()),
+          GoRoute(path: '/projects', builder: (_, __) => const ProjectListScreen()),
+          GoRoute(
+            path: '/project/:id',
+            builder: (_, state) => ProjectDetailScreen(
+              projectId: int.parse(state.pathParameters['id']!),
+            ),
           ),
-        ),
-        GoRoute(path: '/schemes', builder: (_, __) => const SchemeExplorerScreen()),
-        GoRoute(path: '/dashboard', builder: (_, __) => const LeaderDashboardScreen()),
-        GoRoute(path: '/gramsabha', builder: (_, __) => const GramSabhaScreen()),
-      ],
-    ),
-  ],
-);
+          GoRoute(path: '/schemes', builder: (_, __) => const SchemeExplorerScreen()),
+          GoRoute(path: '/dashboard', builder: (_, __) => const LeaderDashboardScreen()),
+          GoRoute(path: '/gramsabha', builder: (_, __) => const GramSabhaScreen()),
+        ],
+      ),
+    ],
+  );
+}
+
+/// Notifies GoRouter when auth state changes so it can re-run redirect
+class _AuthNotifier extends ChangeNotifier {
+  _AuthNotifier(AuthCubit authCubit) {
+    authCubit.stream.listen((_) => notifyListeners());
+  }
+}
 
 class AppShell extends StatelessWidget {
   final Widget child;
@@ -113,9 +138,23 @@ class AppShell extends StatelessWidget {
               title: const Text('Profile'),
               onTap: () { Navigator.pop(context); context.go('/profile'); },
             ),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text('Logout', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                context.read<AuthCubit>().logout();
+              },
+            ),
           ],
         ),
       ),
     );
   }
 }
+
+// Keep backward compat — app.dart uses `appRouter`
+final _tempRouter = GoRouter(initialLocation: '/login', routes: [
+  GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+]);
+GoRouter get appRouter => _tempRouter; // replaced at runtime in app.dart
