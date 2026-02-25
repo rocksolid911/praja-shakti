@@ -145,6 +145,37 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
+# Celery Beat schedule (used by setup_periodic_tasks management command to seed DB)
+from celery.schedules import crontab  # noqa: E402
+CELERY_BEAT_SCHEDULE = {
+    # Daily 6 AM IST — mandi price updates
+    'sync-agmarknet-prices': {
+        'task': 'apps.data_ingestion.tasks.sync_agmarknet_prices',
+        'schedule': crontab(hour=6, minute=0),
+        'args': ('Rajasthan',),
+    },
+    # Daily 9 AM IST — flag delayed projects
+    'detect-delayed-projects': {
+        'task': 'apps.data_ingestion.tasks.detect_delayed_projects',
+        'schedule': crontab(hour=9, minute=0),
+    },
+    # Weekly Sunday 2 AM IST — panchayat financials
+    'sync-egram-swaraj': {
+        'task': 'apps.data_ingestion.tasks.sync_egram_swaraj',
+        'schedule': crontab(hour=2, minute=0, day_of_week='sunday'),
+    },
+    # Weekly Saturday midnight IST — satellite tile cache
+    'refresh-bhuvan-ndvi': {
+        'task': 'apps.data_ingestion.tasks.refresh_bhuvan_ndvi',
+        'schedule': crontab(hour=0, minute=0, day_of_week='saturday'),
+    },
+    # Quarterly (1st of Jan, Apr, Jul, Oct at 3 AM IST) — groundwater
+    'sync-cgwb-groundwater': {
+        'task': 'apps.data_ingestion.tasks.sync_cgwb_groundwater',
+        'schedule': crontab(hour=3, minute=0, day_of_month=1, month_of_year='1,4,7,10'),
+    },
+}
+
 # Redis cache
 CACHES = {
     'default': {
@@ -181,6 +212,9 @@ TWILIO_WHATSAPP_NUMBER = env('TWILIO_WHATSAPP_NUMBER', default='whatsapp:+141552
 
 # OTP
 OTP_EXPIRY_MINUTES = env.int('OTP_EXPIRY_MINUTES', default=10)
+
+# Firebase Cloud Messaging
+FIREBASE_SERVICE_ACCOUNT_KEY = env('FIREBASE_SERVICE_ACCOUNT_KEY', default='')
 
 # CORS
 CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=True)
