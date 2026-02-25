@@ -181,3 +181,12 @@ TWILIO_WHATSAPP_NUMBER = env('TWILIO_WHATSAPP_NUMBER', default='whatsapp:+141552
 
 # OTP
 OTP_EXPIRY_MINUTES = env.int('OTP_EXPIRY_MINUTES', default=10)
+
+# CORS
+CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=True)
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+])
+CORS_ALLOW_CREDENTIALS = True
