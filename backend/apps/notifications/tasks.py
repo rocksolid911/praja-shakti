@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 def send_push_notification(user_id: int, title: str, message: str, data: dict = None):
     """Send push notification via Firebase Cloud Messaging."""
     from apps.notifications.models import Notification
+    from apps.notifications.firebase import send_fcm_to_user
     from django.contrib.auth import get_user_model
     User = get_user_model()
 
@@ -18,10 +19,10 @@ def send_push_notification(user_id: int, title: str, message: str, data: dict = 
         Notification.objects.create(
             user=user, channel='push', title=title, message=message, data=data,
         )
-        # FCM integration would go here
-        logger.info(f"Push notification sent to user #{user_id}: {title}")
+        sent = send_fcm_to_user(user_id, title, message, data)
+        logger.info(f"Push notification to user #{user_id}: '{title}' — {sent} device(s) reached")
     except Exception as e:
-        logger.error(f"Push notification failed: {e}")
+        logger.error(f"Push notification failed for user #{user_id}: {e}")
 
 
 @shared_task
