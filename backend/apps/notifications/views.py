@@ -3,6 +3,7 @@ import hmac
 import logging
 
 from django.conf import settings
+from django.http import HttpResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -58,13 +59,14 @@ def whatsapp_webhook(request):
         media_type=media_type,
     )
 
-    # Return TwiML response
+    # Return raw TwiML XML — must use HttpResponse not DRF Response,
+    # otherwise DRF JSON-encodes the string and Twilio can't parse it.
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Message>{response_text}</Message>
 </Response>"""
 
-    return Response(twiml, content_type='text/xml')
+    return HttpResponse(twiml, content_type='text/xml')
 
 
 @api_view(['POST'])
