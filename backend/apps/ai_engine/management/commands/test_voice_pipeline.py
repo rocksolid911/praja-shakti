@@ -30,11 +30,11 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--voice', default='Rishi',
-            help='macOS say voice (try: Rishi for Indian English, default works too)'
+            help='macOS say voice (Rishi is Indian-accented English; for real Hindi use --audio-file)'
         )
         parser.add_argument(
-            '--language', default='en-IN',
-            help='Transcribe language code (en-IN, hi-IN). Use en-IN for English test audio.'
+            '--language', default='hi-IN',
+            help='Transcribe language code (hi-IN, en-IN, or-IN, etc.)'
         )
         parser.add_argument(
             '--s3-key', default=None,
