@@ -9,11 +9,12 @@ class GramSabhaSession {
   final String title;
   final DateTime scheduledAt;
   final bool isActive;
+  final String transcript;
   final List<GramSabhaIssue> issues;
 
   GramSabhaSession({
     required this.id, required this.title, required this.scheduledAt,
-    required this.isActive, required this.issues,
+    required this.isActive, this.transcript = '', required this.issues,
   });
 
   factory GramSabhaSession.fromJson(Map<String, dynamic> json) => GramSabhaSession(
@@ -21,6 +22,7 @@ class GramSabhaSession {
     title: json['title'] ?? '',
     scheduledAt: DateTime.tryParse(json['scheduled_at'] ?? '') ?? DateTime.now(),
     isActive: json['is_active'] ?? false,
+    transcript: json['transcript'] ?? '',
     issues: (json['issues'] as List? ?? []).map((i) => GramSabhaIssue.fromJson(i)).toList(),
   );
 }

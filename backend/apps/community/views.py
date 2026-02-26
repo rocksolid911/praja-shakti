@@ -88,7 +88,13 @@ class GramSabhaSessionViewSet(viewsets.ModelViewSet):
         session.is_active = False
         session.save()
         # Trigger AI summary generation (async)
-        return Response({'status': 'session ended'})
+        try:
+            from apps.ai_engine.tasks import generate_gram_sabha_summary
+            generate_gram_sabha_summary.delay(session.id)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Could not queue Gram Sabha summary task: {e}")
+        return Response({'status': 'session ended, summary generating...'})
 
 
 class GramSabhaIssueViewSet(viewsets.ModelViewSet):

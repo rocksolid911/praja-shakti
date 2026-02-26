@@ -252,3 +252,29 @@ def generate_project_recommendation(cluster_id: int):
         logger.info(f"Generated recommendation for cluster #{cluster_id}: {project.title}")
     except Exception as e:
         logger.error(f"Recommendation generation failed for cluster #{cluster_id}: {e}")
+
+
+@shared_task
+def generate_gram_sabha_summary(session_id: int):
+    """Generate AI summary for a completed Gram Sabha session."""
+    from apps.community.models import GramSabhaSession, GramSabhaIssue
+    from .bedrock_client import call_bedrock_claude
+
+    try:
+        session = GramSabhaSession.objects.select_related('village').get(id=session_id)
+        issues = GramSabhaIssue.objects.filter(session=session).order_by('-vote_count')
+        issue_list = "\n".join(f"- {i.title} ({i.vote_count} votes)" for i in issues)
+
+        if not issue_list:
+            issue_list = "(No issues recorded)"
+
+        prompt = f"""Gram Sabha session "{session.title}" for {session.village.name}.
+Issues raised:\n{issue_list}\n\nWrite a concise Hindi+English meeting summary
+(3-5 bullet points) suitable for official records. Focus on top-voted issues."""
+
+        summary = call_bedrock_claude(prompt, max_tokens=500)
+        session.transcript = summary
+        session.save(update_fields=['transcript'])
+        logger.info(f"Gram Sabha summary generated for session #{session_id}")
+    except Exception as e:
+        logger.error(f"Gram Sabha summary failed for session #{session_id}: {e}")

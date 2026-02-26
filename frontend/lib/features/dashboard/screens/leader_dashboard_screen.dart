@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import '../../../core/api/api_client.dart';
+import '../../../core/models/project.dart';
 
 class LeaderDashboardScreen extends StatelessWidget {
   const LeaderDashboardScreen({super.key});
@@ -41,7 +43,12 @@ class _DashboardView extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<DashboardCubit, DashboardState>(
+      body: BlocConsumer<DashboardCubit, DashboardState>(
+        listener: (context, state) {
+          if (state is DashboardLoaded && state.lastAdoptedProject != null) {
+            _showProposalDialog(context, state.lastAdoptedProject!);
+          }
+        },
         builder: (context, state) {
           if (state is DashboardLoading) return const Center(child: CircularProgressIndicator());
           if (state is DashboardError) {
@@ -129,6 +136,73 @@ class _DashboardView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showProposalDialog(BuildContext context, Project project) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.description, color: Colors.green),
+              SizedBox(width: 8),
+              Text('Proposal Ready!'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(project.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              if (project.fundPlans.isNotEmpty) ...[
+                Text('Total Cost: ₹${_formatCostStatic(project.estimatedCostInr)}'),
+                ...project.fundPlans.take(1).map((fp) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Subsidy: ${fp.savingsPct.toStringAsFixed(0)}% savings'),
+                    ...fp.schemesUsed.take(2).map((s) => Text(
+                      '• ${s.schemeName}: ₹${_formatCostStatic(s.amountInr)}',
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    )),
+                  ],
+                )),
+              ],
+              const SizedBox(height: 8),
+              if (project.proposalDownloadUrl != null)
+                const Text('PDF proposal generated and ready to download.',
+                    style: TextStyle(color: Colors.grey, fontSize: 13))
+              else
+                const Text('Proposal is being generated...',
+                    style: TextStyle(color: Colors.grey, fontSize: 13)),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+            if (project.proposalDownloadUrl != null)
+              ElevatedButton.icon(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  final uri = Uri.parse(project.proposalDownloadUrl!);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+                icon: const Icon(Icons.download),
+                label: const Text('Download PDF'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
+  static String _formatCostStatic(int cost) {
+    if (cost >= 100000) return '${(cost / 100000).toStringAsFixed(1)}L';
+    if (cost >= 1000) return '${(cost / 1000).toStringAsFixed(0)}K';
+    return '$cost';
   }
 
   void _showAdoptDialog(BuildContext context, PriorityCluster cluster) {

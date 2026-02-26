@@ -92,7 +92,7 @@ class GramSabhaSessionSerializer(serializers.ModelSerializer):
         model = GramSabhaSession
         fields = [
             'id', 'village', 'village_name', 'title', 'scheduled_at',
-            'is_active', 'created_by', 'issue_count', 'created_at',
+            'is_active', 'transcript', 'created_by', 'issue_count', 'created_at',
         ]
         read_only_fields = ['id', 'created_by', 'created_at']
 

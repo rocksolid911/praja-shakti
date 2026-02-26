@@ -19,6 +19,9 @@ class Project {
   final DateTime? completedAt;
   final DateTime createdAt;
   final List<FundPlan> fundPlans;
+  final String? proposalDownloadUrl;
+  final double? lat;
+  final double? lng;
 
   Project({
     required this.id, this.clusterId, required this.villageId,
@@ -29,6 +32,7 @@ class Project {
     this.avgCitizenRating, this.adoptedAt, this.startedAt,
     this.expectedCompletion, this.completedAt, required this.createdAt,
     this.fundPlans = const [],
+    this.proposalDownloadUrl, this.lat, this.lng,
   });
 
   factory Project.fromJson(Map<String, dynamic> json) => Project(
@@ -48,6 +52,9 @@ class Project {
     completedAt: json['completed_at'] != null ? DateTime.parse(json['completed_at']) : null,
     createdAt: DateTime.parse(json['created_at']),
     fundPlans: (json['fund_plans'] as List?)?.map((e) => FundPlan.fromJson(e)).toList() ?? [],
+    proposalDownloadUrl: json['proposal_download_url'],
+    lat: json['lat']?.toDouble(),
+    lng: json['lng']?.toDouble(),
   );
 }
 
