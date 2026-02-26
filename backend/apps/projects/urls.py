@@ -6,8 +6,9 @@ router = DefaultRouter()
 router.register(r'projects', views.ProjectViewSet, basename='project')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # Custom paths must come BEFORE the router so they aren't swallowed by <pk> patterns
     path('projects/adopt/', views.adopt_project, name='project-adopt'),
     path('dashboard/summary/', views.dashboard_summary, name='dashboard-summary'),
     path('dashboard/fund-status/', views.dashboard_fund_status, name='dashboard-fund-status'),
+    path('', include(router.urls)),
 ]
