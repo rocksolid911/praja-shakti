@@ -77,6 +77,11 @@ def _get_or_create_whatsapp_user(phone: str):
         User.objects.filter(phone=normalized).first()
     )
     if user:
+        # Existing user with no panchayat — assign one so they can file reports
+        if not user.panchayat:
+            user.panchayat = Panchayat.objects.first()
+            user.ward = user.ward or 1
+            user.save(update_fields=['panchayat', 'ward'])
         return user
 
     # New user — assign to first available panchayat so they can file reports
