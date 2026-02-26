@@ -55,16 +55,46 @@ Commands:
 Aapki awaaz sunai jayegi!"""
 
 
+def _normalize_phone(phone: str) -> str:
+    """Strip country code prefix so +919078277159 and 9078277159 match the same user."""
+    # Remove leading + and country code 91 for India
+    if phone.startswith('+91'):
+        return phone[3:]
+    if phone.startswith('91') and len(phone) == 12:
+        return phone[2:]
+    return phone
+
+
+def _get_or_create_whatsapp_user(phone: str):
+    """Find user by normalized phone, or create one assigned to the demo panchayat."""
+    from apps.geo_intelligence.models import Panchayat
+
+    normalized = _normalize_phone(phone)
+
+    # Try exact match first, then normalized
+    user = (
+        User.objects.filter(phone=phone).first() or
+        User.objects.filter(phone=normalized).first()
+    )
+    if user:
+        return user
+
+    # New user — assign to first available panchayat so they can file reports
+    panchayat = Panchayat.objects.first()
+    user = User.objects.create_user(
+        username=normalized,
+        phone=normalized,
+        role='citizen',
+        panchayat=panchayat,
+        ward=1,
+    )
+    return user
+
+
 def handle_whatsapp_message(phone: str, body: str, media_url: str = '', media_type: str = '') -> str:
     """Process incoming WhatsApp message and return response text."""
 
-    # Check if user exists
-    try:
-        user = User.objects.get(phone=phone)
-    except User.DoesNotExist:
-        user = User.objects.create_user(
-            username=phone, phone=phone, role='citizen',
-        )
+    user = _get_or_create_whatsapp_user(phone)
 
     body_lower = body.strip().lower()
 
@@ -102,11 +132,13 @@ def handle_whatsapp_message(phone: str, body: str, media_url: str = '', media_ty
 def handle_voice_note(user, media_url: str) -> str:
     """Process voice note — create report and trigger transcription."""
     from apps.community.models import Report
+    from apps.geo_intelligence.models import Village
 
     village = None
     if user.panchayat:
         village = user.panchayat.villages.first()
-
+    if not village:
+        village = Village.objects.first()  # fallback to demo village
     if not village:
         return "Pehle apna gaon set karein. Admin se sampark karein."
 
@@ -190,11 +222,13 @@ def handle_scheme_query(user, query: str) -> str:
 def handle_text_report(user, text: str) -> str:
     """Create a text-based report."""
     from apps.community.models import Report
+    from apps.geo_intelligence.models import Village
 
     village = None
     if user.panchayat:
         village = user.panchayat.villages.first()
-
+    if not village:
+        village = Village.objects.first()  # fallback to demo village
     if not village:
         return "Pehle apna gaon set karein. Admin se sampark karein."
 
