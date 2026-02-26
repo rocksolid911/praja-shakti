@@ -52,7 +52,7 @@ class Report(models.Model):
         on_delete=models.SET_NULL, related_name='reports',
     )
     ai_confidence = models.FloatField(null=True, blank=True)
-    embedding = VectorField(dimensions=1536, null=True, blank=True)
+    embedding = VectorField(dimensions=1024, null=True, blank=True)
     is_gram_sabha = models.BooleanField(default=False)
     transcribe_job_id = models.CharField(max_length=200, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

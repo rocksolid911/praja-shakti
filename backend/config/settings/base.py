@@ -197,8 +197,8 @@ AWS_S3_REPORTS_BUCKET = 'prajashakti-reports'
 AWS_S3_AUDIO_BUCKET = 'prajashakti-audio'
 
 # Bedrock
-BEDROCK_MODEL_ID = env('BEDROCK_MODEL_ID', default='claude-sonnet-4-6')
-BEDROCK_EMBEDDING_MODEL_ID = env('BEDROCK_EMBEDDING_MODEL_ID', default='amazon.titan-embed-text-v1')
+BEDROCK_MODEL_ID = env('BEDROCK_MODEL_ID', default='global.anthropic.claude-sonnet-4-6')
+BEDROCK_EMBEDDING_MODEL_ID = env('BEDROCK_EMBEDDING_MODEL_ID', default='amazon.titan-embed-text-v2:0')
 
 # External APIs
 GOOGLE_MAPS_API_KEY = env('GOOGLE_MAPS_API_KEY', default='')
