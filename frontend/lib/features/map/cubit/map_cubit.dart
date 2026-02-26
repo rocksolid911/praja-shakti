@@ -21,12 +21,17 @@ class MapCubit extends Cubit<MapState> {
         _api.get('/reports/clusters/', queryParameters: {'village': villageId}),
         _api.get('/projects/', queryParameters: {'village': villageId}),
         _api.get('/geo/villages/$villageId/'),
+        _api.get('/map/layers/', queryParameters: {
+          'village': villageId,
+          'layers': 'infra,heatmap,demographics,fund_status',
+        }),
       ]);
 
       final reportsData = results[0].data;
       final clustersData = results[1].data;
       final projectsData = results[2].data;
       final villageData = results[3].data;
+      final layersData = results[4].data as Map<String, dynamic>? ?? {};
 
       final reports = ((reportsData is Map ? reportsData['results'] : reportsData) as List? ?? [])
           .map((r) => Report.fromJson(r)).toList();
@@ -36,11 +41,45 @@ class MapCubit extends Cubit<MapState> {
           .map((p) => Project.fromJson(p)).toList();
       final village = Village.fromJson(villageData);
 
+      // Parse infrastructure layer
+      final infraFeatures = (layersData['infrastructure']?['features'] as List? ?? []);
+      final infrastructure = infraFeatures.map((f) {
+        final props = f['properties'] as Map<String, dynamic>? ?? {};
+        final coords = (f['geometry']?['coordinates'] as List?) ?? [];
+        return <String, dynamic>{
+          'type': props['infra_type'] ?? '',
+          'name': props['name'] ?? '',
+          'lat': coords.length >= 2 ? (coords[1] as num).toDouble() : 0.0,
+          'lng': coords.length >= 2 ? (coords[0] as num).toDouble() : 0.0,
+        };
+      }).where((i) => i['lat'] != 0.0).toList();
+
+      // Parse heatmap layer
+      final heatFeatures = (layersData['heatmap']?['features'] as List? ?? []);
+      final heatmapPoints = heatFeatures.map((f) {
+        final props = f['properties'] as Map<String, dynamic>? ?? {};
+        final coords = (f['geometry']?['coordinates'] as List?) ?? [];
+        return <String, dynamic>{
+          'lat': coords.length >= 2 ? (coords[1] as num).toDouble() : 0.0,
+          'lng': coords.length >= 2 ? (coords[0] as num).toDouble() : 0.0,
+          'weight': ((props['weight'] ?? 0) as num).toDouble() / 100.0,
+          'category': props['category'] ?? '',
+        };
+      }).where((h) => h['lat'] != 0.0).toList();
+
+      // Parse demographics and fund status
+      final demographics = (layersData['demographics'] as Map<String, dynamic>?) ?? {};
+      final fundStatus = (layersData['fund_status'] as Map<String, dynamic>?) ?? {};
+
       emit(MapLoaded(
         selectedVillage: village,
         reports: reports,
         clusters: clusters,
         projects: projects,
+        infrastructure: infrastructure,
+        heatmapPoints: heatmapPoints,
+        demographics: demographics,
+        fundStatus: fundStatus,
         showReports: true,
         showProjects: true,
       ));
