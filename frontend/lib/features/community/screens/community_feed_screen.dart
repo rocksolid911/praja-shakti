@@ -110,31 +110,34 @@ class _FeedView extends StatelessWidget {
                       ),
                     );
                   }
-                  return NotificationListener<ScrollNotification>(
-                    onNotification: (n) {
-                      if (n.metrics.pixels >= n.metrics.maxScrollExtent - 100) {
-                        context.read<CommunityCubit>().loadMore();
-                      }
-                      return false;
-                    },
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: state.reports.length + (state.hasMore ? 1 : 0),
-                      itemBuilder: (context, i) {
-                        if (i == state.reports.length) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(16),
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
+                  return RefreshIndicator(
+                    onRefresh: () => context.read<CommunityCubit>().loadReports(),
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (n) {
+                        if (n.metrics.pixels >= n.metrics.maxScrollExtent - 100) {
+                          context.read<CommunityCubit>().loadMore();
                         }
-                        return ReportCard(
-                          report: state.reports[i],
-                          onVote: () => context.read<CommunityCubit>().vote(state.reports[i].id),
-                          onTap: () => context.push('/report/${state.reports[i].id}'),
-                        );
+                        return false;
                       },
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: state.reports.length + (state.hasMore ? 1 : 0),
+                        itemBuilder: (context, i) {
+                          if (i == state.reports.length) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+                          return ReportCard(
+                            report: state.reports[i],
+                            onVote: () => context.read<CommunityCubit>().vote(state.reports[i].id),
+                            onTap: () => context.push('/report/${state.reports[i].id}'),
+                          );
+                        },
+                      ),
                     ),
                   );
                 }
