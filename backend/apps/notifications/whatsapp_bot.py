@@ -129,8 +129,91 @@ def handle_whatsapp_message(phone: str, body: str, media_url: str = '', media_ty
     return handle_text_report(user, body)
 
 
+def _run_transcription_pipeline(report_id: int, s3_key: str):
+    """Run full transcription → categorization pipeline in a background thread."""
+    import time
+    import json
+    import boto3
+    from django.conf import settings
+
+    try:
+        from apps.community.models import Report
+        from apps.ai_engine.bedrock_client import call_bedrock_claude
+
+        # Start AWS Transcribe job
+        client = boto3.client('transcribe', region_name=settings.AWS_REGION)
+        job_name = f'prajashakti-wa-{report_id}-{uuid4().hex[:8]}'
+        ext = s3_key.rsplit('.', 1)[-1].lower() if '.' in s3_key else 'ogg'
+        media_format = ext if ext in ['wav', 'mp3', 'ogg', 'flac', 'mp4', 'm4a'] else 'ogg'
+
+        client.start_transcription_job(
+            TranscriptionJobName=job_name,
+            Media={'MediaFileUri': f's3://{settings.AWS_S3_AUDIO_BUCKET}/{s3_key}'},
+            MediaFormat=media_format,
+            LanguageCode='hi-IN',
+        )
+
+        # Poll until complete (max 2 minutes)
+        for _ in range(12):
+            time.sleep(10)
+            job = client.get_transcription_job(TranscriptionJobName=job_name)
+            status = job['TranscriptionJob']['TranscriptionJobStatus']
+            if status == 'COMPLETED':
+                uri = job['TranscriptionJob']['Transcript']['TranscriptFileUri']
+                resp = requests.get(uri)
+                text = resp.json()['results']['transcripts'][0]['transcript']
+                break
+            elif status == 'FAILED':
+                logger.error(f"Transcription failed for report #{report_id}")
+                return
+        else:
+            logger.error(f"Transcription timed out for report #{report_id}")
+            return
+
+        # Update report with transcript
+        report = Report.objects.get(id=report_id)
+        report.description_hindi = text
+        report.save(update_fields=['description_hindi'])
+
+        # Categorize with Bedrock Claude
+        prompt = f"""You are analyzing rural Indian citizen reports. Categorize this report.
+
+Report text: "{text}"
+
+Respond ONLY with valid JSON:
+{{
+  "category": "<water|road|health|education|electricity|sanitation|other>",
+  "sub_category": "<specific issue in 3-5 words>",
+  "urgency": "<low|medium|high|critical>",
+  "confidence": <0.0-1.0>,
+  "english_summary": "<1 sentence English summary>"
+}}"""
+
+        response_text = call_bedrock_claude(prompt, max_tokens=300)
+        # Strip markdown if present
+        if '```' in response_text:
+            response_text = response_text.split('```')[1]
+            if response_text.startswith('json'):
+                response_text = response_text[4:]
+        result = json.loads(response_text.strip())
+
+        report.refresh_from_db()
+        report.category = result.get('category', 'other')
+        report.sub_category = result.get('sub_category', '')
+        report.urgency = result.get('urgency', 'medium')
+        report.ai_confidence = result.get('confidence', 0.5)
+        report.description_text = result.get('english_summary', text)
+        report.save()
+
+        logger.info(f"Report #{report_id} transcribed and categorized as {report.category}")
+
+    except Exception as e:
+        logger.error(f"Transcription pipeline failed for report #{report_id}: {e}")
+
+
 def handle_voice_note(user, media_url: str) -> str:
-    """Process voice note — create report and trigger transcription."""
+    """Process voice note — create report and trigger transcription in background."""
+    import threading
     from apps.community.models import Report
     from apps.geo_intelligence.models import Village
 
@@ -142,27 +225,32 @@ def handle_voice_note(user, media_url: str) -> str:
     if not village:
         return "Pehle apna gaon set karein. Admin se sampark karein."
 
+    # Use village centroid as default location (WhatsApp voice notes have no GPS)
+    location = village.location
+
     report = Report.objects.create(
         reporter=user,
         village=village,
         description_text='[Voice note - transcription pending]',
-        audio_s3_key='pending',  # will be updated after S3 upload
-        ward=user.ward,
+        audio_s3_key='pending',
+        ward=user.ward or 1,
+        location=location,
     )
 
-    # Download from Twilio and upload to S3 (Twilio URLs expire in 24h)
+    # Download from Twilio → upload to S3 (Twilio URLs expire in 24h)
     s3_key = _download_media_to_s3(media_url, report.id)
     report.audio_s3_key = s3_key
     report.save(update_fields=['audio_s3_key'])
 
-    # Trigger async transcription with the S3 key
-    try:
-        from apps.ai_engine.tasks import transcribe_voice_note
-        transcribe_voice_note.delay(report.id, s3_key)
-    except Exception:
-        pass
+    # Run transcription + categorization in background thread (no Celery worker needed)
+    thread = threading.Thread(
+        target=_run_transcription_pipeline,
+        args=(report.id, s3_key),
+        daemon=True,
+    )
+    thread.start()
 
-    return f"Report #{report.id} darj ho gaya! AI transcription jaari hai. {report.village.name} ke log ab ise upvote kar sakte hain."
+    return f"Report #{report.id} darj ho gaya! AI transcription jaari hai (~30 sec). {village.name} ke log ab ise upvote kar sakte hain."
 
 
 def handle_status_query(user) -> str:
@@ -237,7 +325,8 @@ def handle_text_report(user, text: str) -> str:
         village=village,
         description_text=text,
         description_hindi=text,
-        ward=user.ward,
+        ward=user.ward or 1,
+        location=village.location,
     )
 
     # Trigger categorization
