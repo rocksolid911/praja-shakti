@@ -39,6 +39,7 @@ class VillageSerializer(serializers.ModelSerializer):
     panchayat_name = serializers.CharField(source='panchayat.name', read_only=True)
     district_name = serializers.SerializerMethodField()
     state_name = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
 
     class Meta:
         model = Village
@@ -54,6 +55,11 @@ class VillageSerializer(serializers.ModelSerializer):
 
     def get_state_name(self, obj):
         return obj.panchayat.block.district.state.name
+
+    def get_location(self, obj):
+        if obj.location:
+            return {'type': 'Point', 'coordinates': [obj.location.x, obj.location.y]}
+        return None
 
 
 class VillageGeoJSONSerializer(serializers.ModelSerializer):
