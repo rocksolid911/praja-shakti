@@ -17,7 +17,7 @@ class ApiClient {
 
   ApiClient({String? baseUrl}) : baseUrl = baseUrl ?? _defaultBaseUrl {
     dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
+      baseUrl: this.baseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 30),
       headers: {'Content-Type': 'application/json'},

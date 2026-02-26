@@ -20,7 +20,7 @@ class MapCubit extends Cubit<MapState> {
         _api.get('/reports/', queryParameters: {'village': villageId, 'page_size': 100}),
         _api.get('/reports/clusters/', queryParameters: {'village': villageId}),
         _api.get('/projects/', queryParameters: {'village': villageId}),
-        _api.get('/geo/villages/$villageId/'),
+        _api.get('/villages/$villageId/'),
         _api.get('/map/layers/', queryParameters: {
           'village': villageId,
           'layers': 'infra,heatmap,demographics,fund_status',

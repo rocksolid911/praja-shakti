@@ -84,7 +84,6 @@ class _MapView extends StatelessWidget {
                   format: 'image/png',
                   version: '1.1.1',
                 ),
-                opacity: 0.6,
               ),
             // Layer 1: Report markers
             if (state.showReports)
