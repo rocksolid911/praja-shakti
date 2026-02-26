@@ -14,13 +14,22 @@ logger = logging.getLogger(__name__)
 
 def verify_twilio_signature(request):
     """Verify that the request came from Twilio."""
+    if settings.DEBUG:
+        return True  # Skip in development — Twilio can't sign local/ngrok requests
+
     if not settings.TWILIO_AUTH_TOKEN:
-        return True  # Skip verification in dev
+        return True
 
     try:
         from twilio.request_validator import RequestValidator
         validator = RequestValidator(settings.TWILIO_AUTH_TOKEN)
+
+        # Build the URL Twilio actually called — ngrok uses https but Django
+        # may reconstruct http:// without SECURE_PROXY_SSL_HEADER set.
         url = request.build_absolute_uri()
+        if request.META.get('HTTP_X_FORWARDED_PROTO') == 'https':
+            url = url.replace('http://', 'https://', 1)
+
         signature = request.META.get('HTTP_X_TWILIO_SIGNATURE', '')
         return validator.validate(url, request.data, signature)
     except ImportError:
