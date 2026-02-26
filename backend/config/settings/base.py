@@ -185,7 +185,7 @@ CACHES = {
 }
 
 # AWS Configuration
-AWS_REGION = env('AWS_REGION', default='ap-south-1')
+AWS_REGION = env('AWS_REGION', default='us-east-1')
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
 
