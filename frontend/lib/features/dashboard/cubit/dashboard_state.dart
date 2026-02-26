@@ -64,6 +64,7 @@ class DashboardLoaded extends DashboardState {
   final List<FundStatus> fundStatus;
   final int totalReports;
   final int completedProjects;
+  final Project? lastAdoptedProject;
 
   DashboardLoaded({
     required this.priorities,
@@ -71,7 +72,26 @@ class DashboardLoaded extends DashboardState {
     required this.fundStatus,
     required this.totalReports,
     required this.completedProjects,
+    this.lastAdoptedProject,
   });
+
+  DashboardLoaded copyWith({
+    List<PriorityCluster>? priorities,
+    List<Project>? activeProjects,
+    List<FundStatus>? fundStatus,
+    int? totalReports,
+    int? completedProjects,
+    Project? lastAdoptedProject,
+  }) {
+    return DashboardLoaded(
+      priorities: priorities ?? this.priorities,
+      activeProjects: activeProjects ?? this.activeProjects,
+      fundStatus: fundStatus ?? this.fundStatus,
+      totalReports: totalReports ?? this.totalReports,
+      completedProjects: completedProjects ?? this.completedProjects,
+      lastAdoptedProject: lastAdoptedProject ?? this.lastAdoptedProject,
+    );
+  }
 }
 
 class DashboardError extends DashboardState {

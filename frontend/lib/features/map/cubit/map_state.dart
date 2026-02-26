@@ -52,6 +52,11 @@ class MapLoaded extends MapState {
   final List<Report> reports;
   final List<ReportCluster> clusters;
   final List<Project> projects;
+  // Layer data
+  final List<Map<String, dynamic>> infrastructure;   // [{infra_type, name, lat, lng}]
+  final List<Map<String, dynamic>> heatmapPoints;    // [{lat, lng, weight, category}]
+  final Map<String, dynamic> demographics;            // {population, households, ...}
+  final Map<String, dynamic> fundStatus;              // {fund_available_inr, panchayat_name}
   // Layer toggles
   final bool showReports;
   final bool showSatellite;
@@ -66,6 +71,10 @@ class MapLoaded extends MapState {
     this.reports = const [],
     this.clusters = const [],
     this.projects = const [],
+    this.infrastructure = const [],
+    this.heatmapPoints = const [],
+    this.demographics = const {},
+    this.fundStatus = const {},
     this.showReports = true,
     this.showSatellite = false,
     this.showInfrastructure = false,
@@ -80,6 +89,10 @@ class MapLoaded extends MapState {
     List<Report>? reports,
     List<ReportCluster>? clusters,
     List<Project>? projects,
+    List<Map<String, dynamic>>? infrastructure,
+    List<Map<String, dynamic>>? heatmapPoints,
+    Map<String, dynamic>? demographics,
+    Map<String, dynamic>? fundStatus,
     bool? showReports,
     bool? showSatellite,
     bool? showInfrastructure,
@@ -93,6 +106,10 @@ class MapLoaded extends MapState {
       reports: reports ?? this.reports,
       clusters: clusters ?? this.clusters,
       projects: projects ?? this.projects,
+      infrastructure: infrastructure ?? this.infrastructure,
+      heatmapPoints: heatmapPoints ?? this.heatmapPoints,
+      demographics: demographics ?? this.demographics,
+      fundStatus: fundStatus ?? this.fundStatus,
       showReports: showReports ?? this.showReports,
       showSatellite: showSatellite ?? this.showSatellite,
       showInfrastructure: showInfrastructure ?? this.showInfrastructure,

@@ -39,11 +39,24 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   Future<void> adoptProject(int clusterId, int recommendationIndex) async {
     try {
-      await _api.post('/projects/adopt/', data: {
+      final resp = await _api.post('/projects/adopt/', data: {
         'cluster_id': clusterId,
         'recommendation_index': recommendationIndex,
       });
+      // Parse the adopted project from response and surface it for the UI
+      Project? adoptedProject;
+      try {
+        if (resp.data is Map && resp.data['id'] != null) {
+          adoptedProject = Project.fromJson(resp.data as Map<String, dynamic>);
+        }
+      } catch (_) {}
+
       await loadDashboard();
+
+      // After reload, if we parsed a project, re-emit state with lastAdoptedProject
+      if (adoptedProject != null && state is DashboardLoaded) {
+        emit((state as DashboardLoaded).copyWith(lastAdoptedProject: adoptedProject));
+      }
     } catch (e) {
       emit(DashboardError('Failed to adopt project'));
     }

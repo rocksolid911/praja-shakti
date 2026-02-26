@@ -48,4 +48,13 @@ class GramSabhaCubit extends Cubit<GramSabhaState> {
       emit(GramSabhaError('Failed to vote'));
     }
   }
+
+  Future<void> endSession(int sessionId, int villageId) async {
+    try {
+      await _api.post('/gramsabha/$sessionId/end/', data: {});
+      await loadSessions(villageId: villageId);
+    } catch (e) {
+      emit(GramSabhaError('Failed to end session'));
+    }
+  }
 }
