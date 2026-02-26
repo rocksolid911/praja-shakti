@@ -5,6 +5,7 @@ import '../cubit/community_cubit.dart';
 import '../cubit/community_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/report.dart';
+import '../../../core/utils/responsive.dart';
 
 class CommunityFeedScreen extends StatelessWidget {
   const CommunityFeedScreen({super.key});
@@ -74,86 +75,129 @@ class _FeedView extends StatelessWidget {
               },
             ),
           ),
-          // Feed
+          // Feed — responsive columns via LayoutBuilder
           Expanded(
-            child: BlocBuilder<CommunityCubit, CommunityState>(
-              builder: (context, state) {
-                if (state is CommunityLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state is CommunityError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                        const SizedBox(height: 8),
-                        Text(state.message),
-                        TextButton(
-                          onPressed: () => context.read<CommunityCubit>().loadReports(),
-                          child: const Text('Retry'),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final columns = constraints.maxWidth >= kTabletBreakpoint
+                    ? 3
+                    : constraints.maxWidth >= kMobileBreakpoint
+                        ? 2
+                        : 1;
+                return BlocBuilder<CommunityCubit, CommunityState>(
+                  builder: (context, state) {
+                    if (state is CommunityLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state is CommunityError) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                            const SizedBox(height: 8),
+                            Text(state.message),
+                            TextButton(
+                              onPressed: () => context.read<CommunityCubit>().loadReports(),
+                              child: const Text('Retry'),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                }
-                if (state is CommunityLoaded) {
-                  if (state.reports.isEmpty) {
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.people_outline, size: 64, color: Colors.grey),
-                          SizedBox(height: 12),
-                          Text('कोई रिपोर्ट नहीं मिली', style: TextStyle(color: Colors.grey)),
-                        ],
-                      ),
-                    );
-                  }
-                  return RefreshIndicator(
-                    onRefresh: () => context.read<CommunityCubit>().loadReports(),
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (n) {
-                        if (n.metrics.pixels >= n.metrics.maxScrollExtent - 100) {
-                          context.read<CommunityCubit>().loadMore();
-                        }
-                        return false;
-                      },
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemCount: state.reports.length + (state.hasMore ? 1 : 0),
-                        itemBuilder: (context, i) {
-                          if (i == state.reports.length) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16),
-                                child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (state is CommunityLoaded) {
+                      if (state.reports.isEmpty) {
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                              SizedBox(height: 12),
+                              Text('कोई रिपोर्ट नहीं मिली', style: TextStyle(color: Colors.grey)),
+                            ],
+                          ),
+                        );
+                      }
+                      final rowCount = (state.reports.length / columns).ceil();
+                      return RefreshIndicator(
+                        onRefresh: () => context.read<CommunityCubit>().loadReports(),
+                        child: Scrollbar(
+                          thumbVisibility: columns > 1,
+                          child: NotificationListener<ScrollNotification>(
+                            onNotification: (n) {
+                              if (n.metrics.pixels >= n.metrics.maxScrollExtent - 100) {
+                                context.read<CommunityCubit>().loadMore();
+                              }
+                              return false;
+                            },
+                            child: ListView.builder(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: columns > 1 ? 8 : 0,
                               ),
-                            );
-                          }
-                          return ReportCard(
-                            report: state.reports[i],
-                            onVote: () => context.read<CommunityCubit>().vote(state.reports[i].id),
-                            onTap: () => context.push('/report/${state.reports[i].id}'),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
+                              itemCount: rowCount + (state.hasMore ? 1 : 0),
+                              itemBuilder: (context, rowIdx) {
+                                if (rowIdx >= rowCount) {
+                                  return const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+                                if (columns == 1) {
+                                  final report = state.reports[rowIdx];
+                                  return ReportCard(
+                                    report: report,
+                                    onVote: () => context.read<CommunityCubit>().vote(report.id),
+                                    onTap: () => context.push('/report/${report.id}'),
+                                  );
+                                }
+                                // Multi-column row with IntrinsicHeight for equal card heights
+                                final start = rowIdx * columns;
+                                final end = (start + columns).clamp(0, state.reports.length);
+                                final rowReports = state.reports.sublist(start, end);
+                                return IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      ...rowReports.map((report) => Expanded(
+                                        child: ReportCard(
+                                          report: report,
+                                          onVote: () => context.read<CommunityCubit>().vote(report.id),
+                                          onTap: () => context.push('/report/${report.id}'),
+                                        ),
+                                      )),
+                                      // Pad incomplete last row
+                                      for (int i = rowReports.length; i < columns; i++)
+                                        const Expanded(child: SizedBox()),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                );
               },
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/report'),
-        icon: const Icon(Icons.add),
-        label: const Text('रिपोर्ट करें'),
-        backgroundColor: Colors.green.shade700,
-        foregroundColor: Colors.white,
-      ),
+      // FAB only shown on mobile — desktop has NavigationRail for navigation
+      floatingActionButton: context.isMobile
+          ? FloatingActionButton.extended(
+              onPressed: () => context.go('/report'),
+              icon: const Icon(Icons.add),
+              label: const Text('रिपोर्ट करें'),
+              backgroundColor: Colors.green.shade700,
+              foregroundColor: Colors.white,
+            )
+          : null,
     );
   }
 }

@@ -6,6 +6,7 @@ import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/project.dart';
+import '../../../core/utils/responsive.dart';
 
 class LeaderDashboardScreen extends StatelessWidget {
   const LeaderDashboardScreen({super.key});
@@ -74,68 +75,132 @@ class _DashboardView extends StatelessWidget {
   }
 
   Widget _buildDashboard(BuildContext context, DashboardLoaded state) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= kTabletBreakpoint) {
+          return _buildDesktopDashboard(context, state);
+        }
+        return _buildMobileDashboard(context, state);
+      },
+    );
+  }
+
+  Widget _buildMobileDashboard(BuildContext context, DashboardLoaded state) {
     return RefreshIndicator(
       onRefresh: () => context.read<DashboardCubit>().loadDashboard(),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Summary cards
-          Row(
-            children: [
-              Expanded(child: _SummaryCard(
-                label: 'Reports', value: '${state.totalReports}',
-                icon: Icons.report, color: Colors.red,
-              )),
-              const SizedBox(width: 10),
-              Expanded(child: _SummaryCard(
-                label: 'Active Projects', value: '${state.activeProjects.length}',
-                icon: Icons.construction, color: Colors.blue,
-              )),
-              const SizedBox(width: 10),
-              Expanded(child: _SummaryCard(
-                label: 'Priorities', value: '${state.priorities.length}',
-                icon: Icons.priority_high, color: Colors.orange,
-              )),
-            ],
-          ),
+          ..._summaryCards(state),
           const SizedBox(height: 20),
-          // Top priorities
-          if (state.priorities.isNotEmpty) ...[
-            const _SectionHeader(title: 'AI Priority Ranking', subtitle: 'Issues needing immediate attention'),
-            const SizedBox(height: 10),
-            ...state.priorities.take(5).toList().asMap().entries.map((e) =>
-              _PriorityCard(
-                rank: e.key + 1,
-                cluster: e.value,
-                onAdopt: () => _showAdoptDialog(context, e.value),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
-          // Active projects
-          if (state.activeProjects.isNotEmpty) ...[
-            const _SectionHeader(title: 'Active Projects', subtitle: 'Currently in progress'),
-            const SizedBox(height: 10),
-            ...state.activeProjects.map((p) => _ActiveProjectTile(project: p,
-              onTap: () => context.push('/project/${p.id}'))),
-            const SizedBox(height: 20),
-          ],
-          // Fund utilization
-          if (state.fundStatus.isNotEmpty) ...[
-            const _SectionHeader(title: 'Fund Utilization', subtitle: 'Budget tracking by category'),
-            const SizedBox(height: 10),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: state.fundStatus.map((f) => _FundBar(fund: f)).toList(),
-                ),
-              ),
-            ),
-          ],
+          ..._prioritySection(context, state),
+          ..._activeProjectsSection(context, state),
+          ..._fundSection(state),
         ],
       ),
     );
+  }
+
+  Widget _buildDesktopDashboard(BuildContext context, DashboardLoaded state) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Left column: summary + priority ranking
+        Expanded(
+          child: Scrollbar(
+            thumbVisibility: true,
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                ..._summaryCards(state),
+                const SizedBox(height: 24),
+                ..._prioritySection(context, state),
+              ],
+            ),
+          ),
+        ),
+        const VerticalDivider(thickness: 1, width: 1),
+        // Right column: active projects + fund utilization
+        Expanded(
+          child: Scrollbar(
+            thumbVisibility: true,
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                ..._activeProjectsSection(context, state),
+                ..._fundSection(state),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _summaryCards(DashboardLoaded state) => [
+    Row(
+      children: [
+        Expanded(child: _SummaryCard(
+          label: 'Reports', value: '${state.totalReports}',
+          icon: Icons.report, color: Colors.red,
+        )),
+        const SizedBox(width: 10),
+        Expanded(child: _SummaryCard(
+          label: 'Active Projects', value: '${state.activeProjects.length}',
+          icon: Icons.construction, color: Colors.blue,
+        )),
+        const SizedBox(width: 10),
+        Expanded(child: _SummaryCard(
+          label: 'Priorities', value: '${state.priorities.length}',
+          icon: Icons.priority_high, color: Colors.orange,
+        )),
+      ],
+    ),
+  ];
+
+  List<Widget> _prioritySection(BuildContext context, DashboardLoaded state) {
+    if (state.priorities.isEmpty) return [];
+    return [
+      const _SectionHeader(title: 'AI Priority Ranking', subtitle: 'Issues needing immediate attention'),
+      const SizedBox(height: 10),
+      ...state.priorities.take(5).toList().asMap().entries.map((e) =>
+        _PriorityCard(
+          rank: e.key + 1,
+          cluster: e.value,
+          onAdopt: () => _showAdoptDialog(context, e.value),
+        ),
+      ),
+      const SizedBox(height: 20),
+    ];
+  }
+
+  List<Widget> _activeProjectsSection(BuildContext context, DashboardLoaded state) {
+    if (state.activeProjects.isEmpty) return [];
+    return [
+      const _SectionHeader(title: 'Active Projects', subtitle: 'Currently in progress'),
+      const SizedBox(height: 10),
+      ...state.activeProjects.map((p) => _ActiveProjectTile(
+        project: p,
+        onTap: () => context.push('/project/${p.id}'),
+      )),
+      const SizedBox(height: 20),
+    ];
+  }
+
+  List<Widget> _fundSection(DashboardLoaded state) {
+    if (state.fundStatus.isEmpty) return [];
+    return [
+      const _SectionHeader(title: 'Fund Utilization', subtitle: 'Budget tracking by category'),
+      const SizedBox(height: 10),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: state.fundStatus.map((f) => _FundBar(fund: f)).toList(),
+          ),
+        ),
+      ),
+    ];
   }
 
   void _showProposalDialog(BuildContext context, Project project) {
