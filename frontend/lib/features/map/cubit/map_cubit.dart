@@ -35,8 +35,25 @@ class MapCubit extends Cubit<MapState> {
 
       final reports = ((reportsData is Map ? reportsData['results'] : reportsData) as List? ?? [])
           .map((r) => Report.fromJson(r)).toList();
-      final clusters = ((clustersData is List ? clustersData : (clustersData['results'] ?? [])) as List)
-          .map((c) => ReportCluster.fromJson(c)).toList();
+
+      // Clusters endpoint returns a GeoJSON FeatureCollection
+      List<dynamic> rawClusters;
+      if (clustersData is Map && clustersData['features'] != null) {
+        rawClusters = clustersData['features'] as List;
+      } else if (clustersData is List) {
+        rawClusters = clustersData;
+      } else {
+        rawClusters = (clustersData['results'] ?? []) as List;
+      }
+      final clusters = rawClusters.map((f) {
+        if (f is Map && f['properties'] != null) {
+          final props = Map<String, dynamic>.from(f['properties'] as Map);
+          props['centroid_geojson'] = f['geometry'];
+          props['priority_score'] = props['community_priority_score'];
+          return ReportCluster.fromJson(props);
+        }
+        return ReportCluster.fromJson(f as Map<String, dynamic>);
+      }).toList();
       final projects = ((projectsData is Map ? projectsData['results'] : projectsData) as List? ?? [])
           .map((p) => Project.fromJson(p)).toList();
       final village = Village.fromJson(villageData);
