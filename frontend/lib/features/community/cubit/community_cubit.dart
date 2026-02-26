@@ -17,7 +17,7 @@ class CommunityCubit extends Cubit<CommunityState> {
     try {
       final params = <String, dynamic>{
         'village': villageId,
-        'ordering': '-vote_count',
+        'ordering': '-created_at',
         if (category != null) 'category': category,
       };
       final resp = await _api.get('/reports/', queryParameters: params);
@@ -67,7 +67,7 @@ class CommunityCubit extends Cubit<CommunityState> {
     try {
       final params = <String, dynamic>{
         'village': _villageId ?? 1,
-        'ordering': '-vote_count',
+        'ordering': '-created_at',
         'page': _page,
         if (current.activeFilter != null) 'category': current.activeFilter,
       };
