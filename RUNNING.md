@@ -133,16 +133,94 @@ celery -A config beat -l info --scheduler django_celery_beat.schedulers:Database
 
 Handles: daily mandi prices, weekly satellite refresh, groundwater sync.
 
-### Terminal 4 — Flutter App (optional)
+### Terminal 4 — Flutter Web App
+
+#### Step 1 — Install dependencies
 
 ```bash
 cd .claude/worktrees/intelligent-booth/frontend
 flutter pub get
-flutter run              # iOS/Android emulator
-flutter run -d chrome    # Web browser (leader dashboard)
 ```
 
-> Or use **VS Code** / **Android Studio** with the Flutter plugin for hot reload.
+#### Step 2 — Verify web support is enabled
+
+```bash
+flutter devices
+```
+
+You should see `Chrome (web)` in the list. If not, run once:
+
+```bash
+flutter create . --platforms web
+```
+
+This adds the `web/` directory without touching your Dart code.
+
+#### Step 3 — Run in Chrome
+
+```bash
+flutter run -d chrome
+```
+
+The app opens automatically at `http://localhost:<random-port>`.
+To use a fixed port (useful for bookmarking):
+
+```bash
+flutter run -d chrome --web-port 3000
+# Opens at http://localhost:3000
+```
+
+#### Step 4 — Log in
+
+The app shows a phone number + OTP screen.
+
+1. Enter your mobile number in **international format**: `+919078277159`
+2. Tap **Send OTP**
+3. In development, SMS is not sent — get the OTP from the Django server terminal:
+
+   ```
+   [OTP] +919078277159 → 836118   ← look for this line
+   ```
+
+   Or fetch it via curl:
+
+   ```bash
+   curl -s -X POST http://127.0.0.1:8000/api/v1/auth/otp/send/ \
+     -H "Content-Type: application/json" \
+     -d '{"phone": "+919078277159"}' | python3 -m json.tool
+   # Look for "otp_debug" in the response
+   ```
+
+4. Enter the OTP and tap **Login** → the Village Intelligence Map loads
+
+> **Important:** Always use `+91` prefix. The login screen normalises the number —
+> the OTP must be requested with the same prefix or it won't match.
+
+#### Step 5 — Hot reload during development
+
+While the app is running, press:
+
+| Key | Action |
+|---|---|
+| `r` | Hot reload (UI changes — fast) |
+| `R` | Hot restart (state changes — slower) |
+| `q` | Quit |
+
+Or in VS Code, use the Flutter extension toolbar buttons.
+
+#### Run in release mode (faster, no debug banner)
+
+```bash
+flutter run -d chrome --release
+```
+
+#### Build a static web bundle (deploy anywhere)
+
+```bash
+flutter build web --release
+# Output: build/web/  — serve with any static file server
+python3 -m http.server 8080 --directory build/web
+```
 
 ---
 
@@ -303,6 +381,35 @@ GEOS_LIBRARY_PATH=/opt/homebrew/lib/libgeos_c.dylib
 
 **Flutter `MissingPluginException` for url_launcher**
 → Run `flutter pub get` and restart the app (hot reload is insufficient for native plugins).
+
+**`flutter run -d chrome` says "This application is not configured to build on the web"**
+→ Web platform not yet added. Run once from the `frontend/` directory:
+```bash
+flutter create . --platforms web
+```
+
+**Map loads but shows India (zoom 5) instead of Tusra village**
+→ The Django server must be running (`python manage.py runserver`) before you open the app.
+If the map loaded before the API responded, press the **↻ refresh** button in the top-right
+of the map screen.
+
+**"Phone and OTP are required" error on login**
+→ Always enter the phone with `+91` prefix (e.g. `+919078277159`). If you sent the OTP
+without `+91`, send it again with the prefix — the stored OTP must match the login number.
+
+**Login works but map shows "Failed to load village data"**
+→ Django server not running or crashed. Check Terminal 1 for errors and restart:
+```bash
+python manage.py runserver
+```
+
+**`flutter pub get` fails with dependency conflicts**
+→ Run `flutter clean` then `flutter pub get`.
+
+**Chrome opens but shows a blank white page**
+→ Open DevTools (F12) → Console tab. Usually a CORS error:
+make sure `CORS_ALLOWED_ORIGINS` in `backend/.env` includes `http://localhost:3000`
+(or whatever port Flutter is using). Then restart Django.
 
 **Celery tasks not running**
 → Check that Terminal 2 (worker) is active. WhatsApp bot falls back to background threads
