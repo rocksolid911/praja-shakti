@@ -33,7 +33,7 @@ class SchemeChunk(models.Model):
     content = models.TextField()
     section_header = models.CharField(max_length=200, blank=True)
     chunk_type = models.CharField(max_length=50, choices=CHUNK_TYPES, default='general')
-    embedding = VectorField(dimensions=1536)
+    embedding = VectorField(dimensions=1024)
     token_count = models.IntegerField()
 
     class Meta:
@@ -47,7 +47,7 @@ class EligibilityRule(models.Model):
     scheme = models.ForeignKey(Scheme, on_delete=models.CASCADE, related_name='eligibility_rules')
     rule_text = models.TextField()
     rule_type = models.CharField(max_length=50)
-    embedding = VectorField(dimensions=1536)
+    embedding = VectorField(dimensions=1024)
 
     def __str__(self):
         return f"{self.scheme.short_name}: {self.rule_text[:60]}"
