@@ -89,6 +89,12 @@ class _MapView extends StatelessWidget {
             // Layer 1: Report markers
             if (state.showReports)
               MarkerLayer(markers: _buildReportMarkers(context, state.reports)),
+            // Layer 3: Infrastructure markers
+            if (state.showInfrastructure)
+              MarkerLayer(markers: _buildInfraMarkers(state.infrastructure)),
+            // Layer 4: Heatmap (gap analysis circles)
+            if (state.showHeatmap)
+              CircleLayer(circles: _buildHeatmapCircles(state.heatmapPoints)),
             // Layer 5: Project markers
             if (state.showProjects)
               MarkerLayer(markers: _buildProjectMarkers(context, state.projects)),
@@ -102,6 +108,18 @@ class _MapView extends StatelessWidget {
           top: 0, left: 0, right: 0,
           child: _VillageInfoBar(state: state),
         ),
+        // Layer 6: Fund Status overlay (top-left)
+        if (state.showFundStatus && state.fundStatus.isNotEmpty)
+          Positioned(
+            top: 100, left: 12,
+            child: _FundStatusOverlay(fundStatus: state.fundStatus),
+          ),
+        // Layer 7: Demographics overlay (bottom-left, above layer controls)
+        if (state.showDemographics && state.demographics.isNotEmpty)
+          Positioned(
+            bottom: 100, left: 12,
+            child: _DemographicsOverlay(demographics: state.demographics),
+          ),
         // Bottom layer controls
         Positioned(
           bottom: 16, left: 16, right: 16,
@@ -142,12 +160,72 @@ class _MapView extends StatelessWidget {
 
   List<Marker> _buildProjectMarkers(BuildContext context, List<Project> projects) {
     return projects
-        .where((p) => false) // Projects don't have direct lat/lng from list endpoint
+        .where((p) => p.lat != null && p.lng != null)
         .map((p) => Marker(
-              point: const LatLng(0, 0),
-              child: const Icon(Icons.construction, color: Colors.blue),
+              point: LatLng(p.lat!, p.lng!),
+              width: 36,
+              height: 36,
+              child: GestureDetector(
+                onTap: () => context.push('/project/${p.id}'),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade700,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                  ),
+                  child: const Icon(Icons.construction, size: 16, color: Colors.white),
+                ),
+              ),
             ))
         .toList();
+  }
+
+  List<Marker> _buildInfraMarkers(List<Map<String, dynamic>> infrastructure) {
+    return infrastructure.map((i) => Marker(
+      point: LatLng(i['lat'] as double, i['lng'] as double),
+      width: 28,
+      height: 28,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _infraColor(i['type'] as String),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 1.5),
+        ),
+        child: Icon(_infraIcon(i['type'] as String), size: 14, color: Colors.white),
+      ),
+    )).toList();
+  }
+
+  List<CircleMarker> _buildHeatmapCircles(List<Map<String, dynamic>> heatmapPoints) {
+    return heatmapPoints.map((h) => CircleMarker(
+      point: LatLng(h['lat'] as double, h['lng'] as double),
+      radius: 300 + ((h['weight'] as double) * 20),
+      color: Colors.deepOrange.withOpacity(((h['weight'] as double).clamp(0.0, 1.0)) * 0.4),
+      useRadiusInMeter: true,
+    )).toList();
+  }
+
+  Color _infraColor(String type) {
+    switch (type) {
+      case 'school': return Colors.purple;
+      case 'hospital': return Colors.red;
+      case 'market': return Colors.orange;
+      case 'water_source': return Colors.blue;
+      case 'road': return Colors.brown;
+      default: return Colors.grey;
+    }
+  }
+
+  IconData _infraIcon(String type) {
+    switch (type) {
+      case 'school': return Icons.school;
+      case 'hospital': return Icons.local_hospital;
+      case 'market': return Icons.store;
+      case 'water_source': return Icons.water_drop;
+      case 'road': return Icons.add_road;
+      default: return Icons.place;
+    }
   }
 
   List<CircleMarker> _buildClusterCircles(List<ReportCluster> clusters) {
@@ -194,6 +272,99 @@ class _MapView extends StatelessWidget {
       case 'sanitation': return Icons.wc;
       default: return Icons.report_problem;
     }
+  }
+}
+
+class _FundStatusOverlay extends StatelessWidget {
+  final Map<String, dynamic> fundStatus;
+  const _FundStatusOverlay({required this.fundStatus});
+
+  @override
+  Widget build(BuildContext context) {
+    final fundInr = (fundStatus['fund_available_inr'] as num?)?.toInt() ?? 0;
+    final panchayatName = fundStatus['panchayat_name'] ?? '';
+    final fundLabel = fundInr >= 100000
+        ? '₹${(fundInr / 100000).toStringAsFixed(1)}L'
+        : '₹${(fundInr / 1000).toStringAsFixed(0)}K';
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.account_balance, size: 14, color: Colors.green.shade700),
+              const SizedBox(width: 4),
+              Text('Funds', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+            ],
+          ),
+          Text(fundLabel, style: TextStyle(
+            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade700,
+          )),
+          if (panchayatName.isNotEmpty)
+            Text(panchayatName, style: const TextStyle(fontSize: 9, color: Colors.grey)),
+          Text('available', style: const TextStyle(fontSize: 9, color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+}
+
+class _DemographicsOverlay extends StatelessWidget {
+  final Map<String, dynamic> demographics;
+  const _DemographicsOverlay({required this.demographics});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.people, size: 14, color: Colors.teal.shade700),
+              const SizedBox(width: 4),
+              Text('Demographics', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          _DemoRow('Population', '${demographics['population'] ?? '—'}'),
+          _DemoRow('Households', '${demographics['households'] ?? '—'}'),
+          _DemoRow('Agri HH', '${demographics['agricultural_households'] ?? '—'}'),
+          if (demographics['groundwater_depth_m'] != null)
+            _DemoRow('Groundwater', '${demographics['groundwater_depth_m']}m'),
+        ],
+      ),
+    );
+  }
+}
+
+class _DemoRow extends StatelessWidget {
+  final String label, value;
+  const _DemoRow(this.label, this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('$label: ', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        Text(value, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+      ],
+    );
   }
 }
 

@@ -49,6 +49,8 @@ Commands:
 - Voice note bhejein: Report banaye
 - "Status" ya "Mera report": Apne report ka status dekhein
 - "Vote 123": Report #123 ko upvote karein
+- "GAON <naam>": Apna gaon set/change karein
+- "WARD <number>": Apna ward set karein
 - Scheme ka naam (e.g., "PM-KUSUM"): Eligibility jaanein
 - "Help": Ye help message
 
@@ -66,9 +68,7 @@ def _normalize_phone(phone: str) -> str:
 
 
 def _get_or_create_whatsapp_user(phone: str):
-    """Find user by normalized phone, or create one assigned to the demo panchayat."""
-    from apps.geo_intelligence.models import Panchayat
-
+    """Find user by normalized phone, or create one without panchayat (gate handles assignment)."""
     normalized = _normalize_phone(phone)
 
     # Try exact match first, then normalized
@@ -77,21 +77,13 @@ def _get_or_create_whatsapp_user(phone: str):
         User.objects.filter(phone=normalized).first()
     )
     if user:
-        # Existing user with no panchayat — assign one so they can file reports
-        if not user.panchayat:
-            user.panchayat = Panchayat.objects.first()
-            user.ward = user.ward or 1
-            user.save(update_fields=['panchayat', 'ward'])
         return user
 
-    # New user — assign to first available panchayat so they can file reports
-    panchayat = Panchayat.objects.first()
+    # New user — no panchayat assigned; village gate prompts GAON command
     user = User.objects.create_user(
         username=normalized,
         phone=normalized,
         role='citizen',
-        panchayat=panchayat,
-        ward=1,
     )
     return user
 
@@ -102,6 +94,20 @@ def handle_whatsapp_message(phone: str, body: str, media_url: str = '', media_ty
     user = _get_or_create_whatsapp_user(phone)
 
     body_lower = body.strip().lower()
+
+    # Village gate: users without panchayat must select village first
+    if not user.panchayat and not body_lower.startswith('gaon '):
+        return ("Namaste! PrajaShakti mein aapka swagat hai.\n\n"
+                "Pehle apna gaon batayein:\nGAON <gaon ka naam>\n\n"
+                "Example: GAON Tusra")
+
+    # GAON command — set/change village
+    if body_lower.startswith('gaon '):
+        return _handle_village_selection(user, body[5:])
+
+    # WARD command — set/change ward
+    if body_lower.startswith('ward '):
+        return _handle_ward_selection(user, body[5:])
 
     # Voice note handling
     if media_type and 'audio' in media_type:
@@ -132,6 +138,40 @@ def handle_whatsapp_message(phone: str, body: str, media_url: str = '', media_ty
 
     # Default: treat as text report
     return handle_text_report(user, body)
+
+
+def _handle_village_selection(user, query: str) -> str:
+    """Handle GAON <name> command — find and assign village/panchayat."""
+    from apps.geo_intelligence.models import Village
+
+    query = query.strip()
+    if not query:
+        return "Gaon ka naam likhein. Example: GAON Tusra"
+
+    qs = Village.objects.select_related('panchayat').filter(name__icontains=query)[:5]
+    count = qs.count()
+
+    if count == 1:
+        v = qs.first()
+        user.panchayat = v.panchayat
+        user.ward = user.ward or 1
+        user.save(update_fields=['panchayat', 'ward'])
+        return f"Gaon set! {v.name}, {v.panchayat.name}. Ab voice note bhejkar report karein!"
+    elif count > 1:
+        opts = "\n".join(f"• GAON {v.name} ({v.panchayat.name})" for v in qs)
+        return f"Kai gaon mile:\n{opts}\n\nPoora naam likhein."
+    return "Gaon nahi mila. Sahi naam likhein. Example: GAON Tusra"
+
+
+def _handle_ward_selection(user, ward_text: str) -> str:
+    """Handle WARD <n> command — set user's ward number."""
+    try:
+        ward = int(ward_text.strip())
+        user.ward = ward
+        user.save(update_fields=['ward'])
+        return f"Ward {ward} set ho gaya!"
+    except ValueError:
+        return "Ward number sahi likhein. Example: WARD 3"
 
 
 def _run_transcription_pipeline(report_id: int, s3_key: str):
@@ -216,9 +256,22 @@ Respond ONLY with valid JSON:
         logger.error(f"Transcription pipeline failed for report #{report_id}: {e}")
 
 
+def _start_transcription_async(report_id: int, s3_key: str):
+    """Try Celery first; fall back to background thread if broker unreachable."""
+    try:
+        from apps.ai_engine.tasks import transcribe_voice_note
+        transcribe_voice_note.delay(report_id, s3_key)
+        logger.info(f"Celery task queued for report #{report_id}")
+    except Exception as e:
+        logger.warning(f"Celery unavailable ({e}), using thread fallback for report #{report_id}")
+        import threading
+        threading.Thread(
+            target=_run_transcription_pipeline, args=(report_id, s3_key), daemon=True
+        ).start()
+
+
 def handle_voice_note(user, media_url: str) -> str:
-    """Process voice note — create report and trigger transcription in background."""
-    import threading
+    """Process voice note — create report and trigger transcription async (Celery or thread)."""
     from apps.community.models import Report
     from apps.geo_intelligence.models import Village
 
@@ -247,13 +300,8 @@ def handle_voice_note(user, media_url: str) -> str:
     report.audio_s3_key = s3_key
     report.save(update_fields=['audio_s3_key'])
 
-    # Run transcription + categorization in background thread (no Celery worker needed)
-    thread = threading.Thread(
-        target=_run_transcription_pipeline,
-        args=(report.id, s3_key),
-        daemon=True,
-    )
-    thread.start()
+    # Prefer Celery; fall back to background thread if broker unreachable
+    _start_transcription_async(report.id, s3_key)
 
     return f"Report #{report.id} darj ho gaya! AI transcription jaari hai (~30 sec). {village.name} ke log ab ise upvote kar sakte hain."
 
@@ -334,11 +382,11 @@ def handle_text_report(user, text: str) -> str:
         location=village.location,
     )
 
-    # Trigger categorization
+    # Trigger categorization via Celery
     try:
         from apps.ai_engine.tasks import categorize_report
         categorize_report.delay(report.id, text)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Celery unavailable for categorization of report #{report.id}: {e}")
 
     return f"Report #{report.id} darj ho gaya! {village.name} ke log ab ise upvote kar sakte hain."

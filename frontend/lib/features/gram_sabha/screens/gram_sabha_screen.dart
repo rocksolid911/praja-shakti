@@ -102,6 +102,9 @@ class _GramSabhaView extends StatelessWidget {
         session: state.sessions[i],
         onRaiseIssue: (title) => context.read<GramSabhaCubit>().raiseIssue(state.sessions[i].id, title),
         onVote: (issueId) => context.read<GramSabhaCubit>().voteIssue(state.sessions[i].id, issueId),
+        onEndSession: state.sessions[i].isActive
+            ? () => context.read<GramSabhaCubit>().endSession(state.sessions[i].id, 1)
+            : null,
       ),
     );
   }
@@ -150,8 +153,10 @@ class _SessionCard extends StatelessWidget {
   final GramSabhaSession session;
   final void Function(String) onRaiseIssue;
   final void Function(int) onVote;
+  final VoidCallback? onEndSession;
 
-  const _SessionCard({required this.session, required this.onRaiseIssue, required this.onVote});
+  const _SessionCard({required this.session, required this.onRaiseIssue, required this.onVote,
+      this.onEndSession});
 
   @override
   Widget build(BuildContext context) {
@@ -194,6 +199,23 @@ class _SessionCard extends StatelessWidget {
                     style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
+                if (session.isActive && onEndSession != null) ...[
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: onEndSession,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade700,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'End Session',
+                        style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -231,6 +253,37 @@ class _SessionCard extends StatelessWidget {
               padding: EdgeInsets.all(16),
               child: Text('अभी कोई मुद्दा नहीं — पहला मुद्दा उठाएं!',
                   style: TextStyle(color: Colors.grey)),
+            ),
+          // AI Summary transcript (shown when session is ended and summary is ready)
+          if (session.transcript.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.auto_awesome, size: 14, color: Colors.purple.shade700),
+                        const SizedBox(width: 4),
+                        Text('AI Summary', style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple.shade700,
+                        )),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(session.transcript, style: const TextStyle(
+                      fontSize: 13, color: Colors.black54, fontStyle: FontStyle.italic,
+                    )),
+                  ],
+                ),
+              ),
             ),
           // Raise issue button
           Padding(
