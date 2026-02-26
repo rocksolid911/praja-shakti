@@ -7,6 +7,7 @@ class ReportSerializer(serializers.ModelSerializer):
     reporter_name = serializers.CharField(source='reporter.get_full_name', read_only=True, default='Anonymous')
     village_name = serializers.CharField(source='village.name', read_only=True)
     has_voted = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
 
     class Meta:
         model = Report
@@ -26,6 +27,11 @@ class ReportSerializer(serializers.ModelSerializer):
             return obj.votes.filter(voter=request.user).exists()
         return False
 
+    def get_location(self, obj):
+        if obj.location:
+            return {'type': 'Point', 'coordinates': [obj.location.x, obj.location.y]}
+        return None
+
 
 class ReportCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,15 +49,22 @@ class ReportCreateSerializer(serializers.ModelSerializer):
 
 class ReportClusterSerializer(serializers.ModelSerializer):
     village_name = serializers.CharField(source='village.name', read_only=True)
+    centroid_geojson = serializers.SerializerMethodField()
+    priority_score = serializers.FloatField(source='community_priority_score', read_only=True)
 
     class Meta:
         model = ReportCluster
         fields = [
-            'id', 'village', 'village_name', 'category', 'centroid',
+            'id', 'village', 'village_name', 'category', 'centroid_geojson',
             'radius_km', 'report_count', 'ward_count', 'upvote_count',
-            'estimated_households', 'community_priority_score',
+            'estimated_households', 'community_priority_score', 'priority_score',
             'created_at', 'updated_at',
         ]
+
+    def get_centroid_geojson(self, obj):
+        if obj.centroid:
+            return {'type': 'Point', 'coordinates': [obj.centroid.x, obj.centroid.y]}
+        return None
 
 
 class ReportClusterGeoSerializer(serializers.ModelSerializer):
