@@ -226,4 +226,276 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get noProjects => 'ఇంకా ప్రాజెక్టులు లేవు';
+
+  @override
+  String get navMap => 'మ్యాప్';
+
+  @override
+  String get navReport => 'నివేదిక';
+
+  @override
+  String get navFeed => 'ఫీడ్';
+
+  @override
+  String get navDashboard => 'డ్యాష్బోర్డ్';
+
+  @override
+  String get navMore => 'మరిన్ని';
+
+  @override
+  String get reportDetails => 'నివేదిక వివరాలు';
+
+  @override
+  String get projectDetails => 'ప్రాజెక్ట్ వివరాలు';
+
+  @override
+  String get otpVerification => 'OTP ధృవీకరణ';
+
+  @override
+  String get newGramSabha => 'కొత్త గ్రామ సభ';
+
+  @override
+  String get raiseIssue => 'సమస్య లేవనెత్తండి';
+
+  @override
+  String get adoptProject => 'ప్రాజెక్ట్ స్వీకరించు';
+
+  @override
+  String get schemeAdvisor => 'పథకం సలహాదారు';
+
+  @override
+  String get aiPoweredSchemeAdvisor => 'AI ఆధారిత పథకం సలహాదారు';
+
+  @override
+  String get filterAll => 'అన్నీ';
+
+  @override
+  String get issueType => 'సమస్య రకం';
+
+  @override
+  String get description => 'వివరణ';
+
+  @override
+  String get urgencyLabel => 'తీవ్రత';
+
+  @override
+  String get wardNumberOptional => 'వార్డ్ నంబర్ (ఐచ్ఛికం)';
+
+  @override
+  String get submitReport => 'నివేదిక సమర్పించు';
+
+  @override
+  String get locationFound => 'స్థానం దొరికింది';
+
+  @override
+  String get locationNotAvailable =>
+      'స్థానం అందుబాటులో లేదు — GPS లేకుండా నివేదిక సమర్పించబడుతుంది';
+
+  @override
+  String get enterDescription => 'దయచేసి వివరణ నమోదు చేయండి';
+
+  @override
+  String get noReportsFound => 'నివేదికలు కనుగొనబడలేదు';
+
+  @override
+  String get newMeeting => 'కొత్త సమావేశం';
+
+  @override
+  String get createMeeting => 'సమావేశం సృష్టించు';
+
+  @override
+  String get noGramSabhaYet => 'ఇంకా గ్రామ సభ లేదు';
+
+  @override
+  String get createNewMeeting => 'కొత్త సమావేశం ప్రారంభించు';
+
+  @override
+  String get issuesLabel => 'సమస్యలు:';
+
+  @override
+  String get noIssuesYet => 'ఇంకా సమస్యలు లేవు — మొదటి సమస్య లేవనెత్తండి!';
+
+  @override
+  String get meetingTitleHint => 'సమావేశం శీర్షిక';
+
+  @override
+  String get issueDescriptionHint => 'సమస్య వివరించండి...';
+
+  @override
+  String get create => 'సృష్టించు';
+
+  @override
+  String get aiSummary => 'AI సారాంశం';
+
+  @override
+  String get scheduled => 'నిర్ణయించబడింది';
+
+  @override
+  String get live => 'లైవ్';
+
+  @override
+  String get urgencyLow => 'తక్కువ';
+
+  @override
+  String get urgencyMedium => 'మధ్యస్థం';
+
+  @override
+  String get urgencyHigh => 'అధికం';
+
+  @override
+  String get urgencyCritical => 'విపత్కరం';
+
+  @override
+  String get aiConfidence => 'AI విశ్వాసం';
+
+  @override
+  String get reportedBy => 'నివేదించిన వారు';
+
+  @override
+  String get villageLabel => 'గ్రామం';
+
+  @override
+  String get dateLabel => 'తేదీ';
+
+  @override
+  String get locationLabel => 'స్థానం';
+
+  @override
+  String get beneficiaries => 'లబ్ధిదారులు';
+
+  @override
+  String get costLabel => 'వ్యయం';
+
+  @override
+  String get timeline => 'కాలపట్టిక';
+
+  @override
+  String get fundPlan => 'నిధుల ప్రణాళిక';
+
+  @override
+  String get viewFullDetails => 'పూర్తి వివరాలు చూడండి';
+
+  @override
+  String get noProjectsFound => 'ప్రాజెక్టులు కనుగొనబడలేదు';
+
+  @override
+  String get aiRecommended => 'AI సిఫారసు';
+
+  @override
+  String get active => 'చురుకుగా';
+
+  @override
+  String get done => 'పూర్తైంది';
+
+  @override
+  String get projectStatus => 'ప్రాజెక్టు స్థితి';
+
+  @override
+  String get expectedImpact => 'అంచనా ప్రభావం';
+
+  @override
+  String get subsidySavings => '% సబ్సిడీ ఆదా';
+
+  @override
+  String get citizenRating => 'పౌర రేటింగ్';
+
+  @override
+  String get giveYourRating => 'మీ రేటింగ్ ఇవ్వండి:';
+
+  @override
+  String get writeReviewHint => 'సమీక్ష రాయండి (ఐచ్ఛికం)...';
+
+  @override
+  String get ratingSubmitted => 'రేటింగ్ ఇవ్వబడింది! ధన్యవాదాలు';
+
+  @override
+  String get submitRating => 'రేటింగ్ సమర్పించండి';
+
+  @override
+  String get activeProjects => 'చురుకైన ప్రాజెక్టులు';
+
+  @override
+  String get priorities => 'ప్రాధాన్యతలు';
+
+  @override
+  String get aiPriorityRanking => 'AI ప్రాధాన్యత క్రమం';
+
+  @override
+  String get issuesNeedingAttention => 'తక్షణ శ్రద్ధ అవసరమైన సమస్యలు';
+
+  @override
+  String get currentlyInProgress => 'ప్రస్తుతం జరుగుతోంది';
+
+  @override
+  String get fundUtilization => 'నిధుల వినియోగం';
+
+  @override
+  String get budgetTracking => 'వర్గం వారీగా బడ్జెట్ ట్రాకింగ్';
+
+  @override
+  String get proposalReady => 'ప్రతిపాదన సిద్ధం!';
+
+  @override
+  String get totalCost => 'మొత్తం వ్యయం';
+
+  @override
+  String get subsidyLabel => 'సబ్సిడీ';
+
+  @override
+  String get pdfProposalReady =>
+      'PDF ప్రతిపాదన సిద్ధంగా ఉంది, డౌన్‌లోడ్ చేయండి.';
+
+  @override
+  String get generatingProposal => 'ప్రతిపాదన తయారవుతోంది...';
+
+  @override
+  String get close => 'మూసివేయి';
+
+  @override
+  String get downloadPdf => 'PDF డౌన్‌లోడ్';
+
+  @override
+  String get categoryLabel => 'వర్గం';
+
+  @override
+  String get aiProposalNote =>
+      'AI-రూపొందించిన ప్రతిపాదన స్వయంచాలకంగా సృష్టించబడుతుంది.';
+
+  @override
+  String get projectAdoptedSnackbar =>
+      'ప్రాజెక్టు ఆమోదించబడింది! ప్రతిపాదన తయారవుతోంది...';
+
+  @override
+  String get adopt => 'స్వీకరించు';
+
+  @override
+  String get schemeWelcomeTitle => 'ప్రభుత్వ పథకాల సహాయకుడు';
+
+  @override
+  String get schemeWelcomeBody =>
+      'PM-KUSUM, MGNREGA, Jal Jeevan Mission వంటి పథకాల గురించి అడగండి. AI మీ గ్రామం ఆధారంగా అర్హతను చెప్తుంది.';
+
+  @override
+  String get frequentlyAsked => 'తరచుగా అడిగే ప్రశ్నలు:';
+
+  @override
+  String get askAboutScheme => 'పథకం గురించి అడగండి...';
+
+  @override
+  String get clearChat => 'చాట్ క్లియర్ చేయి';
+
+  @override
+  String get quickQuery1 => 'PM-KUSUM అర్హత ఏమిటి?';
+
+  @override
+  String get quickQuery2 => 'MGNREGA లో ఎన్ని రోజులు పని ఉంటుంది?';
+
+  @override
+  String get quickQuery3 => 'Jal Jeevan Mission అంటే ఏమిటి?';
+
+  @override
+  String get quickQuery4 => 'PMAY-G కి ఎలా దరఖాస్తు చేయాలి?';
+
+  @override
+  String get quickQuery5 => 'Kisan Credit Card ఎలా పొందాలి?';
 }

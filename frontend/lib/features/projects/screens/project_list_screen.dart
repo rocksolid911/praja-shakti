@@ -6,6 +6,7 @@ import '../cubit/project_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/project.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ProjectListScreen extends StatelessWidget {
   const ProjectListScreen({super.key});
@@ -29,19 +30,25 @@ class _ProjectListView extends StatefulWidget {
 class _ProjectListViewState extends State<_ProjectListView> {
   Project? _selectedProject;
 
-  static const _statuses = [
-    (null, 'सभी'),
-    ('recommended', 'AI सुझाव'),
-    ('adopted', 'स्वीकृत'),
-    ('in_progress', 'जारी'),
-    ('completed', 'पूर्ण'),
-  ];
+  static const _statusKeys = [null, 'recommended', 'adopted', 'in_progress', 'completed'];
+
+  String _statusFilterLabel(String? key, AppLocalizations l10n) {
+    if (key == null) return l10n.filterAll;
+    return switch (key) {
+      'recommended' => l10n.aiRecommended,
+      'adopted' => l10n.adopted,
+      'in_progress' => l10n.inProgress,
+      'completed' => l10n.completed,
+      _ => key,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('परियोजनाएं'),
+        title: Text(l10n.projects),
         backgroundColor: Colors.blue.shade700,
         foregroundColor: Colors.white,
       ),
@@ -54,9 +61,10 @@ class _ProjectListViewState extends State<_ProjectListView> {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              itemCount: _statuses.length,
+              itemCount: _statusKeys.length,
               itemBuilder: (context, i) {
-                final (key, label) = _statuses[i];
+                final key = _statusKeys[i];
+                final label = _statusFilterLabel(key, l10n);
                 return BlocBuilder<ProjectCubit, ProjectState>(
                   builder: (context, state) {
                     final active = state is ProjectsLoaded && state.activeFilter == key;
@@ -91,13 +99,13 @@ class _ProjectListViewState extends State<_ProjectListView> {
                 }
                 if (state is ProjectsLoaded) {
                   if (state.projects.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.construction, size: 64, color: Colors.grey),
-                          SizedBox(height: 12),
-                          Text('कोई परियोजना नहीं मिली', style: TextStyle(color: Colors.grey)),
+                          const Icon(Icons.construction, size: 64, color: Colors.grey),
+                          const SizedBox(height: 12),
+                          Text(l10n.noProjectsFound, style: const TextStyle(color: Colors.grey)),
                         ],
                       ),
                     );
@@ -221,6 +229,7 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: isSelected
@@ -245,7 +254,7 @@ class ProjectCard extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                   ),
-                  _statusBadge(project.status),
+                  _statusBadge(project.status, l10n),
                 ],
               ),
               const SizedBox(height: 8),
@@ -267,7 +276,7 @@ class ProjectCard extends StatelessWidget {
                   if (project.beneficiaryCount != null) ...[
                     const Icon(Icons.people, size: 14, color: Colors.grey),
                     const SizedBox(width: 2),
-                    Text('${project.beneficiaryCount} beneficiaries',
+                    Text('${project.beneficiaryCount} ${l10n.beneficiaries}',
                         style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                   const Spacer(),
@@ -279,7 +288,7 @@ class ProjectCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Priority: ${project.priorityScore!.toStringAsFixed(0)}',
+                        '${l10n.priority}: ${project.priorityScore!.toStringAsFixed(0)}',
                         style: TextStyle(color: Colors.orange.shade800, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -308,13 +317,13 @@ class ProjectCard extends StatelessWidget {
     );
   }
 
-  Widget _statusBadge(String status) {
+  Widget _statusBadge(String status, AppLocalizations l10n) {
     final (color, label) = switch (status) {
       'recommended' => (Colors.purple, 'AI'),
-      'adopted' => (Colors.amber.shade700, 'Adopted'),
-      'in_progress' => (Colors.blue, 'Active'),
-      'completed' => (Colors.green, 'Done'),
-      'delayed' => (Colors.red, 'Delayed'),
+      'adopted' => (Colors.amber.shade700, l10n.adopted),
+      'in_progress' => (Colors.blue, l10n.active),
+      'completed' => (Colors.green, l10n.done),
+      'delayed' => (Colors.red, l10n.delayed),
       _ => (Colors.grey, status),
     };
     return Container(
@@ -346,6 +355,7 @@ class _ProjectPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         // Panel header
@@ -365,7 +375,7 @@ class _ProjectPanel extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.white70),
                 onPressed: onClose,
-                tooltip: 'Close',
+                tooltip: l10n.close,
               ),
             ],
           ),
@@ -383,14 +393,14 @@ class _ProjectPanel extends StatelessWidget {
                   Row(
                     children: [
                       _Stat(
-                        label: 'Cost',
+                        label: l10n.costLabel,
                         value: _formatCost(project.estimatedCostInr),
                         color: Colors.green.shade700,
                       ),
                       if (project.beneficiaryCount != null) ...[
                         const SizedBox(width: 16),
                         _Stat(
-                          label: 'Beneficiaries',
+                          label: l10n.beneficiaries,
                           value: '${project.beneficiaryCount}',
                           color: Colors.blue.shade700,
                         ),
@@ -398,7 +408,7 @@ class _ProjectPanel extends StatelessWidget {
                       if (project.priorityScore != null) ...[
                         const SizedBox(width: 16),
                         _Stat(
-                          label: 'Priority',
+                          label: l10n.priority,
                           value: '${project.priorityScore!.toStringAsFixed(0)}/100',
                           color: Colors.orange.shade700,
                         ),
@@ -408,7 +418,7 @@ class _ProjectPanel extends StatelessWidget {
                   const SizedBox(height: 14),
                   // Description
                   if (project.description.isNotEmpty) ...[
-                    const Text('Description', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    Text(l10n.description, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     const SizedBox(height: 6),
                     Text(project.description, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
                     const SizedBox(height: 14),
@@ -420,12 +430,12 @@ class _ProjectPanel extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Timeline', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text(l10n.timeline, style: const TextStyle(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
-                          _TimelineRow(Icons.auto_awesome, 'Recommended', project.createdAt, Colors.purple, done: true),
-                          _TimelineRow(Icons.check_circle, 'Adopted', project.adoptedAt, Colors.amber.shade700),
-                          _TimelineRow(Icons.construction, 'In Progress', project.startedAt, Colors.blue),
-                          _TimelineRow(Icons.done_all, 'Completed', project.completedAt, Colors.green),
+                          _TimelineRow(Icons.auto_awesome, l10n.aiRecommended, project.createdAt, Colors.purple, done: true),
+                          _TimelineRow(Icons.check_circle, l10n.adopted, project.adoptedAt, Colors.amber.shade700),
+                          _TimelineRow(Icons.construction, l10n.inProgress, project.startedAt, Colors.blue),
+                          _TimelineRow(Icons.done_all, l10n.completed, project.completedAt, Colors.green),
                         ],
                       ),
                     ),
@@ -440,7 +450,7 @@ class _ProjectPanel extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Fund Plan — ${project.fundPlans.first.savingsPct.toStringAsFixed(0)}% subsidy savings',
+                              '${l10n.fundPlan} — ${project.fundPlans.first.savingsPct.toStringAsFixed(0)}% ${l10n.subsidySavings}',
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
@@ -468,7 +478,7 @@ class _ProjectPanel extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: onViewFull,
                       icon: const Icon(Icons.open_in_new, size: 16),
-                      label: const Text('View Full Details'),
+                      label: Text(l10n.viewFullDetails),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue.shade700,
                         foregroundColor: Colors.white,
