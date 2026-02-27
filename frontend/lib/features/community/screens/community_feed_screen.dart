@@ -6,6 +6,7 @@ import '../cubit/community_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/report.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CommunityFeedScreen extends StatelessWidget {
   const CommunityFeedScreen({super.key});
@@ -22,21 +23,24 @@ class CommunityFeedScreen extends StatelessWidget {
 class _FeedView extends StatelessWidget {
   const _FeedView();
 
-  static const _filters = [
-    (null, 'सभी'),
-    ('water', 'पानी'),
-    ('road', 'सड़क'),
-    ('health', 'स्वास्थ्य'),
-    ('education', 'शिक्षा'),
-    ('electricity', 'बिजली'),
-    ('sanitation', 'स्वच्छता'),
-  ];
+  static const _filterKeys = <String?>[null, 'water', 'road', 'health', 'education', 'electricity', 'sanitation'];
+
+  static String _filterLabel(AppLocalizations l10n, String? key) => switch (key) {
+    'water' => l10n.water,
+    'road' => l10n.road,
+    'health' => l10n.health,
+    'education' => l10n.education,
+    'electricity' => l10n.electricity,
+    'sanitation' => l10n.sanitation,
+    _ => l10n.filterAll,
+  };
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('सामुदायिक फ़ीड'),
+        title: Text(l10n.communityFeed),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         actions: [
@@ -55,9 +59,10 @@ class _FeedView extends StatelessWidget {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              itemCount: _filters.length,
+              itemCount: _filterKeys.length,
               itemBuilder: (context, i) {
-                final (key, label) = _filters[i];
+                final key = _filterKeys[i];
+                final label = _filterLabel(AppLocalizations.of(context), key);
                 return BlocBuilder<CommunityCubit, CommunityState>(
                   builder: (context, state) {
                     final active = state is CommunityLoaded && state.activeFilter == key;
@@ -99,7 +104,7 @@ class _FeedView extends StatelessWidget {
                             Text(state.message),
                             TextButton(
                               onPressed: () => context.read<CommunityCubit>().loadReports(),
-                              child: const Text('Retry'),
+                              child: Text(AppLocalizations.of(context).retry),
                             ),
                           ],
                         ),
@@ -107,13 +112,13 @@ class _FeedView extends StatelessWidget {
                     }
                     if (state is CommunityLoaded) {
                       if (state.reports.isEmpty) {
-                        return const Center(
+                        return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.people_outline, size: 64, color: Colors.grey),
-                              SizedBox(height: 12),
-                              Text('कोई रिपोर्ट नहीं मिली', style: TextStyle(color: Colors.grey)),
+                              const Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                              const SizedBox(height: 12),
+                              Text(AppLocalizations.of(context).noReports, style: const TextStyle(color: Colors.grey)),
                             ],
                           ),
                         );
@@ -193,7 +198,7 @@ class _FeedView extends StatelessWidget {
           ? FloatingActionButton.extended(
               onPressed: () => context.go('/report'),
               icon: const Icon(Icons.add),
-              label: const Text('रिपोर्ट करें'),
+              label: Text(l10n.reportIssue),
               backgroundColor: Colors.green.shade700,
               foregroundColor: Colors.white,
             )

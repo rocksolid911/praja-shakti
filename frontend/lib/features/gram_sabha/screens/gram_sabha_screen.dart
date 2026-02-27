@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/gram_sabha_cubit.dart';
 import '../cubit/gram_sabha_state.dart';
 import '../../../core/api/api_client.dart';
+import '../../../l10n/app_localizations.dart';
 
 class GramSabhaScreen extends StatelessWidget {
   const GramSabhaScreen({super.key});
@@ -23,11 +24,11 @@ class _GramSabhaView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('ग्राम सभा', style: TextStyle(fontSize: 16)),
-            Text('Digital Village Assembly', style: TextStyle(fontSize: 11, color: Colors.white70)),
+            Text(AppLocalizations.of(context).gramSabha, style: const TextStyle(fontSize: 16)),
+            const Text('Digital Village Assembly', style: TextStyle(fontSize: 11, color: Colors.white70)),
           ],
         ),
         backgroundColor: Colors.purple.shade700,
@@ -51,7 +52,7 @@ class _GramSabhaView extends StatelessWidget {
                   Text(state.message),
                   TextButton(
                     onPressed: () => context.read<GramSabhaCubit>().loadSessions(),
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context).retry),
                   ),
                 ],
               ),
@@ -64,7 +65,7 @@ class _GramSabhaView extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text('नई बैठक'),
+        label: Text(AppLocalizations.of(context).newMeeting),
         backgroundColor: Colors.purple.shade700,
         foregroundColor: Colors.white,
       ),
@@ -72,20 +73,21 @@ class _GramSabhaView extends StatelessWidget {
   }
 
   Widget _buildEmpty(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.groups, size: 80, color: Colors.grey.shade300),
           const SizedBox(height: 16),
-          const Text('कोई ग्राम सभा नहीं', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(l10n.noGramSabhaYet, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          const Text('नई बैठक बनाएं', style: TextStyle(color: Colors.grey)),
+          Text(l10n.createNewMeeting, style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: () => _showCreateDialog(context),
             icon: const Icon(Icons.add),
-            label: const Text('बैठक बनाएं'),
+            label: Text(l10n.createMeeting),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple.shade700, foregroundColor: Colors.white),
           ),
         ],
@@ -114,21 +116,24 @@ class _GramSabhaView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('नई ग्राम सभा'),
+        title: Text(AppLocalizations.of(context).newGramSabha),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleController,
-              decoration: const InputDecoration(
-                hintText: 'बैठक का शीर्षक',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context).meetingTitleHint,
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(AppLocalizations.of(context).cancel),
+          ),
           ElevatedButton(
             onPressed: () {
               if (titleController.text.isNotEmpty) {
@@ -141,7 +146,7 @@ class _GramSabhaView extends StatelessWidget {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple.shade700),
-            child: const Text('बनाएं', style: TextStyle(color: Colors.white)),
+            child: Text(AppLocalizations.of(context).create, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -160,6 +165,7 @@ class _SessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Column(
@@ -195,7 +201,7 @@ class _SessionCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    session.isActive ? '● LIVE' : 'Scheduled',
+                    session.isActive ? '● ${l10n.live}' : l10n.scheduled,
                     style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -221,9 +227,9 @@ class _SessionCard extends StatelessWidget {
           ),
           // Issues
           if (session.issues.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
-              child: Text('मुद्दे:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Text(l10n.issuesLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             ...session.issues.map((issue) => ListTile(
               leading: Container(
@@ -249,10 +255,9 @@ class _SessionCard extends StatelessWidget {
               ),
             )),
           ] else
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('अभी कोई मुद्दा नहीं — पहला मुद्दा उठाएं!',
-                  style: TextStyle(color: Colors.grey)),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(l10n.noIssuesYet, style: const TextStyle(color: Colors.grey)),
             ),
           // AI Summary transcript (shown when session is ended and summary is ready)
           if (session.transcript.isNotEmpty)
@@ -272,7 +277,7 @@ class _SessionCard extends StatelessWidget {
                       children: [
                         Icon(Icons.auto_awesome, size: 14, color: Colors.purple.shade700),
                         const SizedBox(width: 4),
-                        Text('AI Summary', style: TextStyle(
+                        Text(l10n.aiSummary, style: TextStyle(
                           fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple.shade700,
                         )),
                       ],
@@ -291,7 +296,7 @@ class _SessionCard extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => _showIssueDialog(context),
               icon: const Icon(Icons.add, size: 16),
-              label: const Text('मुद्दा उठाएं', style: TextStyle(fontSize: 13)),
+              label: Text(l10n.raiseIssue, style: const TextStyle(fontSize: 13)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.purple.shade700,
                 side: BorderSide(color: Colors.purple.shade700),
@@ -305,20 +310,21 @@ class _SessionCard extends StatelessWidget {
 
   void _showIssueDialog(BuildContext context) {
     final controller = TextEditingController();
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('मुद्दा उठाएं'),
+        title: Text(l10n.raiseIssue),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'मुद्दे का विवरण...',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: l10n.issueDescriptionHint,
+            border: const OutlineInputBorder(),
           ),
           maxLines: 3,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {
@@ -327,7 +333,7 @@ class _SessionCard extends StatelessWidget {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple.shade700),
-            child: const Text('जमा करें', style: TextStyle(color: Colors.white)),
+            child: Text(l10n.submit, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

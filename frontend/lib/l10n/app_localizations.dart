@@ -553,6 +553,540 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No projects yet'**
   String get noProjects;
+
+  /// No description provided for @navMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get navMap;
+
+  /// No description provided for @navReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get navReport;
+
+  /// No description provided for @navFeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed'**
+  String get navFeed;
+
+  /// No description provided for @navDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get navDashboard;
+
+  /// No description provided for @navMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get navMore;
+
+  /// No description provided for @reportDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Details'**
+  String get reportDetails;
+
+  /// No description provided for @projectDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Project Details'**
+  String get projectDetails;
+
+  /// No description provided for @otpVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP Verification'**
+  String get otpVerification;
+
+  /// No description provided for @newGramSabha.
+  ///
+  /// In en, this message translates to:
+  /// **'New Gram Sabha'**
+  String get newGramSabha;
+
+  /// No description provided for @raiseIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise Issue'**
+  String get raiseIssue;
+
+  /// No description provided for @adoptProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Adopt Project'**
+  String get adoptProject;
+
+  /// No description provided for @schemeAdvisor.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheme Advisor'**
+  String get schemeAdvisor;
+
+  /// No description provided for @aiPoweredSchemeAdvisor.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-powered scheme advisor'**
+  String get aiPoweredSchemeAdvisor;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @issueType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of Issue'**
+  String get issueType;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @urgencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgency'**
+  String get urgencyLabel;
+
+  /// No description provided for @wardNumberOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Ward Number (Optional)'**
+  String get wardNumberOptional;
+
+  /// No description provided for @submitReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Report'**
+  String get submitReport;
+
+  /// No description provided for @locationFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Location found'**
+  String get locationFound;
+
+  /// No description provided for @locationNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not available — report will be submitted without GPS'**
+  String get locationNotAvailable;
+
+  /// No description provided for @enterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a description'**
+  String get enterDescription;
+
+  /// No description provided for @noReportsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports found'**
+  String get noReportsFound;
+
+  /// No description provided for @newMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'New Meeting'**
+  String get newMeeting;
+
+  /// No description provided for @createMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Meeting'**
+  String get createMeeting;
+
+  /// No description provided for @noGramSabhaYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Gram Sabha yet'**
+  String get noGramSabhaYet;
+
+  /// No description provided for @createNewMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new meeting'**
+  String get createNewMeeting;
+
+  /// No description provided for @issuesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues:'**
+  String get issuesLabel;
+
+  /// No description provided for @noIssuesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No issues yet — raise the first one!'**
+  String get noIssuesYet;
+
+  /// No description provided for @meetingTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting title'**
+  String get meetingTitleHint;
+
+  /// No description provided for @issueDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the issue...'**
+  String get issueDescriptionHint;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @aiSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Summary'**
+  String get aiSummary;
+
+  /// No description provided for @scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get scheduled;
+
+  /// No description provided for @live.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get live;
+
+  /// No description provided for @urgencyLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get urgencyLow;
+
+  /// No description provided for @urgencyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get urgencyMedium;
+
+  /// No description provided for @urgencyHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get urgencyHigh;
+
+  /// No description provided for @urgencyCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get urgencyCritical;
+
+  /// No description provided for @aiConfidence.
+  ///
+  /// In en, this message translates to:
+  /// **'AI confidence'**
+  String get aiConfidence;
+
+  /// No description provided for @reportedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported by'**
+  String get reportedBy;
+
+  /// No description provided for @villageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Village'**
+  String get villageLabel;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @locationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get locationLabel;
+
+  /// No description provided for @beneficiaries.
+  ///
+  /// In en, this message translates to:
+  /// **'beneficiaries'**
+  String get beneficiaries;
+
+  /// No description provided for @costLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get costLabel;
+
+  /// No description provided for @timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeline'**
+  String get timeline;
+
+  /// No description provided for @fundPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund Plan'**
+  String get fundPlan;
+
+  /// No description provided for @viewFullDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View Full Details'**
+  String get viewFullDetails;
+
+  /// No description provided for @noProjectsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No projects found'**
+  String get noProjectsFound;
+
+  /// No description provided for @aiRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Recommended'**
+  String get aiRecommended;
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @projectStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Project Status'**
+  String get projectStatus;
+
+  /// No description provided for @expectedImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected Impact'**
+  String get expectedImpact;
+
+  /// No description provided for @subsidySavings.
+  ///
+  /// In en, this message translates to:
+  /// **'% subsidy savings'**
+  String get subsidySavings;
+
+  /// No description provided for @citizenRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Citizen Rating'**
+  String get citizenRating;
+
+  /// No description provided for @giveYourRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Give your rating:'**
+  String get giveYourRating;
+
+  /// No description provided for @writeReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write review (optional)...'**
+  String get writeReviewHint;
+
+  /// No description provided for @ratingSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating submitted! Thank you'**
+  String get ratingSubmitted;
+
+  /// No description provided for @submitRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Rating'**
+  String get submitRating;
+
+  /// No description provided for @activeProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Projects'**
+  String get activeProjects;
+
+  /// No description provided for @priorities.
+  ///
+  /// In en, this message translates to:
+  /// **'Priorities'**
+  String get priorities;
+
+  /// No description provided for @aiPriorityRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Priority Ranking'**
+  String get aiPriorityRanking;
+
+  /// No description provided for @issuesNeedingAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues needing immediate attention'**
+  String get issuesNeedingAttention;
+
+  /// No description provided for @currentlyInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently in progress'**
+  String get currentlyInProgress;
+
+  /// No description provided for @fundUtilization.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund Utilization'**
+  String get fundUtilization;
+
+  /// No description provided for @budgetTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget tracking by category'**
+  String get budgetTracking;
+
+  /// No description provided for @proposalReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Proposal Ready!'**
+  String get proposalReady;
+
+  /// No description provided for @totalCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Cost'**
+  String get totalCost;
+
+  /// No description provided for @subsidyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subsidy'**
+  String get subsidyLabel;
+
+  /// No description provided for @pdfProposalReady.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF proposal generated and ready to download.'**
+  String get pdfProposalReady;
+
+  /// No description provided for @generatingProposal.
+  ///
+  /// In en, this message translates to:
+  /// **'Proposal is being generated...'**
+  String get generatingProposal;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @downloadPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Download PDF'**
+  String get downloadPdf;
+
+  /// No description provided for @categoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get categoryLabel;
+
+  /// No description provided for @aiProposalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-generated proposal will be created automatically.'**
+  String get aiProposalNote;
+
+  /// No description provided for @projectAdoptedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Project adopted! Proposal is being prepared...'**
+  String get projectAdoptedSnackbar;
+
+  /// No description provided for @adopt.
+  ///
+  /// In en, this message translates to:
+  /// **'Adopt'**
+  String get adopt;
+
+  /// No description provided for @schemeWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Government Scheme Advisor'**
+  String get schemeWelcomeTitle;
+
+  /// No description provided for @schemeWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about schemes like PM-KUSUM, MGNREGA, Jal Jeevan Mission. AI will tell you eligibility based on your village.'**
+  String get schemeWelcomeBody;
+
+  /// No description provided for @frequentlyAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequently asked questions:'**
+  String get frequentlyAsked;
+
+  /// No description provided for @askAboutScheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about a scheme...'**
+  String get askAboutScheme;
+
+  /// No description provided for @clearChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear chat'**
+  String get clearChat;
+
+  /// No description provided for @quickQuery1.
+  ///
+  /// In en, this message translates to:
+  /// **'What is eligibility for PM-KUSUM?'**
+  String get quickQuery1;
+
+  /// No description provided for @quickQuery2.
+  ///
+  /// In en, this message translates to:
+  /// **'How many days work in MGNREGA?'**
+  String get quickQuery2;
+
+  /// No description provided for @quickQuery3.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Jal Jeevan Mission?'**
+  String get quickQuery3;
+
+  /// No description provided for @quickQuery4.
+  ///
+  /// In en, this message translates to:
+  /// **'How to apply for PMAY-G?'**
+  String get quickQuery4;
+
+  /// No description provided for @quickQuery5.
+  ///
+  /// In en, this message translates to:
+  /// **'How to get Kisan Credit Card?'**
+  String get quickQuery5;
 }
 
 class _AppLocalizationsDelegate

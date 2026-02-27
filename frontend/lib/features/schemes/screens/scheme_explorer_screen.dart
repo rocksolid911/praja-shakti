@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/scheme_cubit.dart';
 import '../cubit/scheme_state.dart';
 import '../../../core/api/api_client.dart';
+import '../../../l10n/app_localizations.dart';
 
 class SchemeExplorerScreen extends StatelessWidget {
   const SchemeExplorerScreen({super.key});
@@ -27,12 +28,12 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
   final _queryController = TextEditingController();
   final _scrollController = ScrollController();
 
-  static const _quickQueries = [
-    'PM-KUSUM के लिए पात्रता क्या है?',
-    'MGNREGA में कितना काम मिलता है?',
-    'Jal Jeevan Mission क्या है?',
-    'PMAY-G के लिए कैसे आवेदन करें?',
-    'किसान क्रेडिट कार्ड कैसे बनवाएं?',
+  List<String> _getQuickQueries(AppLocalizations l10n) => [
+    l10n.quickQuery1,
+    l10n.quickQuery2,
+    l10n.quickQuery3,
+    l10n.quickQuery4,
+    l10n.quickQuery5,
   ];
 
   @override
@@ -46,11 +47,11 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('योजना सहायक', style: TextStyle(fontSize: 16)),
-            Text('AI-powered scheme advisor', style: TextStyle(fontSize: 11, color: Colors.white70)),
+            Text(AppLocalizations.of(context).schemeAdvisor, style: const TextStyle(fontSize: 16)),
+            Text(AppLocalizations.of(context).aiPoweredSchemeAdvisor, style: const TextStyle(fontSize: 11, color: Colors.white70)),
           ],
         ),
         backgroundColor: Colors.indigo.shade700,
@@ -59,7 +60,7 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => context.read<SchemeCubit>().clearHistory(),
-            tooltip: 'Clear chat',
+            tooltip: AppLocalizations.of(context).clearChat,
           ),
         ],
       ),
@@ -112,6 +113,8 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
   }
 
   Widget _buildWelcome(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final quickQueries = _getQuickQueries(l10n);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -128,12 +131,12 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
                 Icon(Icons.auto_awesome, size: 48, color: Colors.indigo.shade700),
                 const SizedBox(height: 12),
                 Text(
-                  'सरकारी योजना सहायक',
+                  l10n.schemeWelcomeTitle,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.indigo.shade800),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'PM-KUSUM, MGNREGA, Jal Jeevan Mission जैसी योजनाओं के बारे में पूछें। AI आपके गांव के अनुसार पात्रता बताएगा।',
+                  l10n.schemeWelcomeBody,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey.shade600),
                 ),
@@ -141,12 +144,12 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
             ),
           ),
           const SizedBox(height: 20),
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
-            child: Text('अक्सर पूछे जाने वाले प्रश्न:', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(l10n.frequentlyAsked, style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 12),
-          ..._quickQueries.map((q) => Padding(
+          ...quickQueries.map((q) => Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: InkWell(
               onTap: () {
@@ -194,7 +197,7 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
               child: TextField(
                 controller: _queryController,
                 decoration: InputDecoration(
-                  hintText: 'योजना के बारे में पूछें...',
+                  hintText: AppLocalizations.of(context).askAboutScheme,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
