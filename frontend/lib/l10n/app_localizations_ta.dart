@@ -226,4 +226,277 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get noProjects => 'இன்னும் திட்டங்கள் இல்லை';
+
+  @override
+  String get navMap => 'வரைபடம்';
+
+  @override
+  String get navReport => 'அறிக்கை';
+
+  @override
+  String get navFeed => 'செய்திகள்';
+
+  @override
+  String get navDashboard => 'டாஷ்போர்டு';
+
+  @override
+  String get navMore => 'மேலும்';
+
+  @override
+  String get reportDetails => 'அறிக்கை விவரங்கள்';
+
+  @override
+  String get projectDetails => 'திட்ட விவரங்கள்';
+
+  @override
+  String get otpVerification => 'OTP சரிபார்';
+
+  @override
+  String get newGramSabha => 'புதிய கிராம சபை';
+
+  @override
+  String get raiseIssue => 'பிரச்சனை எழுப்பு';
+
+  @override
+  String get adoptProject => 'திட்டம் ஏற்கவும்';
+
+  @override
+  String get schemeAdvisor => 'திட்ட ஆலோசகர்';
+
+  @override
+  String get aiPoweredSchemeAdvisor => 'AI அடிப்படை திட்ட ஆலோசகர்';
+
+  @override
+  String get filterAll => 'அனைத்தும்';
+
+  @override
+  String get issueType => 'சிக்கல் வகை';
+
+  @override
+  String get description => 'விளக்கம்';
+
+  @override
+  String get urgencyLabel => 'அவசரம்';
+
+  @override
+  String get wardNumberOptional => 'வார்டு எண் (விரும்பினால்)';
+
+  @override
+  String get submitReport => 'அறிக்கை சமர்ப்பி';
+
+  @override
+  String get locationFound => 'இடம் கிடைத்தது';
+
+  @override
+  String get locationNotAvailable =>
+      'இடம் கிடைக்கவில்லை — GPS இல்லாமல் அறிக்கை சமர்ப்பிக்கப்படும்';
+
+  @override
+  String get enterDescription => 'தயவுசெய்து விளக்கம் உள்ளிடவும்';
+
+  @override
+  String get noReportsFound => 'அறிக்கைகள் கிடைக்கவில்லை';
+
+  @override
+  String get newMeeting => 'புதிய கூட்டம்';
+
+  @override
+  String get createMeeting => 'கூட்டம் உருவாக்கு';
+
+  @override
+  String get noGramSabhaYet => 'இன்னும் கிராம சபை இல்லை';
+
+  @override
+  String get createNewMeeting => 'புதிய கூட்டம் தொடங்கு';
+
+  @override
+  String get issuesLabel => 'சிக்கல்கள்:';
+
+  @override
+  String get noIssuesYet =>
+      'இன்னும் சிக்கல்கள் இல்லை — முதல் சிக்கலை எழுப்புங்கள்!';
+
+  @override
+  String get meetingTitleHint => 'கூட்டத்தின் தலைப்பு';
+
+  @override
+  String get issueDescriptionHint => 'சிக்கலை விவரி...';
+
+  @override
+  String get create => 'உருவாக்கு';
+
+  @override
+  String get aiSummary => 'AI சுருக்கம்';
+
+  @override
+  String get scheduled => 'திட்டமிடப்பட்டது';
+
+  @override
+  String get live => 'நேரலை';
+
+  @override
+  String get urgencyLow => 'குறைவு';
+
+  @override
+  String get urgencyMedium => 'மத்தியம்';
+
+  @override
+  String get urgencyHigh => 'அதிகம்';
+
+  @override
+  String get urgencyCritical => 'தீவிரம்';
+
+  @override
+  String get aiConfidence => 'AI நம்பகத்தன்மை';
+
+  @override
+  String get reportedBy => 'புகாரளித்தவர்';
+
+  @override
+  String get villageLabel => 'கிராமம்';
+
+  @override
+  String get dateLabel => 'தேதி';
+
+  @override
+  String get locationLabel => 'இடம்';
+
+  @override
+  String get beneficiaries => 'பயனாளிகள்';
+
+  @override
+  String get costLabel => 'செலவு';
+
+  @override
+  String get timeline => 'காலவரிசை';
+
+  @override
+  String get fundPlan => 'நிதி திட்டம்';
+
+  @override
+  String get viewFullDetails => 'முழு விவரங்கள் காண்க';
+
+  @override
+  String get noProjectsFound => 'திட்டங்கள் எதுவும் இல்லை';
+
+  @override
+  String get aiRecommended => 'AI பரிந்துரை';
+
+  @override
+  String get active => 'செயலில்';
+
+  @override
+  String get done => 'முடிந்தது';
+
+  @override
+  String get projectStatus => 'திட்ட நிலை';
+
+  @override
+  String get expectedImpact => 'எதிர்பார்த்த தாக்கம்';
+
+  @override
+  String get subsidySavings => '% மானியம் சேமிப்பு';
+
+  @override
+  String get citizenRating => 'குடிமகன் மதிப்பீடு';
+
+  @override
+  String get giveYourRating => 'உங்கள் மதிப்பீட்டை அளியுங்கள்:';
+
+  @override
+  String get writeReviewHint => 'மதிப்புரை எழுதுங்கள் (விருப்பத்திற்கு)...';
+
+  @override
+  String get ratingSubmitted => 'மதிப்பீடு அளிக்கப்பட்டது! நன்றி';
+
+  @override
+  String get submitRating => 'மதிப்பீட்டை சமர்ப்பிக்கவும்';
+
+  @override
+  String get activeProjects => 'செயலில் உள்ள திட்டங்கள்';
+
+  @override
+  String get priorities => 'முன்னுரிமைகள்';
+
+  @override
+  String get aiPriorityRanking => 'AI முன்னுரிமை வரிசை';
+
+  @override
+  String get issuesNeedingAttention => 'உடனடி கவனம் தேவையான சிக்கல்கள்';
+
+  @override
+  String get currentlyInProgress => 'தற்போது செயலில்';
+
+  @override
+  String get fundUtilization => 'நிதி பயன்பாடு';
+
+  @override
+  String get budgetTracking => 'வகை வாரியாக பட்ஜெட் கண்காணிப்பு';
+
+  @override
+  String get proposalReady => 'திட்ட முன்மொழிவு தயார்!';
+
+  @override
+  String get totalCost => 'மொத்த செலவு';
+
+  @override
+  String get subsidyLabel => 'மானியம்';
+
+  @override
+  String get pdfProposalReady =>
+      'PDF திட்டமுன்மொழிவு தயாராக உள்ளது, பதிவிறக்கவும்.';
+
+  @override
+  String get generatingProposal => 'திட்டமுன்மொழிவு உருவாக்கப்படுகிறது...';
+
+  @override
+  String get close => 'மூடு';
+
+  @override
+  String get downloadPdf => 'PDF பதிவிறக்கம்';
+
+  @override
+  String get categoryLabel => 'வகை';
+
+  @override
+  String get aiProposalNote =>
+      'AI உருவாக்கும் திட்டமுன்மொழிவு தானாக உருவாகும்.';
+
+  @override
+  String get projectAdoptedSnackbar =>
+      'திட்டம் ஏற்றுக்கொள்ளப்பட்டது! முன்மொழிவு தயாராகிறது...';
+
+  @override
+  String get adopt => 'ஏற்றுக்கொள்';
+
+  @override
+  String get schemeWelcomeTitle => 'அரசுத் திட்ட உதவியாளர்';
+
+  @override
+  String get schemeWelcomeBody =>
+      'PM-KUSUM, MGNREGA, Jal Jeevan Mission போன்ற திட்டங்களைப் பற்றி கேளுங்கள். AI உங்கள் கிராமத்தின் அடிப்படையில் தகுதியை கூறும்.';
+
+  @override
+  String get frequentlyAsked => 'அடிக்கடி கேட்கப்படும் கேள்விகள்:';
+
+  @override
+  String get askAboutScheme => 'திட்டத்தைப் பற்றி கேளுங்கள்...';
+
+  @override
+  String get clearChat => 'அரட்டையை அழி';
+
+  @override
+  String get quickQuery1 => 'PM-KUSUM தகுதி என்ன?';
+
+  @override
+  String get quickQuery2 => 'MGNREGA இல் எத்தனை நாள் வேலை கிடைக்கும்?';
+
+  @override
+  String get quickQuery3 => 'Jal Jeevan Mission என்றால் என்ன?';
+
+  @override
+  String get quickQuery4 => 'PMAY-G க்கு எப்படி விண்ணப்பிப்பது?';
+
+  @override
+  String get quickQuery5 => 'Kisan Credit Card எப்படி பெறுவது?';
 }

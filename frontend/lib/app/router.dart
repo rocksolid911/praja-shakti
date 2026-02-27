@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/utils/responsive.dart';
 import '../features/auth/cubit/auth_cubit.dart';
 import '../features/auth/cubit/auth_state.dart';
+import '../l10n/app_localizations.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/otp_screen.dart';
 import '../features/auth/screens/profile_screen.dart';
@@ -155,6 +156,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   Widget _buildRailLayout(BuildContext context, String location, bool isDesktop) {
+    final l10n = AppLocalizations.of(context);
     final selectedIndex = _getRailIndex(location);
     return Scaffold(
       body: Row(
@@ -163,10 +165,15 @@ class _AppShellState extends State<AppShell> {
             extended: isDesktop,
             selectedIndex: selectedIndex,
             onDestinationSelected: (i) => context.go(_railItems[i].path),
-            destinations: _railItems.map((item) => NavigationRailDestination(
-              icon: Icon(item.icon),
-              label: Text(item.label),
-            )).toList(),
+            destinations: [
+              NavigationRailDestination(icon: const Icon(Icons.map), label: Text(l10n.navMap)),
+              NavigationRailDestination(icon: const Icon(Icons.mic), label: Text(l10n.navReport)),
+              NavigationRailDestination(icon: const Icon(Icons.people), label: Text(l10n.navFeed)),
+              NavigationRailDestination(icon: const Icon(Icons.construction), label: Text(l10n.projects)),
+              NavigationRailDestination(icon: const Icon(Icons.search), label: Text(l10n.schemes)),
+              NavigationRailDestination(icon: const Icon(Icons.dashboard), label: Text(l10n.navDashboard)),
+              NavigationRailDestination(icon: const Icon(Icons.groups), label: Text(l10n.gramSabha)),
+            ],
             trailing: Expanded(
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -175,15 +182,36 @@ class _AppShellState extends State<AppShell> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.person_outline),
-                        tooltip: 'Profile',
-                        onPressed: () => context.go('/profile'),
+                      InkWell(
+                        onTap: () => context.push('/profile'),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.person_outline),
+                              const SizedBox(height: 2),
+                              Text(l10n.profile, style: const TextStyle(fontSize: 10)),
+                            ],
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.logout, color: Colors.red),
-                        tooltip: 'Logout',
-                        onPressed: () => context.read<AuthCubit>().logout(),
+                      const SizedBox(height: 4),
+                      InkWell(
+                        onTap: () => context.read<AuthCubit>().logout(),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.logout, color: Colors.red),
+                              const SizedBox(height: 2),
+                              Text(l10n.logout, style: const TextStyle(fontSize: 10, color: Colors.red)),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -199,6 +227,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   Widget _buildBottomNavLayout(BuildContext context, String location) {
+    final l10n = AppLocalizations.of(context);
     final selectedIndex = _getBottomIndex(location);
     return Scaffold(
       body: widget.child,
@@ -212,33 +241,49 @@ class _AppShellState extends State<AppShell> {
           }
         },
         destinations: [
-          ..._bottomItems.map((item) => NavigationDestination(
-            icon: Icon(item.icon),
-            label: item.label,
-          )),
-          const NavigationDestination(icon: Icon(Icons.more_horiz), label: 'More'),
+          NavigationDestination(icon: const Icon(Icons.map), label: l10n.navMap),
+          NavigationDestination(icon: const Icon(Icons.mic), label: l10n.navReport),
+          NavigationDestination(icon: const Icon(Icons.people), label: l10n.navFeed),
+          NavigationDestination(icon: const Icon(Icons.construction), label: l10n.projects),
+          NavigationDestination(icon: const Icon(Icons.more_horiz), label: l10n.navMore),
         ],
       ),
     );
   }
 
   void _showMoreMenu(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
-      builder: (_) => SafeArea(
+      builder: (sheetCtx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ..._moreItems.map((item) => ListTile(
-              leading: Icon(item.icon),
-              title: Text(item.label),
-              onTap: () { Navigator.pop(context); context.go(item.path); },
-            )),
+            ListTile(
+              leading: const Icon(Icons.search),
+              title: Text(l10n.schemes),
+              onTap: () { Navigator.pop(sheetCtx); context.go('/schemes'); },
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: Text(l10n.leaderDashboard),
+              onTap: () { Navigator.pop(sheetCtx); context.go('/dashboard'); },
+            ),
+            ListTile(
+              leading: const Icon(Icons.groups),
+              title: Text(l10n.gramSabha),
+              onTap: () { Navigator.pop(sheetCtx); context.go('/gramsabha'); },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: Text(l10n.profile),
+              onTap: () { Navigator.pop(sheetCtx); context.push('/profile'); },
+            ),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Logout', style: TextStyle(color: Colors.red)),
+              title: Text(l10n.logout, style: const TextStyle(color: Colors.red)),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(sheetCtx);
                 context.read<AuthCubit>().logout();
               },
             ),
