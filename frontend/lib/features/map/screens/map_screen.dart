@@ -8,6 +8,7 @@ import '../cubit/map_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/report.dart';
 import '../../../core/models/project.dart';
+import '../../../l10n/app_localizations.dart';
 
 const int _demoVillageId = 1; // Tusra village from demo data
 
@@ -35,6 +36,7 @@ class _MapView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is MapError) {
+            final l10n = AppLocalizations.of(context);
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +46,7 @@ class _MapView extends StatelessWidget {
                   Text(state.message),
                   TextButton(
                     onPressed: () => context.read<MapCubit>().refresh(),
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -203,13 +205,14 @@ class _MapView extends StatelessWidget {
     final name = (infra['name'] as String?) ?? '';
     final lat = infra['lat'] as double;
     final lng = infra['lng'] as double;
+    final l10n = AppLocalizations.of(context);
 
-    const typeLabels = {
-      'school': 'School',
-      'hospital': 'Hospital / Health Centre',
-      'market': 'Market / Haat',
-      'water_source': 'Water Source',
-      'road': 'Road',
+    final typeLabels = {
+      'school': l10n.infraSchool,
+      'hospital': l10n.infraHospital,
+      'market': l10n.infraMarket,
+      'water_source': l10n.infraWaterSource,
+      'road': l10n.infraRoad,
     };
 
     showModalBottomSheet(
@@ -255,10 +258,10 @@ class _MapView extends StatelessWidget {
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 8),
-            _InfoRow(icon: Icons.location_on, label: 'Coordinates',
+            _InfoRow(icon: Icons.location_on, label: l10n.coordinates,
                 value: '${lat.toStringAsFixed(4)}°N, ${lng.toStringAsFixed(4)}°E'),
             const SizedBox(height: 8),
-            _InfoRow(icon: Icons.category, label: 'Type',
+            _InfoRow(icon: Icons.category, label: l10n.type,
                 value: typeLabels[type] ?? type),
           ],
         ),
@@ -362,25 +365,28 @@ class _FundStatusOverlay extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.account_balance, size: 14, color: Colors.green.shade700),
-              const SizedBox(width: 4),
-              Text('Funds', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
-            ],
-          ),
-          Text(fundLabel, style: TextStyle(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade700,
-          )),
-          if (panchayatName.isNotEmpty)
-            Text(panchayatName, style: const TextStyle(fontSize: 9, color: Colors.grey)),
-          Text('available', style: const TextStyle(fontSize: 9, color: Colors.grey)),
-        ],
-      ),
+      child: Builder(builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.account_balance, size: 14, color: Colors.green.shade700),
+                const SizedBox(width: 4),
+                Text(l10n.layerFunds, style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+              ],
+            ),
+            Text(fundLabel, style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade700,
+            )),
+            if (panchayatName.isNotEmpty)
+              Text(panchayatName, style: const TextStyle(fontSize: 9, color: Colors.grey)),
+            Text(l10n.fundsAvailable, style: const TextStyle(fontSize: 9, color: Colors.grey)),
+          ],
+        );
+      }),
     );
   }
 }
@@ -398,25 +404,28 @@ class _DemographicsOverlay extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.people, size: 14, color: Colors.teal.shade700),
-              const SizedBox(width: 4),
-              Text('Demographics', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          _DemoRow('Population', '${demographics['population'] ?? '—'}'),
-          _DemoRow('Households', '${demographics['households'] ?? '—'}'),
-          _DemoRow('Agri HH', '${demographics['agricultural_households'] ?? '—'}'),
-          if (demographics['groundwater_depth_m'] != null)
-            _DemoRow('Groundwater', '${demographics['groundwater_depth_m']}m'),
-        ],
-      ),
+      child: Builder(builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.people, size: 14, color: Colors.teal.shade700),
+                const SizedBox(width: 4),
+                Text(l10n.demographics, style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            _DemoRow(l10n.population, '${demographics['population'] ?? '—'}'),
+            _DemoRow(l10n.households, '${demographics['households'] ?? '—'}'),
+            _DemoRow(l10n.agriHouseholds, '${demographics['agricultural_households'] ?? '—'}'),
+            if (demographics['groundwater_depth_m'] != null)
+              _DemoRow(l10n.groundwater, '${demographics['groundwater_depth_m']}m'),
+          ],
+        );
+      }),
     );
   }
 }
@@ -525,37 +534,40 @@ class _LayerControls extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 6),
-            child: Text('Map Layers', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _LayerChip(label: 'रिपोर्ट', layer: 'reports', active: state.showReports,
-                    icon: Icons.report, color: Colors.red),
-                _LayerChip(label: 'Satellite', layer: 'satellite', active: state.showSatellite,
-                    icon: Icons.satellite_alt, color: Colors.green),
-                _LayerChip(label: 'Infra', layer: 'infrastructure', active: state.showInfrastructure,
-                    icon: Icons.business, color: Colors.orange),
-                _LayerChip(label: 'Heatmap', layer: 'heatmap', active: state.showHeatmap,
-                    icon: Icons.whatshot, color: Colors.deepOrange),
-                _LayerChip(label: 'Projects', layer: 'projects', active: state.showProjects,
-                    icon: Icons.construction, color: Colors.blue),
-                _LayerChip(label: 'Funds', layer: 'fund_status', active: state.showFundStatus,
-                    icon: Icons.account_balance, color: Colors.purple),
-                _LayerChip(label: 'People', layer: 'demographics', active: state.showDemographics,
-                    icon: Icons.people, color: Colors.teal),
-              ],
+      child: Builder(builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(l10n.mapLayers, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
             ),
-          ),
-        ],
-      ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _LayerChip(label: l10n.layerReports, layer: 'reports', active: state.showReports,
+                      icon: Icons.report, color: Colors.red),
+                  _LayerChip(label: l10n.layerSatellite, layer: 'satellite', active: state.showSatellite,
+                      icon: Icons.satellite_alt, color: Colors.green),
+                  _LayerChip(label: l10n.layerInfra, layer: 'infrastructure', active: state.showInfrastructure,
+                      icon: Icons.business, color: Colors.orange),
+                  _LayerChip(label: l10n.layerHeatmap, layer: 'heatmap', active: state.showHeatmap,
+                      icon: Icons.whatshot, color: Colors.deepOrange),
+                  _LayerChip(label: l10n.layerProjects, layer: 'projects', active: state.showProjects,
+                      icon: Icons.construction, color: Colors.blue),
+                  _LayerChip(label: l10n.layerFunds, layer: 'fund_status', active: state.showFundStatus,
+                      icon: Icons.account_balance, color: Colors.purple),
+                  _LayerChip(label: l10n.layerPeople, layer: 'demographics', active: state.showDemographics,
+                      icon: Icons.people, color: Colors.teal),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }
@@ -608,21 +620,24 @@ class _PriorityBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
       ),
-      child: Column(
-        children: [
-          const Text('Priority', style: TextStyle(fontSize: 10, color: Colors.grey)),
-          Text(
-            '${score.toStringAsFixed(0)}/100',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: score > 70 ? Colors.red : score > 40 ? Colors.orange : Colors.green,
+      child: Builder(builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return Column(
+          children: [
+            Text(l10n.priority, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+            Text(
+              '${score.toStringAsFixed(0)}/100',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: score > 70 ? Colors.red : score > 40 ? Colors.orange : Colors.green,
+              ),
             ),
-          ),
-          Text(topCluster.category.toUpperCase(),
-              style: const TextStyle(fontSize: 9, color: Colors.grey)),
-        ],
-      ),
+            Text(topCluster.category.toUpperCase(),
+                style: const TextStyle(fontSize: 9, color: Colors.grey)),
+          ],
+        );
+      }),
     );
   }
 }
