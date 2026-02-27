@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../../../core/models/user.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/language_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -21,16 +23,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('प्रोफ़ाइल'),
+        title: Text(l10n.profile),
         actions: [
           TextButton(
             onPressed: () async {
               await context.read<AuthCubit>().logout();
               if (context.mounted) context.go('/login');
             },
-            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+            child: Text(l10n.logout, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -42,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           User? user;
           if (state is AuthAuthenticated) user = state.user;
           if (state is AuthProfileLoaded) user = state.user;
-          if (user == null) return const Center(child: Text('Profile not found'));
+          if (user == null) return Center(child: Text(l10n.profileNotFound));
 
           return ListView(
             padding: const EdgeInsets.all(24),
@@ -71,7 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    user.role.toUpperCase(),
+                    user.isLeader ? l10n.leader.toUpperCase() : l10n.citizen.toUpperCase(),
                     style: TextStyle(
                       color: user.isLeader ? Colors.blue.shade800 : Colors.green.shade800,
                       fontWeight: FontWeight.bold,
@@ -81,10 +84,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              _infoTile('Phone', user.phone, Icons.phone),
-              _infoTile('Panchayat', user.panchayatName ?? 'Not set', Icons.location_city),
-              _infoTile('Ward', user.ward?.toString() ?? 'Not set', Icons.map),
-              _infoTile('Language', user.languagePreference == 'hi' ? 'हिंदी' : 'English', Icons.language),
+              _infoTile(l10n.phone, user.phone, Icons.phone),
+              _infoTile(l10n.panchayat, user.panchayatName ?? l10n.notSet, Icons.location_city),
+              _infoTile(l10n.ward, user.ward?.toString() ?? l10n.notSet, Icons.map),
+              // Language picker replaces the static language tile
+              const LanguagePickerButton(),
               const SizedBox(height: 32),
               if (user.isLeader)
                 SizedBox(
@@ -92,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => context.go('/dashboard'),
                     icon: const Icon(Icons.dashboard),
-                    label: const Text('Leader Dashboard खोलें'),
+                    label: Text(l10n.openLeaderDashboard),
                   ),
                 ),
             ],
