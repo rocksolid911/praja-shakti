@@ -226,4 +226,274 @@ class AppLocalizationsGu extends AppLocalizations {
 
   @override
   String get noProjects => 'હજી સુધી કોઈ પ્રોજેક્ટ નથી';
+
+  @override
+  String get navMap => 'નકશો';
+
+  @override
+  String get navReport => 'અહેવાલ';
+
+  @override
+  String get navFeed => 'ફીડ';
+
+  @override
+  String get navDashboard => 'ડેશબોર્ડ';
+
+  @override
+  String get navMore => 'વધુ';
+
+  @override
+  String get reportDetails => 'અહેવાલ વિગતો';
+
+  @override
+  String get projectDetails => 'પ્રોજેક્ટ વિગતો';
+
+  @override
+  String get otpVerification => 'OTP ચકાસણી';
+
+  @override
+  String get newGramSabha => 'નવી ગ્રામ સભા';
+
+  @override
+  String get raiseIssue => 'મુદ્દો ઉઠાવો';
+
+  @override
+  String get adoptProject => 'પ્રોજેક્ટ અપનાવો';
+
+  @override
+  String get schemeAdvisor => 'યોજના સલાહકાર';
+
+  @override
+  String get aiPoweredSchemeAdvisor => 'AI-આધારિત યોજના સલાહકાર';
+
+  @override
+  String get filterAll => 'બધા';
+
+  @override
+  String get issueType => 'સમસ્યાનો પ્રકાર';
+
+  @override
+  String get description => 'વર્ણન';
+
+  @override
+  String get urgencyLabel => 'તાકીદ';
+
+  @override
+  String get wardNumberOptional => 'વોર્ડ નંબર (વૈકલ્પિક)';
+
+  @override
+  String get submitReport => 'અહેવાલ સબમિટ કરો';
+
+  @override
+  String get locationFound => 'સ્થાન મળ્યું';
+
+  @override
+  String get locationNotAvailable =>
+      'સ્થાન ઉપલબ્ધ નથી — GPS વગર અહેવાલ સબમિટ થશે';
+
+  @override
+  String get enterDescription => 'કૃપા કરીને વર્ણન લખો';
+
+  @override
+  String get noReportsFound => 'કોઈ અહેવાલ મળ્યો નથી';
+
+  @override
+  String get newMeeting => 'નવી બેઠક';
+
+  @override
+  String get createMeeting => 'બેઠક બનાવો';
+
+  @override
+  String get noGramSabhaYet => 'હજી ગ્રામ સભા નથી';
+
+  @override
+  String get createNewMeeting => 'નવી બેઠક શરૂ કરો';
+
+  @override
+  String get issuesLabel => 'મુદ્દાઓ:';
+
+  @override
+  String get noIssuesYet => 'હજી કોઈ મુદ્દો નથી — પ્રથમ મુદ્દો ઉઠાવો!';
+
+  @override
+  String get meetingTitleHint => 'બેઠકનું શીર્ષક';
+
+  @override
+  String get issueDescriptionHint => 'મુદ્દાનું વર્ણન...';
+
+  @override
+  String get create => 'બનાવો';
+
+  @override
+  String get aiSummary => 'AI સારાંશ';
+
+  @override
+  String get scheduled => 'નિર્ધારિત';
+
+  @override
+  String get live => 'લાઇવ';
+
+  @override
+  String get urgencyLow => 'ઓછી';
+
+  @override
+  String get urgencyMedium => 'મધ્યમ';
+
+  @override
+  String get urgencyHigh => 'વધારે';
+
+  @override
+  String get urgencyCritical => 'ગંભીર';
+
+  @override
+  String get aiConfidence => 'AI વિશ્વસનીયતા';
+
+  @override
+  String get reportedBy => 'રિપોર્ટ કર્યું';
+
+  @override
+  String get villageLabel => 'ગામ';
+
+  @override
+  String get dateLabel => 'તારીખ';
+
+  @override
+  String get locationLabel => 'સ્થળ';
+
+  @override
+  String get beneficiaries => 'લાભાર્થી';
+
+  @override
+  String get costLabel => 'ખર્ચ';
+
+  @override
+  String get timeline => 'સમયરેખા';
+
+  @override
+  String get fundPlan => 'ભંડોળ યોજના';
+
+  @override
+  String get viewFullDetails => 'સંપૂર્ણ વિગત જુઓ';
+
+  @override
+  String get noProjectsFound => 'કોઈ પ્રોજેક્ટ મળ્યો નથી';
+
+  @override
+  String get aiRecommended => 'AI ભલામણ';
+
+  @override
+  String get active => 'સક્રિય';
+
+  @override
+  String get done => 'પૂર્ણ';
+
+  @override
+  String get projectStatus => 'પ્રોજેક્ટ સ્થિતિ';
+
+  @override
+  String get expectedImpact => 'અપેક્ષિત અસર';
+
+  @override
+  String get subsidySavings => '% સબ્સિડી બચત';
+
+  @override
+  String get citizenRating => 'નાગરિક રેટિંગ';
+
+  @override
+  String get giveYourRating => 'તમારી રેટિંગ આપો:';
+
+  @override
+  String get writeReviewHint => 'સમીક્ષા લખો (વૈકલ્પિક)...';
+
+  @override
+  String get ratingSubmitted => 'રેટિંગ આપ્યું! આભાર';
+
+  @override
+  String get submitRating => 'રેટિંગ સબમિટ કરો';
+
+  @override
+  String get activeProjects => 'સક્રિય પ્રોજેક્ટ';
+
+  @override
+  String get priorities => 'પ્રાધાન્ય';
+
+  @override
+  String get aiPriorityRanking => 'AI પ્રાધાન્ય ક્રમ';
+
+  @override
+  String get issuesNeedingAttention => 'તાત્કાલિક ધ્યાન જોઈતી સમસ્યાઓ';
+
+  @override
+  String get currentlyInProgress => 'હાલ ચાલુ છે';
+
+  @override
+  String get fundUtilization => 'ભંડોળ ઉપયોગ';
+
+  @override
+  String get budgetTracking => 'શ્રેણી મુજબ બજેટ ટ્રેકિંગ';
+
+  @override
+  String get proposalReady => 'પ્રસ્તાવ તૈયાર!';
+
+  @override
+  String get totalCost => 'કુલ ખર્ચ';
+
+  @override
+  String get subsidyLabel => 'સહાય';
+
+  @override
+  String get pdfProposalReady => 'PDF પ્રસ્તાવ તૈયાર છે, ડાઉનલોડ કરો.';
+
+  @override
+  String get generatingProposal => 'પ્રસ્તાવ તૈયાર થઈ રહ્યો છે...';
+
+  @override
+  String get close => 'બંધ કરો';
+
+  @override
+  String get downloadPdf => 'PDF ડાઉનલોડ';
+
+  @override
+  String get categoryLabel => 'શ્રેણી';
+
+  @override
+  String get aiProposalNote => 'AI-જનિત પ્રસ્તાવ આપોઆપ બનશે.';
+
+  @override
+  String get projectAdoptedSnackbar =>
+      'પ્રોજેક્ટ સ્વીકૃત! પ્રસ્તાવ તૈયાર થઈ રહ્યો છે...';
+
+  @override
+  String get adopt => 'અપનાવો';
+
+  @override
+  String get schemeWelcomeTitle => 'સરકારી યોજના સહાયક';
+
+  @override
+  String get schemeWelcomeBody =>
+      'PM-KUSUM, MGNREGA, Jal Jeevan Mission જેવી યોજનાઓ વિશે પૂછો. AI તમારા ગામ મુજબ પાત્રતા બતાવશે.';
+
+  @override
+  String get frequentlyAsked => 'વારંવાર પૂછાતા પ્રશ્નો:';
+
+  @override
+  String get askAboutScheme => 'યોજના વિશે પૂછો...';
+
+  @override
+  String get clearChat => 'ચૅટ સાફ કરો';
+
+  @override
+  String get quickQuery1 => 'PM-KUSUM માટે પાત્રતા શું છે?';
+
+  @override
+  String get quickQuery2 => 'MGNREGA માં કેટલા દિવસ કામ મળે?';
+
+  @override
+  String get quickQuery3 => 'Jal Jeevan Mission શું છે?';
+
+  @override
+  String get quickQuery4 => 'PMAY-G માટે કેવી રીતે અરજી કરવી?';
+
+  @override
+  String get quickQuery5 => 'Kisan Credit Card કેવી રીતે મેળવવું?';
 }

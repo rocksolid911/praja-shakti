@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../cubit/report_cubit.dart';
 import '../cubit/report_state.dart';
 import '../../../core/api/api_client.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
@@ -34,21 +35,39 @@ class _ReportViewState extends State<_ReportView> {
   bool _locationFetched = false;
 
   static const _categories = [
-    ('water', 'पानी', Icons.water_drop, Colors.blue),
-    ('road', 'सड़क', Icons.add_road, Colors.orange),
-    ('health', 'स्वास्थ्य', Icons.local_hospital, Colors.red),
-    ('education', 'शिक्षा', Icons.school, Colors.purple),
-    ('electricity', 'बिजली', Icons.bolt, Colors.yellow),
-    ('sanitation', 'स्वच्छता', Icons.wc, Colors.teal),
-    ('other', 'अन्य', Icons.more_horiz, Colors.grey),
+    ('water', Icons.water_drop, Colors.blue),
+    ('road', Icons.add_road, Colors.orange),
+    ('health', Icons.local_hospital, Colors.red),
+    ('education', Icons.school, Colors.purple),
+    ('electricity', Icons.bolt, Colors.yellow),
+    ('sanitation', Icons.wc, Colors.teal),
+    ('other', Icons.more_horiz, Colors.grey),
   ];
 
   static const _urgencies = [
-    ('low', 'कम', Colors.green),
-    ('medium', 'मध्यम', Colors.orange),
-    ('high', 'अधिक', Colors.deepOrange),
-    ('critical', 'गंभीर', Colors.red),
+    ('low', Colors.green),
+    ('medium', Colors.orange),
+    ('high', Colors.deepOrange),
+    ('critical', Colors.red),
   ];
+
+  static String _categoryLabel(AppLocalizations l10n, String key) => switch (key) {
+    'water' => l10n.water,
+    'road' => l10n.road,
+    'health' => l10n.health,
+    'education' => l10n.education,
+    'electricity' => l10n.electricity,
+    'sanitation' => l10n.sanitation,
+    _ => l10n.other,
+  };
+
+  static String _urgencyLabel(AppLocalizations l10n, String key) => switch (key) {
+    'low' => l10n.urgencyLow,
+    'medium' => l10n.urgencyMedium,
+    'high' => l10n.urgencyHigh,
+    'critical' => l10n.urgencyCritical,
+    _ => key,
+  };
 
   @override
   void initState() {
@@ -95,17 +114,19 @@ class _ReportViewState extends State<_ReportView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('समस्या रिपोर्ट करें'),
+          title: Text(AppLocalizations.of(context).reportIssue),
           backgroundColor: Colors.green.shade700,
           foregroundColor: Colors.white,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: Column(
+          child: Builder(builder: (context) {
+            final l10n = AppLocalizations.of(context);
+            return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Category selection
-              const Text('समस्या का प्रकार', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(l10n.issueType, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 12),
               GridView.count(
                 crossAxisCount: 4,
@@ -115,20 +136,20 @@ class _ReportViewState extends State<_ReportView> {
                 crossAxisSpacing: 8,
                 childAspectRatio: 0.9,
                 children: _categories.map((cat) => _CategoryTile(
-                  label: cat.$2, icon: cat.$3, color: cat.$4,
+                  label: _categoryLabel(l10n, cat.$1), icon: cat.$2, color: cat.$3,
                   selected: _category == cat.$1,
                   onTap: () => setState(() => _category = cat.$1),
                 )).toList(),
               ),
               const SizedBox(height: 20),
               // Description
-              const Text('विवरण', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(l10n.description, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 8),
               TextField(
                 controller: _descController,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: 'समस्या के बारे में विस्तार से लिखें...',
+                  hintText: '${l10n.description}...',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: Colors.grey.shade50,
@@ -136,14 +157,14 @@ class _ReportViewState extends State<_ReportView> {
               ),
               const SizedBox(height: 20),
               // Urgency
-              const Text('गंभीरता', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(l10n.urgencyLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 8),
               Row(
                 children: _urgencies.map((u) => Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: _UrgencyChip(
-                      label: u.$2, color: u.$3,
+                      label: _urgencyLabel(l10n, u.$1), color: u.$2,
                       selected: _urgency == u.$1,
                       onTap: () => setState(() => _urgency = u.$1),
                     ),
@@ -152,13 +173,13 @@ class _ReportViewState extends State<_ReportView> {
               ),
               const SizedBox(height: 20),
               // Ward number
-              const Text('वार्ड नंबर (वैकल्पिक)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(l10n.wardNumberOptional, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 8),
               TextField(
                 keyboardType: TextInputType.number,
                 onChanged: (v) => _ward = int.tryParse(v),
                 decoration: InputDecoration(
-                  hintText: 'जैसे: 3',
+                  hintText: l10n.ward,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   filled: true, fillColor: Colors.grey.shade50,
                 ),
@@ -181,8 +202,8 @@ class _ReportViewState extends State<_ReportView> {
                     Expanded(
                       child: Text(
                         _locationFetched
-                            ? 'स्थान मिला: ${_latitude?.toStringAsFixed(4)}, ${_longitude?.toStringAsFixed(4)}'
-                            : 'स्थान नहीं मिला — रिपोर्ट बिना GPS के भी जमा होगी',
+                            ? '${l10n.locationFound}: ${_latitude?.toStringAsFixed(4)}, ${_longitude?.toStringAsFixed(4)}'
+                            : l10n.locationNotAvailable,
                         style: TextStyle(
                           color: _locationFetched ? Colors.green.shade800 : Colors.orange.shade800,
                           fontSize: 13,
@@ -196,6 +217,7 @@ class _ReportViewState extends State<_ReportView> {
               BlocBuilder<ReportCubit, ReportState>(
                 builder: (context, state) {
                   final loading = state is ReportSubmitting;
+                  final l10n = AppLocalizations.of(context);
                   return SizedBox(
                     width: double.infinity,
                     height: 52,
@@ -205,7 +227,7 @@ class _ReportViewState extends State<_ReportView> {
                           ? const SizedBox(width: 20, height: 20,
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                           : const Icon(Icons.send),
-                      label: const Text('रिपोर्ट जमा करें', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      label: Text(l10n.submitReport, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green.shade700,
                         foregroundColor: Colors.white,
@@ -217,16 +239,18 @@ class _ReportViewState extends State<_ReportView> {
               ),
               const SizedBox(height: 20),
             ],
-          ),
+          );
+          }),
         ),
       ),
     );
   }
 
   void _submit() {
+    final l10n = AppLocalizations.of(context);
     if (_descController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('कृपया विवरण लिखें'), backgroundColor: Colors.orange),
+        SnackBar(content: Text(l10n.enterDescription), backgroundColor: Colors.orange),
       );
       return;
     }
