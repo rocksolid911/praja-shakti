@@ -23,11 +23,14 @@ GoRouter createRouter(AuthCubit authCubit) {
     refreshListenable: _AuthNotifier(authCubit),
     redirect: (context, state) {
       final authState = authCubit.state;
-      final isAuthenticated = authState is AuthAuthenticated;
+      // AuthLoading and AuthProfileLoaded are also valid authenticated states
+      final isAuthenticated = authState is AuthAuthenticated ||
+          authState is AuthProfileLoaded ||
+          authState is AuthLoading;
       final isOnAuthPage = state.uri.path == '/login' || state.uri.path == '/otp';
 
       if (!isAuthenticated && !isOnAuthPage) return '/login';
-      if (isAuthenticated && isOnAuthPage) return '/map';
+      if (authState is AuthAuthenticated && isOnAuthPage) return '/map';
       return null;
     },
     routes: [
