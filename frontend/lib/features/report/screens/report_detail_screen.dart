@@ -4,6 +4,7 @@ import '../cubit/report_cubit.dart';
 import '../cubit/report_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/report.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ReportDetailScreen extends StatelessWidget {
   final int reportId;
@@ -24,7 +25,7 @@ class _ReportDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('रिपोर्ट विवरण')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).reportDetails)),
       body: BlocBuilder<ReportCubit, ReportState>(
         builder: (context, state) {
           if (state is ReportLoading) {
@@ -49,6 +50,7 @@ class _ReportDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -90,7 +92,7 @@ class _ReportDetail extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  _statusLabel(report.status),
+                  _statusLabel(report.status, l10n),
                   style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -128,7 +130,7 @@ class _ReportDetail extends StatelessWidget {
                       '${report.voteCount}',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
-                    const Text('votes', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(l10n.votes, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
                 const SizedBox(width: 20),
@@ -138,10 +140,10 @@ class _ReportDetail extends StatelessWidget {
                     children: [
                       _urgencyBadge(report.urgency),
                       if (report.ward != null)
-                        Text('Ward ${report.ward}', style: const TextStyle(color: Colors.grey)),
+                        Text('${l10n.ward} ${report.ward}', style: const TextStyle(color: Colors.grey)),
                       if (report.isGramSabha)
                         Chip(
-                          label: const Text('Gram Sabha', style: TextStyle(fontSize: 11)),
+                          label: Text(l10n.gramSabha, style: const TextStyle(fontSize: 11)),
                           backgroundColor: Colors.purple.shade100,
                         ),
                     ],
@@ -157,7 +159,7 @@ class _ReportDetail extends StatelessWidget {
                           color: report.aiConfidence! > 0.7 ? Colors.green : Colors.orange,
                         ),
                       ),
-                      const Text('AI confidence', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      Text(l10n.aiConfidence, style: const TextStyle(fontSize: 10, color: Colors.grey)),
                     ],
                   ),
               ],
@@ -172,7 +174,7 @@ class _ReportDetail extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('विवरण', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(l10n.description, style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Text(report.descriptionText),
                 if (report.descriptionHindi.isNotEmpty) ...[
@@ -190,11 +192,11 @@ class _ReportDetail extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                _metaRow('Reported by', report.reporterName.isNotEmpty ? report.reporterName : 'Anonymous'),
-                _metaRow('Village', report.villageName),
-                _metaRow('Date', _formatDate(report.createdAt)),
+                _metaRow(l10n.reportedBy, report.reporterName.isNotEmpty ? report.reporterName : 'Anonymous'),
+                _metaRow(l10n.villageLabel, report.villageName),
+                _metaRow(l10n.dateLabel, _formatDate(report.createdAt)),
                 if (report.latitude != null)
-                  _metaRow('Location', '${report.latitude!.toStringAsFixed(4)}, ${report.longitude!.toStringAsFixed(4)}'),
+                  _metaRow(l10n.locationLabel, '${report.latitude!.toStringAsFixed(4)}, ${report.longitude!.toStringAsFixed(4)}'),
               ],
             ),
           ),
@@ -237,12 +239,12 @@ class _ReportDetail extends StatelessWidget {
     }
   }
 
-  String _statusLabel(String status) => switch (status) {
-    'reported' => 'रिपोर्ट',
-    'adopted' => 'स्वीकृत',
-    'in_progress' => 'जारी',
-    'completed' => 'पूर्ण',
-    'delayed' => 'विलंबित',
+  String _statusLabel(String status, AppLocalizations l10n) => switch (status) {
+    'reported' => l10n.reported,
+    'adopted' => l10n.adopted,
+    'in_progress' => l10n.inProgress,
+    'completed' => l10n.completed,
+    'delayed' => l10n.delayed,
     _ => status,
   };
 

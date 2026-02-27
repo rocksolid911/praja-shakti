@@ -7,6 +7,7 @@ import '../cubit/dashboard_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/project.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../l10n/app_localizations.dart';
 
 class LeaderDashboardScreen extends StatelessWidget {
   const LeaderDashboardScreen({super.key});
@@ -28,11 +29,11 @@ class _DashboardView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Leader Dashboard', style: TextStyle(fontSize: 16)),
-            Text('Tusra Village, Balangir', style: TextStyle(fontSize: 11, color: Colors.white70)),
+            Text(AppLocalizations.of(context).leaderDashboard, style: const TextStyle(fontSize: 16)),
+            const Text('Tusra Village, Balangir', style: TextStyle(fontSize: 11, color: Colors.white70)),
           ],
         ),
         backgroundColor: Colors.blue.shade800,
@@ -61,7 +62,7 @@ class _DashboardView extends StatelessWidget {
                   Text(state.message),
                   TextButton(
                     onPressed: () => context.read<DashboardCubit>().loadDashboard(),
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context).retry),
                   ),
                 ],
               ),
@@ -91,11 +92,11 @@ class _DashboardView extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          ..._summaryCards(state),
+          ..._summaryCards(context, state),
           const SizedBox(height: 20),
           ..._prioritySection(context, state),
           ..._activeProjectsSection(context, state),
-          ..._fundSection(state),
+          ..._fundSection(context, state),
         ],
       ),
     );
@@ -112,7 +113,7 @@ class _DashboardView extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                ..._summaryCards(state),
+                ..._summaryCards(context, state),
                 const SizedBox(height: 24),
                 ..._prioritySection(context, state),
               ],
@@ -128,7 +129,7 @@ class _DashboardView extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               children: [
                 ..._activeProjectsSection(context, state),
-                ..._fundSection(state),
+                ..._fundSection(context, state),
               ],
             ),
           ),
@@ -137,31 +138,35 @@ class _DashboardView extends StatelessWidget {
     );
   }
 
-  List<Widget> _summaryCards(DashboardLoaded state) => [
-    Row(
-      children: [
-        Expanded(child: _SummaryCard(
-          label: 'Reports', value: '${state.totalReports}',
-          icon: Icons.report, color: Colors.red,
-        )),
-        const SizedBox(width: 10),
-        Expanded(child: _SummaryCard(
-          label: 'Active Projects', value: '${state.activeProjects.length}',
-          icon: Icons.construction, color: Colors.blue,
-        )),
-        const SizedBox(width: 10),
-        Expanded(child: _SummaryCard(
-          label: 'Priorities', value: '${state.priorities.length}',
-          icon: Icons.priority_high, color: Colors.orange,
-        )),
-      ],
-    ),
-  ];
+  List<Widget> _summaryCards(BuildContext context, DashboardLoaded state) {
+    final l10n = AppLocalizations.of(context);
+    return [
+      Row(
+        children: [
+          Expanded(child: _SummaryCard(
+            label: l10n.reports, value: '${state.totalReports}',
+            icon: Icons.report, color: Colors.red,
+          )),
+          const SizedBox(width: 10),
+          Expanded(child: _SummaryCard(
+            label: l10n.activeProjects, value: '${state.activeProjects.length}',
+            icon: Icons.construction, color: Colors.blue,
+          )),
+          const SizedBox(width: 10),
+          Expanded(child: _SummaryCard(
+            label: l10n.priorities, value: '${state.priorities.length}',
+            icon: Icons.priority_high, color: Colors.orange,
+          )),
+        ],
+      ),
+    ];
+  }
 
   List<Widget> _prioritySection(BuildContext context, DashboardLoaded state) {
     if (state.priorities.isEmpty) return [];
+    final l10n = AppLocalizations.of(context);
     return [
-      const _SectionHeader(title: 'AI Priority Ranking', subtitle: 'Issues needing immediate attention'),
+      _SectionHeader(title: l10n.aiPriorityRanking, subtitle: l10n.issuesNeedingAttention),
       const SizedBox(height: 10),
       ...state.priorities.take(5).toList().asMap().entries.map((e) =>
         _PriorityCard(
@@ -176,8 +181,9 @@ class _DashboardView extends StatelessWidget {
 
   List<Widget> _activeProjectsSection(BuildContext context, DashboardLoaded state) {
     if (state.activeProjects.isEmpty) return [];
+    final l10n = AppLocalizations.of(context);
     return [
-      const _SectionHeader(title: 'Active Projects', subtitle: 'Currently in progress'),
+      _SectionHeader(title: l10n.activeProjects, subtitle: l10n.currentlyInProgress),
       const SizedBox(height: 10),
       ...state.activeProjects.map((p) => _ActiveProjectTile(
         project: p,
@@ -187,10 +193,11 @@ class _DashboardView extends StatelessWidget {
     ];
   }
 
-  List<Widget> _fundSection(DashboardLoaded state) {
+  List<Widget> _fundSection(BuildContext context, DashboardLoaded state) {
     if (state.fundStatus.isEmpty) return [];
+    final l10n = AppLocalizations.of(context);
     return [
-      const _SectionHeader(title: 'Fund Utilization', subtitle: 'Budget tracking by category'),
+      _SectionHeader(title: l10n.fundUtilization, subtitle: l10n.budgetTracking),
       const SizedBox(height: 10),
       Card(
         child: Padding(
@@ -204,15 +211,16 @@ class _DashboardView extends StatelessWidget {
   }
 
   void _showProposalDialog(BuildContext context, Project project) {
+    final l10n = AppLocalizations.of(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.description, color: Colors.green),
-              SizedBox(width: 8),
-              Text('Proposal Ready!'),
+              const Icon(Icons.description, color: Colors.green),
+              const SizedBox(width: 8),
+              Text(l10n.proposalReady),
             ],
           ),
           content: Column(
@@ -222,11 +230,11 @@ class _DashboardView extends StatelessWidget {
               Text(project.title, style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               if (project.fundPlans.isNotEmpty) ...[
-                Text('Total Cost: ₹${_formatCostStatic(project.estimatedCostInr)}'),
+                Text('${l10n.totalCost}: ₹${_formatCostStatic(project.estimatedCostInr)}'),
                 ...project.fundPlans.take(1).map((fp) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Subsidy: ${fp.savingsPct.toStringAsFixed(0)}% savings'),
+                    Text('${l10n.subsidyLabel}: ${fp.savingsPct.toStringAsFixed(0)}% ${l10n.subsidySavings}'),
                     ...fp.schemesUsed.take(2).map((s) => Text(
                       '• ${s.schemeName}: ₹${_formatCostStatic(s.amountInr)}',
                       style: const TextStyle(fontSize: 13, color: Colors.grey),
@@ -236,15 +244,15 @@ class _DashboardView extends StatelessWidget {
               ],
               const SizedBox(height: 8),
               if (project.proposalDownloadUrl != null)
-                const Text('PDF proposal generated and ready to download.',
-                    style: TextStyle(color: Colors.grey, fontSize: 13))
+                Text(l10n.pdfProposalReady,
+                    style: const TextStyle(color: Colors.grey, fontSize: 13))
               else
-                const Text('Proposal is being generated...',
-                    style: TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(l10n.generatingProposal,
+                    style: const TextStyle(color: Colors.grey, fontSize: 13)),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.close)),
             if (project.proposalDownloadUrl != null)
               ElevatedButton.icon(
                 onPressed: () async {
@@ -255,7 +263,7 @@ class _DashboardView extends StatelessWidget {
                   }
                 },
                 icon: const Icon(Icons.download),
-                label: const Text('Download PDF'),
+                label: Text(l10n.downloadPdf),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               ),
           ],
@@ -271,37 +279,37 @@ class _DashboardView extends StatelessWidget {
   }
 
   void _showAdoptDialog(BuildContext context, PriorityCluster cluster) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('परियोजना अपनाएं'),
+        title: Text(l10n.adoptProject),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('श्रेणी: ${cluster.category.toUpperCase()}'),
-            Text('रिपोर्ट: ${cluster.reportCount}'),
-            Text('Priority Score: ${cluster.totalScore.toStringAsFixed(0)}/100'),
+            Text('${l10n.categoryLabel}: ${cluster.category.toUpperCase()}'),
+            Text('${l10n.reports}: ${cluster.reportCount}'),
+            Text('${l10n.priority}: ${cluster.totalScore.toStringAsFixed(0)}/100'),
             const SizedBox(height: 8),
-            const Text('AI-generated proposal will be created automatically.',
-                style: TextStyle(color: Colors.grey, fontSize: 13)),
+            Text(l10n.aiProposalNote, style: const TextStyle(color: Colors.grey, fontSize: 13)),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               context.read<DashboardCubit>().adoptProject(cluster.id, 0);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('परियोजना स्वीकृत! प्रस्ताव तैयार हो रहा है...'),
+                SnackBar(
+                  content: Text(l10n.projectAdoptedSnackbar),
                   backgroundColor: Colors.green,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: const Text('Adopt Project', style: TextStyle(color: Colors.white)),
+            child: Text(l10n.adoptProject, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -428,7 +436,7 @@ class _PriorityCard extends StatelessWidget {
                 minimumSize: const Size(60, 32),
                 textStyle: const TextStyle(fontSize: 12),
               ),
-              child: const Text('Adopt'),
+              child: Text(AppLocalizations.of(context).adopt),
             ),
           ],
         ),

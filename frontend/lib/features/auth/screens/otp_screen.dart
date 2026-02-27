@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../../../l10n/app_localizations.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
@@ -39,7 +40,7 @@ class _OTPScreenState extends State<OTPScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('OTP सत्यापन'),
+          title: Text(AppLocalizations.of(context).otpVerification),
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),

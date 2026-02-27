@@ -5,6 +5,7 @@ import '../cubit/project_cubit.dart';
 import '../cubit/project_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/project.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ProjectDetailScreen extends StatelessWidget {
   final int projectId;
@@ -25,7 +26,7 @@ class _ProjectDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('परियोजना विवरण')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).projectDetails)),
       body: BlocBuilder<ProjectCubit, ProjectState>(
         builder: (context, state) {
           if (state is ProjectLoading) return const Center(child: CircularProgressIndicator());
@@ -44,6 +45,7 @@ class _ProjectDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -68,13 +70,13 @@ class _ProjectDetail extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _headerStat('Cost', '₹${_formatCost(project.estimatedCostInr)}'),
+                  _headerStat(l10n.costLabel, '₹${_formatCost(project.estimatedCostInr)}'),
                   const SizedBox(width: 20),
                   if (project.beneficiaryCount != null)
-                    _headerStat('Beneficiaries', '${project.beneficiaryCount}'),
+                    _headerStat(l10n.beneficiaries, '${project.beneficiaryCount}'),
                   const SizedBox(width: 20),
                   if (project.priorityScore != null)
-                    _headerStat('Priority', '${project.priorityScore!.toStringAsFixed(0)}/100'),
+                    _headerStat(l10n.priority, '${project.priorityScore!.toStringAsFixed(0)}/100'),
                 ],
               ),
             ],
@@ -88,31 +90,31 @@ class _ProjectDetail extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('परियोजना स्थिति', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(l10n.projectStatus, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 16),
                 _TimelineItem(
-                  label: 'AI Recommended',
+                  label: l10n.aiRecommended,
                   date: project.createdAt,
                   done: true,
                   icon: Icons.auto_awesome,
                   color: Colors.purple,
                 ),
                 _TimelineItem(
-                  label: 'Adopted',
+                  label: l10n.adopted,
                   date: project.adoptedAt,
                   done: project.adoptedAt != null,
                   icon: Icons.check_circle,
                   color: Colors.amber.shade700,
                 ),
                 _TimelineItem(
-                  label: 'In Progress',
+                  label: l10n.inProgress,
                   date: project.startedAt,
                   done: project.startedAt != null,
                   icon: Icons.construction,
                   color: Colors.blue,
                 ),
                 _TimelineItem(
-                  label: 'Completed',
+                  label: l10n.completed,
                   date: project.completedAt,
                   done: project.completedAt != null,
                   icon: Icons.done_all,
@@ -131,7 +133,7 @@ class _ProjectDetail extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('विवरण', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(l10n.description, style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Text(project.description),
               ],
@@ -147,7 +149,7 @@ class _ProjectDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('अपेक्षित प्रभाव', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(l10n.expectedImpact, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 12),
                   ...project.impactProjection!.entries.map((e) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -174,10 +176,10 @@ class _ProjectDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('फंड योजना', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(l10n.fundPlan, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 4),
                   Text(
-                    '${project.fundPlans.first.savingsPct.toStringAsFixed(0)}% सब्सिडी बचत',
+                    '${project.fundPlans.first.savingsPct.toStringAsFixed(0)}% ${l10n.subsidySavings}',
                     style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
@@ -207,7 +209,7 @@ class _ProjectDetail extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('नागरिक रेटिंग', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(l10n.citizenRating, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 8),
                   if (project.avgCitizenRating != null)
                     Row(
@@ -223,7 +225,7 @@ class _ProjectDetail extends StatelessWidget {
                       ],
                     ),
                   const SizedBox(height: 12),
-                  const Text('अपनी रेटिंग दें:'),
+                  Text(l10n.giveYourRating),
                   const SizedBox(height: 8),
                   _RatingSection(projectId: project.id),
                 ],
@@ -343,7 +345,7 @@ class _RatingSectionState extends State<_RatingSection> {
           controller: _reviewController,
           maxLines: 2,
           decoration: InputDecoration(
-            hintText: 'समीक्षा लिखें (वैकल्पिक)...',
+            hintText: AppLocalizations.of(context).writeReviewHint,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
         ),
@@ -352,10 +354,10 @@ class _RatingSectionState extends State<_RatingSection> {
           onPressed: () {
             context.read<ProjectCubit>().rateProject(widget.projectId, _rating.toInt(), _reviewController.text);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('रेटिंग दी गई! धन्यवाद'), backgroundColor: Colors.green),
+              SnackBar(content: Text(AppLocalizations.of(context).ratingSubmitted), backgroundColor: Colors.green),
             );
           },
-          child: const Text('रेटिंग जमा करें'),
+          child: Text(AppLocalizations.of(context).submitRating),
         ),
       ],
     );

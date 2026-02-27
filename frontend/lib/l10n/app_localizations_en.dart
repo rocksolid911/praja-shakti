@@ -226,4 +226,276 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noProjects => 'No projects yet';
+
+  @override
+  String get navMap => 'Map';
+
+  @override
+  String get navReport => 'Report';
+
+  @override
+  String get navFeed => 'Feed';
+
+  @override
+  String get navDashboard => 'Dashboard';
+
+  @override
+  String get navMore => 'More';
+
+  @override
+  String get reportDetails => 'Report Details';
+
+  @override
+  String get projectDetails => 'Project Details';
+
+  @override
+  String get otpVerification => 'OTP Verification';
+
+  @override
+  String get newGramSabha => 'New Gram Sabha';
+
+  @override
+  String get raiseIssue => 'Raise Issue';
+
+  @override
+  String get adoptProject => 'Adopt Project';
+
+  @override
+  String get schemeAdvisor => 'Scheme Advisor';
+
+  @override
+  String get aiPoweredSchemeAdvisor => 'AI-powered scheme advisor';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get issueType => 'Type of Issue';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get urgencyLabel => 'Urgency';
+
+  @override
+  String get wardNumberOptional => 'Ward Number (Optional)';
+
+  @override
+  String get submitReport => 'Submit Report';
+
+  @override
+  String get locationFound => 'Location found';
+
+  @override
+  String get locationNotAvailable =>
+      'Location not available — report will be submitted without GPS';
+
+  @override
+  String get enterDescription => 'Please enter a description';
+
+  @override
+  String get noReportsFound => 'No reports found';
+
+  @override
+  String get newMeeting => 'New Meeting';
+
+  @override
+  String get createMeeting => 'Create Meeting';
+
+  @override
+  String get noGramSabhaYet => 'No Gram Sabha yet';
+
+  @override
+  String get createNewMeeting => 'Create a new meeting';
+
+  @override
+  String get issuesLabel => 'Issues:';
+
+  @override
+  String get noIssuesYet => 'No issues yet — raise the first one!';
+
+  @override
+  String get meetingTitleHint => 'Meeting title';
+
+  @override
+  String get issueDescriptionHint => 'Describe the issue...';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get aiSummary => 'AI Summary';
+
+  @override
+  String get scheduled => 'Scheduled';
+
+  @override
+  String get live => 'LIVE';
+
+  @override
+  String get urgencyLow => 'Low';
+
+  @override
+  String get urgencyMedium => 'Medium';
+
+  @override
+  String get urgencyHigh => 'High';
+
+  @override
+  String get urgencyCritical => 'Critical';
+
+  @override
+  String get aiConfidence => 'AI confidence';
+
+  @override
+  String get reportedBy => 'Reported by';
+
+  @override
+  String get villageLabel => 'Village';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get locationLabel => 'Location';
+
+  @override
+  String get beneficiaries => 'beneficiaries';
+
+  @override
+  String get costLabel => 'Cost';
+
+  @override
+  String get timeline => 'Timeline';
+
+  @override
+  String get fundPlan => 'Fund Plan';
+
+  @override
+  String get viewFullDetails => 'View Full Details';
+
+  @override
+  String get noProjectsFound => 'No projects found';
+
+  @override
+  String get aiRecommended => 'AI Recommended';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get projectStatus => 'Project Status';
+
+  @override
+  String get expectedImpact => 'Expected Impact';
+
+  @override
+  String get subsidySavings => '% subsidy savings';
+
+  @override
+  String get citizenRating => 'Citizen Rating';
+
+  @override
+  String get giveYourRating => 'Give your rating:';
+
+  @override
+  String get writeReviewHint => 'Write review (optional)...';
+
+  @override
+  String get ratingSubmitted => 'Rating submitted! Thank you';
+
+  @override
+  String get submitRating => 'Submit Rating';
+
+  @override
+  String get activeProjects => 'Active Projects';
+
+  @override
+  String get priorities => 'Priorities';
+
+  @override
+  String get aiPriorityRanking => 'AI Priority Ranking';
+
+  @override
+  String get issuesNeedingAttention => 'Issues needing immediate attention';
+
+  @override
+  String get currentlyInProgress => 'Currently in progress';
+
+  @override
+  String get fundUtilization => 'Fund Utilization';
+
+  @override
+  String get budgetTracking => 'Budget tracking by category';
+
+  @override
+  String get proposalReady => 'Proposal Ready!';
+
+  @override
+  String get totalCost => 'Total Cost';
+
+  @override
+  String get subsidyLabel => 'Subsidy';
+
+  @override
+  String get pdfProposalReady =>
+      'PDF proposal generated and ready to download.';
+
+  @override
+  String get generatingProposal => 'Proposal is being generated...';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get downloadPdf => 'Download PDF';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get aiProposalNote =>
+      'AI-generated proposal will be created automatically.';
+
+  @override
+  String get projectAdoptedSnackbar =>
+      'Project adopted! Proposal is being prepared...';
+
+  @override
+  String get adopt => 'Adopt';
+
+  @override
+  String get schemeWelcomeTitle => 'Government Scheme Advisor';
+
+  @override
+  String get schemeWelcomeBody =>
+      'Ask about schemes like PM-KUSUM, MGNREGA, Jal Jeevan Mission. AI will tell you eligibility based on your village.';
+
+  @override
+  String get frequentlyAsked => 'Frequently asked questions:';
+
+  @override
+  String get askAboutScheme => 'Ask about a scheme...';
+
+  @override
+  String get clearChat => 'Clear chat';
+
+  @override
+  String get quickQuery1 => 'What is eligibility for PM-KUSUM?';
+
+  @override
+  String get quickQuery2 => 'How many days work in MGNREGA?';
+
+  @override
+  String get quickQuery3 => 'What is Jal Jeevan Mission?';
+
+  @override
+  String get quickQuery4 => 'How to apply for PMAY-G?';
+
+  @override
+  String get quickQuery5 => 'How to get Kisan Credit Card?';
 }

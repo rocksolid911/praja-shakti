@@ -26,6 +26,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: l10n.navMap,
+          onPressed: () => context.canPop() ? context.pop() : context.go('/map'),
+        ),
         title: Text(l10n.profile),
         actions: [
           TextButton(
