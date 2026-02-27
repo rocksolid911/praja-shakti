@@ -75,15 +75,13 @@ class _MapView extends StatelessWidget {
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.prajashakti.app',
             ),
-            // Layer 2: Satellite NDVI overlay (Bhuvan WMS)
+            // Layer 2: Satellite imagery (ESRI World Imagery — free, no CORS, works on web)
             if (state.showSatellite)
               TileLayer(
-                wmsOptions: WMSTileLayerOptions(
-                  baseUrl: 'https://bhuvan-vec1.nrsc.gov.in/bhuvan/wms?',
-                  layers: ['lulc50k_1516'],
-                  format: 'image/png',
-                  version: '1.1.1',
-                ),
+                urlTemplate:
+                    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                userAgentPackageName: 'com.prajashakti.app',
+                maxZoom: 19,
               ),
             // Layer 1: Report markers
             if (state.showReports)
