@@ -88,7 +88,7 @@ class _MapView extends StatelessWidget {
               MarkerLayer(markers: _buildReportMarkers(context, state.reports)),
             // Layer 3: Infrastructure markers
             if (state.showInfrastructure)
-              MarkerLayer(markers: _buildInfraMarkers(state.infrastructure)),
+              MarkerLayer(markers: _buildInfraMarkers(context, state.infrastructure)),
             // Layer 4: Heatmap (gap analysis circles)
             if (state.showHeatmap)
               CircleLayer(circles: _buildHeatmapCircles(state.heatmapPoints)),
@@ -178,20 +178,92 @@ class _MapView extends StatelessWidget {
         .toList();
   }
 
-  List<Marker> _buildInfraMarkers(List<Map<String, dynamic>> infrastructure) {
+  List<Marker> _buildInfraMarkers(BuildContext context, List<Map<String, dynamic>> infrastructure) {
     return infrastructure.map((i) => Marker(
       point: LatLng(i['lat'] as double, i['lng'] as double),
-      width: 28,
-      height: 28,
-      child: Container(
-        decoration: BoxDecoration(
-          color: _infraColor(i['type'] as String),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 1.5),
+      width: 36,
+      height: 36,
+      child: GestureDetector(
+        onTap: () => _showInfraDetail(context, i),
+        child: Container(
+          decoration: BoxDecoration(
+            color: _infraColor(i['type'] as String),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 1.5),
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+          ),
+          child: Icon(_infraIcon(i['type'] as String), size: 16, color: Colors.white),
         ),
-        child: Icon(_infraIcon(i['type'] as String), size: 14, color: Colors.white),
       ),
     )).toList();
+  }
+
+  void _showInfraDetail(BuildContext context, Map<String, dynamic> infra) {
+    final type = infra['type'] as String;
+    final name = (infra['name'] as String?) ?? '';
+    final lat = infra['lat'] as double;
+    final lng = infra['lng'] as double;
+
+    const typeLabels = {
+      'school': 'School',
+      'hospital': 'Hospital / Health Centre',
+      'market': 'Market / Haat',
+      'water_source': 'Water Source',
+      'road': 'Road',
+    };
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _infraColor(type),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(_infraIcon(type), color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name.isNotEmpty ? name : (typeLabels[type] ?? type),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        typeLabels[type] ?? type,
+                        style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            _InfoRow(icon: Icons.location_on, label: 'Coordinates',
+                value: '${lat.toStringAsFixed(4)}°N, ${lng.toStringAsFixed(4)}°E'),
+            const SizedBox(height: 8),
+            _InfoRow(icon: Icons.category, label: 'Type',
+                value: typeLabels[type] ?? type),
+          ],
+        ),
+      ),
+    );
   }
 
   List<CircleMarker> _buildHeatmapCircles(List<Map<String, dynamic>> heatmapPoints) {
@@ -551,6 +623,28 @@ class _PriorityBadge extends StatelessWidget {
               style: const TextStyle(fontSize: 9, color: Colors.grey)),
         ],
       ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  const _InfoRow({required this.icon, required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: Colors.grey.shade500),
+        const SizedBox(width: 8),
+        Text('$label: ', style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+        Expanded(
+          child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+        ),
+      ],
     );
   }
 }
