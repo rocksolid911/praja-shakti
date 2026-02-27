@@ -135,16 +135,19 @@ def map_layers(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([])  # Public — tiles are not sensitive, browser can't send JWT in tile requests
 def tile_proxy(request, z, x, y):
     """Proxy to Bhuvan WMS with Redis caching."""
     village_id = request.query_params.get('village')
     tile_type = request.query_params.get('type', 'ndvi')
 
     cache_key = f'tile:{tile_type}:{z}:{x}:{y}:{village_id}'
-    cached = cache.get(cache_key)
-    if cached:
-        return HttpResponse(cached, content_type='image/png')
+    try:
+        cached = cache.get(cache_key)
+        if cached:
+            return HttpResponse(cached, content_type='image/png')
+    except Exception:
+        pass  # Redis not available — proceed without cache
 
     # Build Bhuvan WMS URL
     # Tile to bbox conversion for WMS
@@ -170,7 +173,10 @@ def tile_proxy(request, z, x, y):
     try:
         resp = requests.get(wms_url, timeout=10)
         if resp.status_code == 200:
-            cache.set(cache_key, resp.content, 7 * 86400)  # 7 days TTL
+            try:
+                cache.set(cache_key, resp.content, 7 * 86400)  # 7 days TTL
+            except Exception:
+                pass  # Redis not available — skip caching
             return HttpResponse(resp.content, content_type='image/png')
     except requests.RequestException as e:
         logger.warning(f"Bhuvan WMS request failed: {e}")
