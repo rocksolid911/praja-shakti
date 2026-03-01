@@ -62,9 +62,37 @@ def priorities(request):
 
     scores = PriorityScore.objects.filter(
         cluster__village_id=village_id
-    ).select_related('cluster__village').order_by('-total_score')
+    ).select_related('cluster').order_by('-total_score')
 
-    return Response(PriorityScoreSerializer(scores, many=True).data)
+    # Return cluster-centric format that matches the Flutter PriorityCluster model.
+    # The Flutter model expects: id=cluster_id, category, report_count, upvote_count,
+    # and a nested priority_score object.
+    data = []
+    for ps in scores:
+        cluster = ps.cluster
+        data.append({
+            'id': cluster.id,
+            'category': cluster.category,
+            'report_count': cluster.report_count,
+            'upvote_count': cluster.upvote_count,
+            'priority_score': {
+                'total_score': ps.total_score,
+                'community_score': ps.community_score,
+                'data_score': ps.data_score,
+                'urgency_score': ps.urgency_score,
+                'justification': ps.justification,
+            },
+        })
+
+    # Include total_reports so the Flutter summary card can display the count.
+    # The cubit reads prioritiesData['total_reports'] when the response is a dict.
+    from apps.community.models import Report
+    total_reports = Report.objects.filter(village_id=village_id).count()
+
+    return Response({
+        'total_reports': total_reports,
+        'results': data,
+    })
 
 
 @api_view(['GET'])

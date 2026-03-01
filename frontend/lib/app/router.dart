@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../core/cubit/locale_cubit.dart';
 import '../core/utils/responsive.dart';
 import '../features/auth/cubit/auth_cubit.dart';
 import '../features/auth/cubit/auth_state.dart';
@@ -27,7 +28,6 @@ GoRouter createRouter(AuthCubit authCubit) {
     refreshListenable: _AuthNotifier(authCubit),
     redirect: (context, state) {
       final authState = authCubit.state;
-      // AuthLoading and AuthProfileLoaded are also valid authenticated states
       final isAuthenticated = authState is AuthAuthenticated ||
           authState is AuthProfileLoaded ||
           authState is AuthLoading;
@@ -35,8 +35,7 @@ GoRouter createRouter(AuthCubit authCubit) {
 
       if (!isAuthenticated && !isOnAuthPage) return '/login';
       if (authState is AuthAuthenticated && isOnAuthPage) {
-        final user = (authState as AuthAuthenticated).user;
-        return user.isGovernment ? '/gov-dashboard' : '/map';
+        return authState.user.isGovernment ? '/gov-dashboard' : '/map';
       }
       return null;
     },
@@ -83,7 +82,7 @@ GoRouter createRouter(AuthCubit authCubit) {
   );
 }
 
-/// Notifies GoRouter when auth state changes so it can re-run redirect
+/// Notifies GoRouter when auth state changes so it can re-run redirect.
 class _AuthNotifier extends ChangeNotifier {
   _AuthNotifier(AuthCubit authCubit) {
     authCubit.stream.listen((_) => notifyListeners());
@@ -106,136 +105,144 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  // ── Citizen nav ──────────────────────────────────────────────────
-  static const _citizenRail = [
-    _NavItem(Icons.map, 'Map', '/map'),
-    _NavItem(Icons.mic, 'Report', '/report'),
-    _NavItem(Icons.people, 'Feed', '/feed'),
-    _NavItem(Icons.search, 'Schemes', '/schemes'),
+  // ── Citizen nav ───────────────────────────────────────────────────────────
+  static List<_NavItem> _citizenRailItems(AppLocalizations l10n) => [
+    _NavItem(Icons.map, l10n.navMap, '/map'),
+    _NavItem(Icons.mic, l10n.navReport, '/report'),
+    _NavItem(Icons.people, l10n.navFeed, '/feed'),
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
   ];
-  static const _citizenBottom = [
-    _NavItem(Icons.map, 'Map', '/map'),
-    _NavItem(Icons.mic, 'Report', '/report'),
-    _NavItem(Icons.people, 'Feed', '/feed'),
-    _NavItem(Icons.search, 'Schemes', '/schemes'),
+  static List<_NavItem> _citizenBottomItems(AppLocalizations l10n) => [
+    _NavItem(Icons.map, l10n.navMap, '/map'),
+    _NavItem(Icons.mic, l10n.navReport, '/report'),
+    _NavItem(Icons.people, l10n.navFeed, '/feed'),
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
   ];
-  static const _citizenMore = [
-    _NavItem(Icons.person, 'Profile', '/profile'),
-  ];
-
-  // ── Leader nav ────────────────────────────────────────────────────
-  static const _leaderRail = [
-    _NavItem(Icons.map, 'Map', '/map'),
-    _NavItem(Icons.mic, 'Report', '/report'),
-    _NavItem(Icons.people, 'Feed', '/feed'),
-    _NavItem(Icons.groups, 'Gram Sabha', '/gramsabha'),
-    _NavItem(Icons.dashboard, 'Dashboard', '/dashboard'),
-    _NavItem(Icons.construction, 'Projects', '/projects'),
-    _NavItem(Icons.search, 'Schemes', '/schemes'),
-  ];
-  static const _leaderBottom = [
-    _NavItem(Icons.map, 'Map', '/map'),
-    _NavItem(Icons.mic, 'Report', '/report'),
-    _NavItem(Icons.people, 'Feed', '/feed'),
-    _NavItem(Icons.groups, 'Gram Sabha', '/gramsabha'),
-  ];
-  static const _leaderMore = [
-    _NavItem(Icons.dashboard, 'Dashboard', '/dashboard'),
-    _NavItem(Icons.construction, 'Projects', '/projects'),
-    _NavItem(Icons.search, 'Schemes', '/schemes'),
-    _NavItem(Icons.manage_accounts, 'Manage Users', '/users'),
-    _NavItem(Icons.person, 'Profile', '/profile'),
+  static List<_NavItem> _citizenMoreItems(AppLocalizations l10n) => [
+    _NavItem(Icons.person, l10n.profile, '/profile'),
   ];
 
-  // ── Government nav ────────────────────────────────────────────────
-  static const _govRail = [
-    _NavItem(Icons.map, 'Map', '/map'),
-    _NavItem(Icons.people, 'Feed', '/feed'),
-    _NavItem(Icons.dashboard_customize, 'Gov Dashboard', '/gov-dashboard'),
-    _NavItem(Icons.construction, 'Projects', '/projects'),
-    _NavItem(Icons.search, 'Schemes', '/schemes'),
-    _NavItem(Icons.groups, 'Gram Sabha', '/gramsabha'),
+  // ── Leader nav ────────────────────────────────────────────────────────────
+  static List<_NavItem> _leaderRailItems(AppLocalizations l10n) => [
+    _NavItem(Icons.map, l10n.navMap, '/map'),
+    _NavItem(Icons.mic, l10n.navReport, '/report'),
+    _NavItem(Icons.people, l10n.navFeed, '/feed'),
+    _NavItem(Icons.groups, l10n.navGramSabha, '/gramsabha'),
+    _NavItem(Icons.dashboard, l10n.navDashboard, '/dashboard'),
+    _NavItem(Icons.construction, l10n.navProjects, '/projects'),
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
   ];
-  static const _govBottom = [
-    _NavItem(Icons.map, 'Map', '/map'),
-    _NavItem(Icons.people, 'Feed', '/feed'),
-    _NavItem(Icons.dashboard_customize, 'Dashboard', '/gov-dashboard'),
-    _NavItem(Icons.construction, 'Projects', '/projects'),
+  static List<_NavItem> _leaderBottomItems(AppLocalizations l10n) => [
+    _NavItem(Icons.map, l10n.navMap, '/map'),
+    _NavItem(Icons.mic, l10n.navReport, '/report'),
+    _NavItem(Icons.dashboard, l10n.navDashboard, '/dashboard'),
+    _NavItem(Icons.groups, l10n.navGramSabha, '/gramsabha'),
   ];
-  static const _govMore = [
-    _NavItem(Icons.search, 'Schemes', '/schemes'),
-    _NavItem(Icons.groups, 'Gram Sabha', '/gramsabha'),
-    _NavItem(Icons.person, 'Profile', '/profile'),
+  static List<_NavItem> _leaderMoreItems(AppLocalizations l10n) => [
+    _NavItem(Icons.construction, l10n.navProjects, '/projects'),
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.manage_accounts, l10n.navManageUsers, '/users'),
+    _NavItem(Icons.people, l10n.navFeed, '/feed'),
+    _NavItem(Icons.person, l10n.profile, '/profile'),
   ];
 
-  User? _currentUser() {
-    final s = context.read<AuthCubit>().state;
-    if (s is AuthAuthenticated) return s.user;
-    if (s is AuthProfileLoaded) return s.user;
-    return null;
+  // ── Government nav ────────────────────────────────────────────────────────
+  static List<_NavItem> _govRailItems(AppLocalizations l10n) => [
+    _NavItem(Icons.map, l10n.navMap, '/map'),
+    _NavItem(Icons.people, l10n.navFeed, '/feed'),
+    _NavItem(Icons.dashboard_customize, l10n.navGovDashboard, '/gov-dashboard'),
+    _NavItem(Icons.construction, l10n.navProjects, '/projects'),
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.groups, l10n.navGramSabha, '/gramsabha'),
+  ];
+  static List<_NavItem> _govBottomItems(AppLocalizations l10n) => [
+    _NavItem(Icons.map, l10n.navMap, '/map'),
+    _NavItem(Icons.dashboard_customize, l10n.navGovDashboard, '/gov-dashboard'),
+    _NavItem(Icons.people, l10n.navFeed, '/feed'),
+    _NavItem(Icons.construction, l10n.navProjects, '/projects'),
+  ];
+  static List<_NavItem> _govMoreItems(AppLocalizations l10n) => [
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.groups, l10n.navGramSabha, '/gramsabha'),
+    _NavItem(Icons.person, l10n.profile, '/profile'),
+  ];
+
+  // ── Role selection — takes User? directly, no context.read() ─────────────
+  static List<_NavItem> _railItemsFor(AppLocalizations l10n, User? user) {
+    if (user == null) return _leaderRailItems(l10n);
+    if (user.isGovernment) return _govRailItems(l10n);
+    if (user.isLeader) return _leaderRailItems(l10n);
+    return _citizenRailItems(l10n);
   }
 
-  List<_NavItem> _railItems() {
-    final u = _currentUser();
-    if (u == null) return _leaderRail;
-    if (u.isGovernment) return _govRail;
-    if (u.isLeader) return _leaderRail;
-    return _citizenRail;
+  static List<_NavItem> _bottomItemsFor(AppLocalizations l10n, User? user) {
+    if (user == null) return _leaderBottomItems(l10n);
+    if (user.isGovernment) return _govBottomItems(l10n);
+    if (user.isLeader) return _leaderBottomItems(l10n);
+    return _citizenBottomItems(l10n);
   }
 
-  List<_NavItem> _bottomItems() {
-    final u = _currentUser();
-    if (u == null) return _leaderBottom;
-    if (u.isGovernment) return _govBottom;
-    if (u.isLeader) return _leaderBottom;
-    return _citizenBottom;
+  static List<_NavItem> _moreItemsFor(AppLocalizations l10n, User? user) {
+    if (user == null) return _leaderMoreItems(l10n);
+    if (user.isGovernment) return _govMoreItems(l10n);
+    if (user.isLeader) return _leaderMoreItems(l10n);
+    return _citizenMoreItems(l10n);
   }
 
-  List<_NavItem> _moreItems() {
-    final u = _currentUser();
-    if (u == null) return _leaderMore;
-    if (u.isGovernment) return _govMore;
-    if (u.isLeader) return _leaderMore;
-    return _citizenMore;
-  }
-
-  int _getRailIndex(String location) {
-    final items = _railItems();
+  static int _railIndexFor(String location, List<_NavItem> items) {
     for (int i = 0; i < items.length; i++) {
       if (location.startsWith(items[i].path)) return i;
     }
     return 0;
   }
 
-  int _getBottomIndex(String location) {
-    final items = _bottomItems();
+  static int _bottomIndexFor(String location, List<_NavItem> items) {
     for (int i = 0; i < items.length; i++) {
       if (location.startsWith(items[i].path)) return i;
     }
     return items.length; // "More"
   }
 
+  /// Extract user directly from the BlocBuilder's authState — no context.read() needed.
+  static User? _userFromState(AuthState authState) {
+    if (authState is AuthAuthenticated) return authState.user;
+    if (authState is AuthProfileLoaded) return authState.user;
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).uri.toString();
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= kMobileBreakpoint;
-        final isDesktop = constraints.maxWidth >= kTabletBreakpoint;
-
-        if (isWide) {
-          return _buildRailLayout(context, location, isDesktop);
-        }
-        return _buildBottomNavLayout(context, location);
+    // Double-wrap: AuthCubit triggers rebuild on role change, LocaleCubit on language change.
+    // User is extracted DIRECTLY from authState to guarantee correctness.
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, authState) {
+        final user = _userFromState(authState);
+        return BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, _) {
+            final location = GoRouterState.of(context).uri.toString();
+            final l10n = AppLocalizations.of(context);
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= kMobileBreakpoint;
+                final isDesktop = constraints.maxWidth >= kTabletBreakpoint;
+                if (isWide) {
+                  return _buildRailLayout(context, location, isDesktop, l10n, user);
+                }
+                return _buildBottomNavLayout(context, location, l10n, user);
+              },
+            );
+          },
+        );
       },
     );
   }
 
-  Widget _buildRailLayout(BuildContext context, String location, bool isDesktop) {
-    final l10n = AppLocalizations.of(context);
-    final selectedIndex = _getRailIndex(location);
-    final railItems = _railItems();
+  Widget _buildRailLayout(
+    BuildContext context, String location, bool isDesktop,
+    AppLocalizations l10n, User? user,
+  ) {
+    final railItems = _railItemsFor(l10n, user);
+    final selectedIndex = _railIndexFor(location, railItems);
     return Scaffold(
       body: Row(
         children: [
@@ -299,10 +306,12 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _buildBottomNavLayout(BuildContext context, String location) {
-    final l10n = AppLocalizations.of(context);
-    final selectedIndex = _getBottomIndex(location);
-    final bottomItems = _bottomItems();
+  Widget _buildBottomNavLayout(
+    BuildContext context, String location,
+    AppLocalizations l10n, User? user,
+  ) {
+    final bottomItems = _bottomItemsFor(l10n, user);
+    final selectedIndex = _bottomIndexFor(location, bottomItems);
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: NavigationBar(
@@ -311,7 +320,7 @@ class _AppShellState extends State<AppShell> {
           if (i < bottomItems.length) {
             context.go(bottomItems[i].path);
           } else {
-            _showMoreMenu(context);
+            _showMoreMenu(context, l10n, user);
           }
         },
         destinations: [
@@ -324,9 +333,8 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  void _showMoreMenu(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final moreItems = _moreItems();
+  void _showMoreMenu(BuildContext context, AppLocalizations l10n, User? user) {
+    final moreItems = _moreItemsFor(l10n, user);
     showModalBottomSheet(
       context: context,
       builder: (sheetCtx) => SafeArea(

@@ -144,9 +144,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final phone = _phoneController.text.replaceAll(RegExp(r'\s'), '');
-      final normalized = phone.startsWith('+91') ? phone : '+91${phone.replaceAll(RegExp(r'\D'), '')}';
-      context.read<AuthCubit>().sendOtp(normalized);
+      // Extract only digits, then keep the last 10 (strips +91 country code if entered)
+      final digits = _phoneController.text.replaceAll(RegExp(r'\D'), '');
+      final phone = digits.length > 10 ? digits.substring(digits.length - 10) : digits;
+      context.read<AuthCubit>().sendOtp(phone);
     }
   }
 }
