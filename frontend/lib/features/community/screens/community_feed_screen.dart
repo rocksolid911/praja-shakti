@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../cubit/community_cubit.dart';
 import '../cubit/community_state.dart';
 import '../../../core/api/api_client.dart';
@@ -214,8 +217,18 @@ class ReportCard extends StatelessWidget {
 
   const ReportCard({super.key, required this.report, required this.onVote, required this.onTap});
 
+  static Future<void> _openNavigation(double lat, double lng) async {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng',
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final hasLocation = report.latitude != null && report.longitude != null;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: InkWell(
@@ -223,83 +236,166 @@ class ReportCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(14),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Vote button
-              Column(
+              // Top row: vote + icon + text content
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      report.hasVoted ? Icons.thumb_up : Icons.thumb_up_outlined,
-                      color: report.hasVoted ? Colors.green.shade700 : null,
-                    ),
-                    onPressed: onVote,
-                    visualDensity: VisualDensity.compact,
+                  // Vote button
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          report.hasVoted ? Icons.thumb_up : Icons.thumb_up_outlined,
+                          color: report.hasVoted ? Colors.green.shade700 : null,
+                        ),
+                        onPressed: onVote,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      Text(
+                        '${report.voteCount}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                    ],
                   ),
-                  Text(
-                    '${report.voteCount}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  const SizedBox(width: 10),
+                  // Category icon
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: _categoryColor(report.category).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(_categoryIcon(report.category), color: _categoryColor(report.category)),
+                  ),
+                  const SizedBox(width: 10),
+                  // Content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                report.subCategory.isNotEmpty ? report.subCategory : report.descriptionText,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            _statusDot(report.status),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          report.descriptionText,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            if (report.ward != null) ...[
+                              Icon(Icons.map, size: 12, color: Colors.grey.shade500),
+                              const SizedBox(width: 2),
+                              Text('Ward ${report.ward}', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                              const SizedBox(width: 8),
+                            ],
+                            _urgencyBadge(report.urgency),
+                            const Spacer(),
+                            Text(
+                              _timeAgo(report.createdAt),
+                              style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(width: 10),
-              // Category icon
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: _categoryColor(report.category).withOpacity(0.15),
+              // Map thumbnail — only shown when GPS coordinates are available
+              if (hasLocation) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(_categoryIcon(report.category), color: _categoryColor(report.category)),
-              ),
-              const SizedBox(width: 10),
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                  child: SizedBox(
+                    height: 130,
+                    child: Stack(
                       children: [
-                        Expanded(
-                          child: Text(
-                            report.subCategory.isNotEmpty ? report.subCategory : report.descriptionText,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        FlutterMap(
+                          options: MapOptions(
+                            initialCenter: LatLng(report.latitude!, report.longitude!),
+                            initialZoom: 15,
+                            interactionOptions: const InteractionOptions(
+                              flags: InteractiveFlag.none,
+                            ),
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'com.prajashakti.app',
+                            ),
+                            MarkerLayer(
+                              markers: [
+                                Marker(
+                                  point: LatLng(report.latitude!, report.longitude!),
+                                  width: 36,
+                                  height: 36,
+                                  child: Icon(
+                                    Icons.location_pin,
+                                    color: _categoryColor(report.category),
+                                    size: 36,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        // Navigate button overlay (bottom-right)
+                        Positioned(
+                          bottom: 8,
+                          right: 8,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _openNavigation(report.latitude!, report.longitude!),
+                            icon: const Icon(Icons.navigation, size: 14),
+                            label: const Text('Navigate', style: TextStyle(fontSize: 12)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.blue.shade700,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              elevation: 3,
+                            ),
                           ),
                         ),
-                        _statusDot(report.status),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      report.descriptionText,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        if (report.ward != null) ...[
-                          Icon(Icons.map, size: 12, color: Colors.grey.shade500),
-                          const SizedBox(width: 2),
-                          Text('Ward ${report.ward}', style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
-                          const SizedBox(width: 8),
-                        ],
-                        _urgencyBadge(report.urgency),
-                        const Spacer(),
-                        Text(
-                          _timeAgo(report.createdAt),
-                          style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                        // Coordinates label (bottom-left)
+                        Positioned(
+                          bottom: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '${report.latitude!.toStringAsFixed(4)}, ${report.longitude!.toStringAsFixed(4)}',
+                              style: const TextStyle(color: Colors.white, fontSize: 9),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
