@@ -1,5 +1,6 @@
 import io
 import logging
+from datetime import date, timedelta
 from uuid import uuid4
 
 import boto3
@@ -221,7 +222,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'village', 'cluster', 'adopted_by'
         ).prefetch_related('photos', 'ratings', 'fund_convergence_plans')
 
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated, IsLeader])
     def update_status(self, request, pk=None):
         project = self.get_object()
         new_status = request.data.get('status')
@@ -458,6 +459,7 @@ def _create_project_from_cluster(cluster, user):
         adopted_by=user,
         adopted_at=timezone.now(),
         started_at=timezone.now(),
+        expected_completion=date.today() + timedelta(days=180),
     )
 
 
