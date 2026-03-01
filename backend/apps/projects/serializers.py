@@ -53,19 +53,22 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def get_proposal_download_url(self, obj):
-        if not obj.proposal_s3_key:
-            return None
-        try:
-            import boto3
-            from django.conf import settings
-            s3 = boto3.client('s3', region_name=settings.AWS_REGION)
-            return s3.generate_presigned_url(
-                'get_object',
-                Params={'Bucket': settings.AWS_S3_REPORTS_BUCKET, 'Key': obj.proposal_s3_key},
-                ExpiresIn=3600,
-            )
-        except Exception:
-            return None
+        # Prefer pre-signed S3 URL (no auth needed, opens directly in browser)
+        if obj.proposal_s3_key:
+            try:
+                import boto3
+                from django.conf import settings
+                s3 = boto3.client('s3', region_name=settings.AWS_REGION)
+                return s3.generate_presigned_url(
+                    'get_object',
+                    Params={'Bucket': settings.AWS_S3_REPORTS_BUCKET, 'Key': obj.proposal_s3_key},
+                    ExpiresIn=3600,
+                )
+            except Exception:
+                pass
+        # Fallback: return the Django streaming endpoint path
+        # Flutter will append ?token=<jwt> before launching
+        return f'/api/v1/projects/{obj.id}/proposal/'
 
     def get_lat(self, obj):
         return obj.location.y if obj.location else None

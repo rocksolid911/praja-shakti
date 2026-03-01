@@ -578,6 +578,36 @@ abstract class AppLocalizations {
   /// **'Dashboard'**
   String get navDashboard;
 
+  /// No description provided for @navGovDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Gov Dashboard'**
+  String get navGovDashboard;
+
+  /// No description provided for @navGramSabha.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram Sabha'**
+  String get navGramSabha;
+
+  /// No description provided for @navProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get navProjects;
+
+  /// No description provided for @navSchemes.
+  ///
+  /// In en, this message translates to:
+  /// **'Schemes'**
+  String get navSchemes;
+
+  /// No description provided for @navManageUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Users'**
+  String get navManageUsers;
+
   /// No description provided for @navMore.
   ///
   /// In en, this message translates to:

@@ -10,7 +10,7 @@ from .serializers import (
     ProfileSerializer, UserSerializer, UserManageSerializer,
 )
 from .permissions import IsLeader
-from .utils import send_otp, verify_otp
+from .utils import send_otp, verify_otp, normalize_phone
 
 User = get_user_model()
 
@@ -32,7 +32,8 @@ def register(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
-    phone = request.data.get('phone')
+    # Normalize to 10-digit format so +919090291939 and 9090291939 find the same user
+    phone = normalize_phone(request.data.get('phone', ''))
     otp = request.data.get('otp')
 
     if not phone or not otp:
@@ -69,7 +70,8 @@ def login(request):
 def otp_send(request):
     serializer = OTPSendSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    phone = serializer.validated_data['phone']
+    # Normalize to 10-digit format before storing OTP
+    phone = normalize_phone(serializer.validated_data['phone'])
     otp = send_otp(phone)
     # In dev, return OTP for testing convenience
     return Response({'message': 'OTP sent', 'otp_debug': otp})
@@ -123,3 +125,38 @@ def profile(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def village_leader(request):
+    """Get the panchayat leader for a given village (or current user's panchayat)."""
+    village_id = request.query_params.get('village')
+
+    if village_id:
+        try:
+            from apps.geo_intelligence.models import Village
+            village = Village.objects.select_related('panchayat').get(id=int(village_id))
+            panchayat = village.panchayat
+        except (Village.DoesNotExist, ValueError, TypeError):
+            return Response({'error': 'Village not found'}, status=404)
+    else:
+        panchayat = request.user.panchayat
+        if not panchayat:
+            return Response({'leader': None, 'message': 'No village assigned'})
+
+    if not panchayat:
+        return Response({'leader': None, 'message': 'No panchayat found'})
+
+    leaders = User.objects.filter(panchayat=panchayat, role='leader')
+    leader = leaders.first()
+    if not leader:
+        return Response({'leader': None, 'message': 'No leader assigned for this village'})
+
+    return Response({
+        'id': leader.id,
+        'name': f"{leader.first_name} {leader.last_name}".strip() or leader.phone,
+        'phone': leader.phone,
+        'panchayat': panchayat.name,
+        'ward': leader.ward,
+    })
