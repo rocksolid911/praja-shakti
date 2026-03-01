@@ -79,7 +79,7 @@ python manage.py createsuperuser
 ### Step 5 — Load Demo Data (Tusra Village, Balangir, Odisha)
 
 ```bash
-# Populate village, 65 reports, 2 clusters, 3 projects, 12 schemes
+# Populate village, 65 reports, 2 clusters, 3 projects, 12 schemes, demo users
 python manage.py create_demo
 
 # Embed scheme documents into pgvector (Bedrock Titan — requires AWS)
@@ -122,6 +122,9 @@ celery -A config worker -l info
 
 Handles: voice transcription, Bedrock categorization, spatial clustering,
 priority scoring, Gram Sabha AI summaries.
+
+> If Celery is not running, the WhatsApp bot **automatically falls back to background threads**
+> so voice transcription still works — just without retry logic.
 
 ### Terminal 3 — Celery Beat (Scheduled Tasks)
 
@@ -191,7 +194,11 @@ The app shows a phone number + OTP screen.
    # Look for "otp_debug" in the response
    ```
 
-4. Enter the OTP and tap **Login** → the Village Intelligence Map loads
+4. Enter the OTP and tap **Login**
+5. You are **automatically redirected** based on your role:
+   - **Leader** → Leader Dashboard (Adopt, Fund Status, Active Projects)
+   - **Citizen** → Community Feed
+   - **Admin** → Government Dashboard
 
 > **Important:** Always use `+91` prefix. The login screen normalises the number —
 > the OTP must be requested with the same prefix or it won't match.
@@ -224,6 +231,55 @@ python3 -m http.server 8080 --directory build/web
 
 ---
 
+## Demo Users (created by `create_demo`)
+
+| Role | Phone | OTP method |
+|---|---|---|
+| Leader (Suman) | `+919078277159` | `otp_debug` in OTP response or Django terminal |
+| Citizen | Any `+91XXXXXXXXXX` | Same — `otp_debug` in response |
+
+To check a user's role or promote to leader:
+```bash
+python manage.py shell -c "
+from apps.auth_service.models import User
+u = User.objects.get(phone='+919078277159')
+print(u.role, u.panchayat)
+# u.role = 'leader'; u.save()  # promote if needed
+"
+```
+
+---
+
+## Adopt Project Flow
+
+The leader dashboard shows AI-ranked clusters. Clicking **Adopt** on any cluster:
+
+1. Opens a confirmation dialog showing category, report count, and priority score
+2. Clicking **Adopt Project** calls `POST /projects/adopt/` — a loading spinner appears
+3. The backend:
+   - Sets project status to `in_progress`
+   - Creates a **Fund Convergence Plan** (category-based scheme mix)
+   - Generates a **PDF proposal** via ReportLab and uploads to S3
+   - Returns a presigned S3 URL valid for 1 hour
+4. The dialog transitions to the **Proposal View** showing:
+   - Project title and total cost
+   - Scheme allocation table (e.g. PM-KUSUM 60%, MGNREGA 20%, JJM 10%)
+   - Panchayat contribution and total savings %
+   - **Download PDF** button — opens the S3-hosted proposal in a new browser tab
+5. Clicking **Close** refreshes the dashboard — project now appears under **Active Projects**
+
+### Downloading the PDF on Web
+
+The **Download PDF** button opens an S3 presigned URL directly (no auth required, expires in 1 hour).
+
+If S3 upload fails or no key is set, the button falls back to the Django streaming endpoint:
+```
+GET /api/v1/projects/{id}/proposal/?token=<jwt>
+```
+This streams the PDF directly from Django. The JWT token is appended automatically by the app.
+
+---
+
 ## WhatsApp Bot (Twilio Webhook)
 
 To receive real WhatsApp messages during development, expose the local server with ngrok:
@@ -241,13 +297,20 @@ Webhook URL: https://xxxx.ngrok-free.app/api/v1/webhooks/whatsapp/
 ```
 
 **Test the bot** by sending WhatsApp to `+1 415 523 8886` (Twilio sandbox):
-- `GAON Tusra` — select your village (required on first message)
-- `WARD 3` — set ward number
-- Voice note → AI transcription + categorization
-- `Status` — view your latest reports
-- `Vote 1` — upvote report #1
-- `PM-KUSUM` — scheme eligibility query via RAG
-- `Help` — show all commands
+
+| Message | Response |
+|---|---|
+| `GAON Tusra` | Sets village — required on first message |
+| `GAON Tu` | Lists matching villages if multiple found |
+| `WARD 3` | Sets ward number |
+| Voice note | AI transcribes + categorises + creates report |
+| `Status` | Shows your latest report status and upvote count |
+| `Vote 1` | Upvotes report #1 |
+| `PM-KUSUM` | Scheme eligibility query via RAG |
+| `Help` | Shows all commands in Hindi |
+
+> New users are **blocked from sending reports** until they set their village with `GAON <name>`.
+> Existing users with a panchayat set bypass this gate automatically.
 
 ---
 
@@ -260,8 +323,10 @@ All endpoints (except auth and webhook) require a JWT `Authorization: Bearer <to
 ### Auth
 
 ```
-POST  /auth/otp/send/           {"phone": "9999999999"}
-POST  /auth/login/              {"phone": "9999999999", "otp": "123456"}
+POST  /auth/otp/send/           {"phone": "+91XXXXXXXXXX"}
+                                → {"message": "OTP sent", "otp_debug": "123456"}
+POST  /auth/login/              {"phone": "+91XXXXXXXXXX", "otp": "123456"}
+                                → {access, refresh, role, user_id}
 GET   /auth/profile/
 ```
 
@@ -271,6 +336,7 @@ GET   /auth/profile/
 GET   /reports/?village=1
 POST  /reports/
 POST  /reports/{id}/vote/
+DELETE /reports/{id}/vote/
 GET   /reports/clusters/?village=1    # GeoJSON clusters
 ```
 
@@ -278,16 +344,22 @@ GET   /reports/clusters/?village=1    # GeoJSON clusters
 
 ```
 GET   /map/layers/?village=1&layers=reports,satellite,infra,heatmap,projects,demographics,fund_status
-GET   /map/tiles/{z}/{x}/{y}.png?village=1&type=ndvi    # Bhuvan NDVI proxy
+GET   /map/tiles/{z}/{x}/{y}.png?village=1&type=ndvi    # Bhuvan NDVI proxy (Redis-cached)
 GET   /geo/villages/1/
 ```
 
 ### AI & Intelligence
 
 ```
-GET   /ai/priorities/?village=1       # Ranked clusters with priority scores
-GET   /ai/recommendations/?village=1  # AI project recommendations
-POST  /ai/scheme-query/               {"query": "PM-KUSUM eligibility", "village_id": 1}
+GET   /ai/priorities/?village=1
+      → {total_reports, results: [{id, category, report_count, upvote_count, priority_score}]}
+
+GET   /ai/recommendations/?village=1
+      → [ProjectSerializer] with fund_plans and proposal_download_url
+
+POST  /ai/scheme-query/
+      {"query": "PM-KUSUM eligibility for borewell", "village_id": 1}
+      → {answer, sources: [{scheme, section}]}
 ```
 
 ### Projects & Dashboard
@@ -295,9 +367,18 @@ POST  /ai/scheme-query/               {"query": "PM-KUSUM eligibility", "village
 ```
 GET   /dashboard/summary/?panchayat=1
 GET   /dashboard/fund-status/?panchayat=1
-POST  /projects/adopt/                {"cluster_id": 1, "recommendation_index": 0}
-GET   /projects/?village=1
-PATCH /projects/{id}/status/          {"status": "in_progress"}
+
+POST  /projects/adopt/
+      {"cluster_id": 1, "recommendation_index": 0}
+      → ProjectSerializer with fund_plans[] and proposal_download_url (S3 presigned)
+
+GET   /projects/?village=1&status=in_progress
+GET   /projects/{id}/
+GET   /projects/{id}/proposal/       Stream PDF directly
+                                     Auth: Bearer header OR ?token=<jwt> query param
+PATCH /projects/{id}/status/         {"status": "in_progress"}
+POST  /projects/{id}/photos/         Multipart upload → S3
+POST  /projects/{id}/rating/         {"rating": 4, "review": "Good work"}
 ```
 
 ### Gram Sabha
@@ -306,7 +387,15 @@ PATCH /projects/{id}/status/          {"status": "in_progress"}
 GET   /gramsabha/?village=1
 POST  /gramsabha/                     {"village": 1, "title": "...", "scheduled_at": "..."}
 POST  /gramsabha/{id}/issues/         {"title": "Water scarcity in Ward 3", "session": id}
-POST  /gramsabha/{id}/end/            # Triggers AI summary via Celery
+POST  /gramsabha/{id}/issues/{issue_id}/vote/
+POST  /gramsabha/{id}/end/            → triggers Claude AI summary (async Celery task)
+                                        summary saved to session.transcript
+```
+
+### WhatsApp
+
+```
+POST  /webhooks/whatsapp/       Twilio webhook (AllowAny — no JWT required)
 ```
 
 ---
@@ -315,13 +404,30 @@ POST  /gramsabha/{id}/end/            # Triggers AI summary via Celery
 
 ```
 1. Open Flutter app → Village Intelligence Map → 65 red markers on Tusra village
-2. Send WhatsApp voice note → AI transcribes Hindi → marker appears on map
-3. Send "Vote 1" via WhatsApp → upvote count increases
-4. Toggle Satellite layer → Bhuvan NDVI overlay → stress zone visible
-5. GET /ai/priorities/?village=1 → Water cluster: priority score 94/100
-6. GET /ai/recommendations/?village=1 → Solar borewell, Rs.4.5L, PM-KUSUM 60%
-7. POST /projects/adopt/ → PDF proposal generated → Download URL in response
-8. Marker color: Red → Yellow → Blue → Green
+
+2. Send WhatsApp voice note ("paani nahi aa raha")
+   → AI transcribes Hindi → new marker appears on map
+
+3. Toggle Satellite layer → Bhuvan NDVI overlay → stress zone visible
+
+4. Leader Dashboard → AI Priority Ranking
+   → Water cluster: 94/100 (Community: 38, Data: 38, Urgency: 18)
+
+5. Tap "Adopt" on Water cluster
+   → Confirmation dialog → click "Adopt Project" → spinner
+   → Proposal view appears:
+       Solar Borewell with Piped Supply
+       Total Cost: ₹4.5L
+       PM-KUSUM: ₹2.7L (60%)
+       MGNREGA:  ₹0.9L (20%)
+       Jal Jeevan Mission: ₹0.45L (10%)
+       Panchayat Pays: ₹0.45L
+       Savings: 90%
+   → "Download PDF" button → opens proposal in browser
+
+6. Close dialog → Dashboard refreshes
+   → Active Projects section shows "Solar Borewell with Piped Supply"
+   → Map marker: Red → Yellow → Blue
 ```
 
 ---
@@ -411,6 +517,31 @@ python manage.py runserver
 make sure `CORS_ALLOWED_ORIGINS` in `backend/.env` includes `http://localhost:3000`
 (or whatever port Flutter is using). Then restart Django.
 
+**Adopt button does nothing / Cancel button does nothing**
+→ This was a Flutter Web navigator context bug (fixed). Ensure you are on the latest code.
+If you see the issue on an older build, do a full hot restart (`R`) or clear the browser cache
+and reload. The fix replaced the old dialog with a `StatefulWidget` that uses its own context
+for all `Navigator.of(context).pop()` calls.
+
+**"Failed: ..." error after clicking Adopt Project**
+→ Check the Django terminal for the error. Common causes:
+- Leader role not set on the user → `u.role = 'leader'; u.save()` in Django shell
+- `IsLeader` permission check failing → confirm login was with a leader-role account
+
+**Proposal PDF download opens a blank page or 401**
+→ The S3 presigned URL expires after 1 hour. Re-adopt the project to generate a fresh URL.
+If using the Django fallback (`/api/v1/projects/{id}/proposal/?token=...`), check that:
+- The token is valid (not expired — default JWT lifetime is 60 minutes)
+- Django server is running
+
 **Celery tasks not running**
-→ Check that Terminal 2 (worker) is active. WhatsApp bot falls back to background threads
-if Celery is unavailable — voice transcription still works but without retry logic.
+→ Check that Terminal 2 (worker) is active. The WhatsApp bot falls back to background threads
+automatically — voice transcription still works but without retry logic.
+
+**Gram Sabha "End Session" → no AI summary after 30 seconds**
+→ Celery worker must be running (Terminal 2). The summary is generated asynchronously.
+Pull-to-refresh or navigate away and back to see the updated `transcript` field.
+
+**WhatsApp: "Gaon nahi mila" (village not found)**
+→ Try the full village name: `GAON Tusra`. The search is case-insensitive and matches
+substrings, but requires at least 3 characters.
