@@ -8,4 +8,6 @@ urlpatterns = [
     path('refresh/', TokenRefreshView.as_view(), name='auth-refresh'),
     path('profile/', views.profile, name='auth-profile'),
     path('otp/send/', views.otp_send, name='auth-otp-send'),
+    path('users/', views.manage_users, name='manage-users'),
+    path('users/<int:user_id>/', views.update_user, name='update-user'),
 ]
