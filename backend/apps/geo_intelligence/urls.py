@@ -3,6 +3,8 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
+router.register(r'states', views.StateViewSet, basename='state')
+router.register(r'districts', views.DistrictViewSet, basename='district')
 router.register(r'villages', views.VillageViewSet, basename='village')
 router.register(r'panchayats', views.PanchayatViewSet, basename='panchayat')
 
@@ -12,4 +14,6 @@ urlpatterns = [
     path('map/tiles/<int:z>/<int:x>/<int:y>.png', views.tile_proxy, name='map-tile-proxy'),
     path('map/village/<int:village_id>/boundary/', views.village_boundary, name='village-boundary'),
     path('map/infrastructure/', views.infrastructure_bbox, name='infra-bbox'),
+    path('map/provision-village/', views.provision_village, name='provision-village'),
+    path('locations/setup-location/', views.setup_location, name='setup-location'),
 ]

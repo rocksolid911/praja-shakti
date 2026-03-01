@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
+
 def _download_media_to_s3(media_url: str, report_id: int) -> str:
     """Download Twilio voice note and upload to S3. Returns S3 key or original URL as fallback."""
     import boto3
@@ -258,27 +259,21 @@ Respond ONLY with valid JSON:
 
 def _start_transcription_async(report_id: int, s3_key: str):
     """Try Celery first; fall back to background thread if broker unreachable."""
-    try:
-        from apps.ai_engine.tasks import transcribe_voice_note
-        transcribe_voice_note.delay(report_id, s3_key)
-        logger.info(f"Celery task queued for report #{report_id}")
-    except Exception as e:
-        logger.warning(f"Celery unavailable ({e}), using thread fallback for report #{report_id}")
-        import threading
-        threading.Thread(
-            target=_run_transcription_pipeline, args=(report_id, s3_key), daemon=True
-        ).start()
+    from apps.utils import dispatch_task
+    from apps.ai_engine.tasks import transcribe_voice_note
+    dispatch_task(transcribe_voice_note, report_id, s3_key, fallback=_run_transcription_pipeline)
 
 
 def _run_full_pipeline(report_id: int, twilio_url: str):
-    """Download audio from Twilio → upload to S3 → run transcription pipeline."""
+    """Download audio from Twilio → upload to S3 → queue Celery transcription task."""
     from apps.community.models import Report
 
     try:
         s3_key = _download_media_to_s3(twilio_url, report_id)
         # Update report with real S3 key (was 'pending' until download completes)
         Report.objects.filter(pk=report_id).update(audio_s3_key=s3_key)
-        _run_transcription_pipeline(report_id, s3_key)
+        # Queue Celery task (or fall back to thread) — exits immediately instead of blocking 2 min
+        _start_transcription_async(report_id, s3_key)
     except Exception as e:
         logger.error(f"Full pipeline failed for report #{report_id}: {e}")
 

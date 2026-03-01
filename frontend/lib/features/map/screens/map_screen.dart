@@ -9,16 +9,17 @@ import '../../../core/api/api_client.dart';
 import '../../../core/models/report.dart';
 import '../../../core/models/project.dart';
 import '../../../l10n/app_localizations.dart';
-
-const int _demoVillageId = 1; // Tusra village from demo data
+import '../../auth/cubit/auth_cubit.dart';
+import '../../auth/cubit/auth_state.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final villageId = context.read<AuthCubit>().currentVillageId;
     return BlocProvider(
-      create: (_) => MapCubit(context.read<ApiClient>())..loadVillageData(_demoVillageId),
+      create: (_) => MapCubit(context.read<ApiClient>())..loadVillageData(villageId),
       child: const _MapView(),
     );
   }
@@ -29,8 +30,22 @@ class _MapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocBuilder<MapCubit, MapState>(
+    return BlocListener<AuthCubit, AuthState>(
+      // Reload the map whenever the user's village changes (e.g., after report screen selection)
+      listenWhen: (prev, curr) {
+        int prevId = 1, currId = 1;
+        if (prev is AuthAuthenticated) prevId = prev.user.villageId ?? 1;
+        if (prev is AuthProfileLoaded) prevId = prev.user.villageId ?? 1;
+        if (curr is AuthAuthenticated) currId = curr.user.villageId ?? 1;
+        if (curr is AuthProfileLoaded) currId = curr.user.villageId ?? 1;
+        return prevId != currId;
+      },
+      listener: (context, state) {
+        final villageId = context.read<AuthCubit>().currentVillageId;
+        context.read<MapCubit>().loadVillageData(villageId);
+      },
+      child: Scaffold(
+        body: BlocBuilder<MapCubit, MapState>(
         builder: (context, state) {
           if (state is MapLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -57,6 +72,7 @@ class _MapView extends StatelessWidget {
           }
           return const SizedBox.shrink();
         },
+      ),
       ),
     );
   }
