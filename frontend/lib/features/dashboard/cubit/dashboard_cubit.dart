@@ -5,16 +5,20 @@ import 'dashboard_state.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
   final ApiClient _api;
+  int _villageId = 1;
+  int _panchayatId = 1;
 
   DashboardCubit(this._api) : super(DashboardInitial());
 
-  Future<void> loadDashboard({int villageId = 1}) async {
+  Future<void> loadDashboard({int villageId = 1, int panchayatId = 1}) async {
+    _villageId = villageId;
+    _panchayatId = panchayatId;
     emit(DashboardLoading());
     try {
       final results = await Future.wait([
         _api.get('/ai/priorities/', queryParameters: {'village': villageId}),
         _api.get('/projects/', queryParameters: {'village': villageId, 'status': 'in_progress'}),
-        _api.get('/dashboard/fund-status/', queryParameters: {'panchayat': 1}),
+        _api.get('/dashboard/fund-status/', queryParameters: {'panchayat': panchayatId}),
       ]);
 
       final prioritiesData = results[0].data;
@@ -57,7 +61,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       } catch (_) {}
 
       // Reload dashboard to reflect new project status
-      await loadDashboard();
+      await loadDashboard(villageId: _villageId, panchayatId: _panchayatId);
 
       // Surface the adopted project for the proposal dialog
       if (adoptedProject != null && state is DashboardLoaded) {
@@ -71,7 +75,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       }
       // Attempt a quiet reload so the data is fresh
       try {
-        await loadDashboard();
+        await loadDashboard(villageId: _villageId, panchayatId: _panchayatId);
       } catch (_) {}
     }
   }

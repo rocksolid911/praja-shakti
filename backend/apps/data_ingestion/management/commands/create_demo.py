@@ -386,40 +386,48 @@ class Command(BaseCommand):
 
         center_lat, center_lon = 20.7382, 83.1607
 
-        # Main recommendation: Solar borewell
-        solar_project = Project.objects.create(
-            cluster=self.water_cluster,
+        # Fetch scheme objects once for fund plan references
+        pm_kusum = Scheme.objects.filter(short_name='PM-KUSUM').first()
+        mgnrega  = Scheme.objects.filter(short_name='MGNREGA').first()
+        jjm      = Scheme.objects.filter(short_name='Jal Jeevan Mission').first()
+        pmgsy    = Scheme.objects.filter(short_name='PMGSY').first()
+        sbm      = Scheme.objects.filter(short_name='SBM-G').first()
+
+        # ── 1. Solar Borewell (water · recommended → leader adopts via dashboard) ──────
+        solar_project, _ = Project.objects.update_or_create(
             village=self.village,
             title='Solar Borewell with Piped Supply - Tusra Ward 3 & 5',
-            description=(
-                'Install solar-powered borewell with piped water supply network '
-                'to serve 320+ households in Tusra village. Community reported 59 water '
-                'access issues across Wards 3 and 5 with 47 upvotes. NDVI score of 0.12 '
-                'indicates severe water stress. Groundwater at 14.2m is accessible via borewell. '
-                'Project covers borewell drilling, 5HP solar pump, 2km pipeline network, '
-                '3 community standposts, and 1 overhead tank (10,000L).'
+            defaults=dict(
+                cluster=self.water_cluster,
+                description=(
+                    'Install a solar-powered borewell with a piped water supply network '
+                    'to serve 320+ households across Wards 3 and 5 of Tusra village. '
+                    'Community reported 59 water-access issues with 47 upvotes; 5 issues '
+                    'were raised at the Gram Sabha. Satellite NDVI of 0.12 confirms severe '
+                    'vegetation stress and CGWB groundwater depth of 14.2 m confirms '
+                    'borewell feasibility. Scope: borewell drilling (60 m), 5 HP solar pump, '
+                    '2 km distribution pipeline, 3 community stand-posts, and one 10,000 L '
+                    'overhead tank. No active water project exists — critical infrastructure gap.'
+                ),
+                category='water',
+                location=Point(center_lon + 0.001, center_lat - 0.001, srid=4326),
+                estimated_cost_inr=450000,
+                beneficiary_count=320,
+                impact_projection={
+                    'households_served': 320,
+                    'water_distance_km': 0.3,
+                    'daily_water_liters': 17600,
+                    'crop_yield_increase_pct': 25,
+                    'income_increase_per_hh_inr': 33000,
+                    'groundwater_depth_m': 14.2,
+                },
+                priority_score=94.0,
+                ai_confidence=0.92,
+                status='recommended',
             ),
-            category='water',
-            location=Point(center_lon + 0.001, center_lat - 0.001, srid=4326),
-            estimated_cost_inr=450000,
-            beneficiary_count=320,
-            impact_projection={
-                'water_distance_km': 0.3,
-                'households_served': 320,
-                'daily_water_liters': 17600,
-                'crop_yield_increase_pct': 25,
-                'income_increase_per_hh': 33000,
-            },
-            priority_score=94.0,
-            ai_confidence=0.92,
-            status='recommended',
         )
 
-        # Fund convergence plan for solar project
-        pm_kusum = Scheme.objects.filter(short_name='PM-KUSUM').first()
-        mgnrega = Scheme.objects.filter(short_name='MGNREGA').first()
-        jjm = Scheme.objects.filter(short_name='Jal Jeevan Mission').first()
-
+        solar_project.fund_convergence_plans.all().delete()
         FundConvergencePlan.objects.create(
             project=solar_project,
             total_cost_inr=450000,
@@ -435,52 +443,121 @@ class Command(BaseCommand):
             ],
         )
 
-        # Completed project (for demo lifecycle)
-        completed_project = Project.objects.create(
+        # ── 2. Community Toilet Block (sanitation · completed) ───────────────────────
+        completed_project, created = Project.objects.update_or_create(
             village=self.village,
             title='Community Toilet Block - Tusra Ward 5',
-            description='Constructed community toilet block with 6 units under SBM-G.',
-            category='sanitation',
-            location=Point(center_lon - 0.001, center_lat + 0.002, srid=4326),
-            estimated_cost_inr=180000,
-            beneficiary_count=150,
-            status='completed',
-            adopted_by=self.leader,
-            adopted_at=timezone.now() - timedelta(days=90),
-            started_at=timezone.now() - timedelta(days=75),
-            completed_at=timezone.now() - timedelta(days=10),
-            avg_citizen_rating=4.2,
+            defaults=dict(
+                description=(
+                    'Constructed a community sanitation complex with 6 toilet units (3 male / '
+                    '3 female) under the Swachh Bharat Mission-Gramin (SBM-G) scheme in '
+                    'Ward 5, Tusra. The facility includes a hand-washing station, septic tank, '
+                    'and solar-powered LED lighting for night safety. Construction used MGNREGA '
+                    'labour, providing 420 person-days of employment to local families. '
+                    'The facility achieved Open Defecation Free (ODF) status for 150 households '
+                    'and has been rated 4.2/5 by community members.'
+                ),
+                category='sanitation',
+                location=Point(center_lon - 0.001, center_lat + 0.002, srid=4326),
+                estimated_cost_inr=180000,
+                beneficiary_count=150,
+                impact_projection={
+                    'households_served': 150,
+                    'toilet_units_built': 6,
+                    'odf_households_pct': 100,
+                    'mgnrega_person_days': 420,
+                    'disease_reduction_pct': 40,
+                    'women_night_safety': 'Improved',
+                },
+                status='completed',
+                adopted_by=self.leader,
+                adopted_at=timezone.now() - timedelta(days=90),
+                started_at=timezone.now() - timedelta(days=75),
+                completed_at=timezone.now() - timedelta(days=10),
+                expected_completion=(timezone.now() - timedelta(days=12)).date(),
+                avg_citizen_rating=4.2,
+            ),
         )
 
-        # Ratings for completed project
-        for user in self.extra_citizens[:5]:
-            ProjectRating.objects.create(
-                project=completed_project, citizen=user,
-                rating=random.choice([4, 5, 4, 3, 5]),
-                review=random.choice([
-                    'Bahut accha kaam hua', 'Samay pe poora hua',
-                    'Quality thodi aur better ho sakti thi', 'Parivaar ko labh mila',
-                    'Shauchalaya ban gaya, ab door nahi jaana padta',
-                ]),
-            )
+        # Fund plan for toilet block — SBM-G 90 % + Panchayat 10 %
+        completed_project.fund_convergence_plans.all().delete()
+        FundConvergencePlan.objects.create(
+            project=completed_project,
+            total_cost_inr=180000,
+            panchayat_contribution_inr=18000,
+            savings_pct=90.0,
+            schemes_used=[
+                {'scheme_id': sbm.id if sbm else 7, 'scheme_name': 'SBM-G',
+                 'amount_inr': 162000, 'pct_covered': 90.0},
+            ],
+        )
 
-        # In-progress project
-        Project.objects.create(
+        # Ratings — only add if just created to stay idempotent
+        if created:
+            for user in self.extra_citizens[:5]:
+                ProjectRating.objects.get_or_create(
+                    project=completed_project, citizen=user,
+                    defaults=dict(
+                        rating=random.choice([4, 5, 4, 3, 5]),
+                        review=random.choice([
+                            'Bahut accha kaam hua', 'Samay pe poora hua',
+                            'Quality thodi aur better ho sakti thi', 'Parivaar ko labh mila',
+                            'Shauchalaya ban gaya, ab door nahi jaana padta',
+                        ]),
+                    ),
+                )
+
+        # ── 3. Road Repair (road · in_progress) ─────────────────────────────────────
+        road_project, _ = Project.objects.update_or_create(
             village=self.village,
             title='Road Repair - Tusra to Block HQ',
-            description='All-weather road repair connecting Tusra to Tusura block headquarters.',
-            category='road',
-            location=Point(center_lon + 0.003, center_lat, srid=4326),
-            estimated_cost_inr=350000,
-            beneficiary_count=500,
-            status='in_progress',
-            adopted_by=self.leader,
-            adopted_at=timezone.now() - timedelta(days=30),
-            started_at=timezone.now() - timedelta(days=15),
-            expected_completion=timezone.now().date() + timedelta(days=45),
+            defaults=dict(
+                description=(
+                    'Repair and upgrade the 3.5 km kaccha road connecting Tusra village to '
+                    'Tusura Block Headquarters under PMGSY Phase-III. The road is the sole '
+                    'motorable link for 500 households; it becomes impassable during the monsoon, '
+                    'cutting off access to the primary health centre and weekly market. '
+                    'Scope: granular sub-base, water-bound macadam surface, 4 culverts, and '
+                    'two concrete causeways. MGNREGA labour contributes 30 % of civil works. '
+                    'Expected completion in 45 days. Community reported 2 road-safety incidents '
+                    'on this stretch in the past 6 months.'
+                ),
+                category='road',
+                location=Point(center_lon + 0.003, center_lat, srid=4326),
+                estimated_cost_inr=350000,
+                beneficiary_count=500,
+                impact_projection={
+                    'households_connected': 500,
+                    'road_length_km': 3.5,
+                    'travel_time_reduction_min': 25,
+                    'market_access': 'All-weather',
+                    'mgnrega_person_days': 630,
+                    'income_increase_per_hh_inr': 15000,
+                },
+                status='in_progress',
+                adopted_by=self.leader,
+                adopted_at=timezone.now() - timedelta(days=30),
+                started_at=timezone.now() - timedelta(days=15),
+                expected_completion=timezone.now().date() + timedelta(days=45),
+            ),
         )
 
-        self.stdout.write("  Created 3 projects (recommended, in_progress, completed)")
+        # Fund plan for road — PMGSY 60 % + MGNREGA 30 % + Panchayat 10 %
+        road_project.fund_convergence_plans.all().delete()
+        FundConvergencePlan.objects.create(
+            project=road_project,
+            total_cost_inr=350000,
+            panchayat_contribution_inr=35000,
+            savings_pct=90.0,
+            schemes_used=[
+                {'scheme_id': pmgsy.id if pmgsy else 6, 'scheme_name': 'PMGSY',
+                 'amount_inr': 210000, 'pct_covered': 60.0},
+                {'scheme_id': mgnrega.id if mgnrega else 2, 'scheme_name': 'MGNREGA',
+                 'amount_inr': 105000, 'pct_covered': 30.0},
+            ],
+        )
+
+        self.stdout.write("  Created 3 projects with descriptions, impact projections, and fund plans")
 
     def _create_infrastructure(self):
         from apps.geo_intelligence.models import Infrastructure

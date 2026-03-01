@@ -26,12 +26,15 @@ class BlockSerializer(serializers.ModelSerializer):
 
 class PanchayatSerializer(serializers.ModelSerializer):
     block_name = serializers.CharField(source='block.name', read_only=True)
+    district_name = serializers.CharField(
+        source='block.district.name', read_only=True)
 
     class Meta:
         model = Panchayat
         fields = [
-            'id', 'name', 'lgd_code', 'block', 'block_name',
-            'population', 'households', 'area_sq_km', 'fund_available_inr',
+            'id', 'name', 'lgd_code', 'block', 'block_name', 'district_name',
+            'population', 'households', 'area_sq_km',
+            'fund_available_inr', 'ward_count',
         ]
 
 
