@@ -161,5 +161,9 @@
   "quickQuery2": "How many days work in MGNREGA?",
   "quickQuery3": "What is Jal Jeevan Mission?",
   "quickQuery4": "How to apply for PMAY-G?",
-  "quickQuery5": "How to get Kisan Credit Card?"
+  "quickQuery5": "How to get Kisan Credit Card?",
+  "reportSubmitted": "Report submitted! ID: WTR-{id}",
+  "@reportSubmitted": {
+    "placeholders": {"id": {"type": "int"}}
+  }
 }

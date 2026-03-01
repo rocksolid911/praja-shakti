@@ -161,5 +161,9 @@
   "quickQuery2": "MGNREGA में कितना काम मिलता है?",
   "quickQuery3": "Jal Jeevan Mission क्या है?",
   "quickQuery4": "PMAY-G के लिए कैसे आवेदन करें?",
-  "quickQuery5": "किसान क्रेडिट कार्ड कैसे बनवाएं?"
+  "quickQuery5": "किसान क्रेडिट कार्ड कैसे बनवाएं?",
+  "reportSubmitted": "रिपोर्ट सबमिट हुई! ID: WTR-{id}",
+  "@reportSubmitted": {
+    "placeholders": {"id": {"type": "int"}}
+  }
 }
