@@ -35,7 +35,8 @@ class GramSabhaCubit extends Cubit<GramSabhaState> {
 
   Future<void> raiseIssue(int sessionId, String title) async {
     try {
-      await _api.post('/gramsabha/$sessionId/issues/', data: {'title': title, 'session': sessionId});
+      await _api.post('/gramsabha-issues/', data: {'title': title, 'session': sessionId});
+      await loadSessions();
     } catch (e) {
       emit(GramSabhaError('Failed to raise issue'));
     }
