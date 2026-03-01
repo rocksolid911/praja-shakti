@@ -38,12 +38,17 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   Future<void> adoptProject(int clusterId, int recommendationIndex) async {
+    // Capture the current loaded state so we can restore it on failure instead
+    // of blanking the screen with DashboardError.
+    final previousState = state;
+
     try {
       final resp = await _api.post('/projects/adopt/', data: {
         'cluster_id': clusterId,
         'recommendation_index': recommendationIndex,
       });
-      // Parse the adopted project from response and surface it for the UI
+
+      // Parse the adopted project from the response
       Project? adoptedProject;
       try {
         if (resp.data is Map && resp.data['id'] != null) {
@@ -51,14 +56,23 @@ class DashboardCubit extends Cubit<DashboardState> {
         }
       } catch (_) {}
 
+      // Reload dashboard to reflect new project status
       await loadDashboard();
 
-      // After reload, if we parsed a project, re-emit state with lastAdoptedProject
+      // Surface the adopted project for the proposal dialog
       if (adoptedProject != null && state is DashboardLoaded) {
         emit((state as DashboardLoaded).copyWith(lastAdoptedProject: adoptedProject));
       }
     } catch (e) {
-      emit(DashboardError('Failed to adopt project'));
+      // Restore previous state instead of showing a blank/error screen.
+      // The snackbar already informed the user; a silent dashboard refresh is cleaner.
+      if (previousState is DashboardLoaded) {
+        emit(previousState);
+      }
+      // Attempt a quiet reload so the data is fresh
+      try {
+        await loadDashboard();
+      } catch (_) {}
     }
   }
 }

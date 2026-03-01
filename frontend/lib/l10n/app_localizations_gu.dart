@@ -240,6 +240,21 @@ class AppLocalizationsGu extends AppLocalizations {
   String get navDashboard => 'ડેશબોર્ડ';
 
   @override
+  String get navGovDashboard => 'Gov Dashboard';
+
+  @override
+  String get navGramSabha => 'Gram Sabha';
+
+  @override
+  String get navProjects => 'Projects';
+
+  @override
+  String get navSchemes => 'Schemes';
+
+  @override
+  String get navManageUsers => 'Manage Users';
+
+  @override
   String get navMore => 'વધુ';
 
   @override

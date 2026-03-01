@@ -270,8 +270,31 @@ def _start_transcription_async(report_id: int, s3_key: str):
         ).start()
 
 
+def _run_full_pipeline(report_id: int, twilio_url: str):
+    """Download audio from Twilio → upload to S3 → run transcription pipeline."""
+    from apps.community.models import Report
+
+    try:
+        s3_key = _download_media_to_s3(twilio_url, report_id)
+        # Update report with real S3 key (was 'pending' until download completes)
+        Report.objects.filter(pk=report_id).update(audio_s3_key=s3_key)
+        _run_transcription_pipeline(report_id, s3_key)
+    except Exception as e:
+        logger.error(f"Full pipeline failed for report #{report_id}: {e}")
+
+
+def _start_full_pipeline_async(report_id: int, twilio_url: str):
+    """Launch full pipeline in a background thread so webhook returns immediately."""
+    import threading
+
+    threading.Thread(
+        target=_run_full_pipeline, args=(report_id, twilio_url), daemon=True
+    ).start()
+    logger.info(f"Background pipeline started for report #{report_id}")
+
+
 def handle_voice_note(user, media_url: str) -> str:
-    """Process voice note — create report and trigger transcription async (Celery or thread)."""
+    """Process voice note — create report and trigger full pipeline in background."""
     from apps.community.models import Report
     from apps.geo_intelligence.models import Village
 
@@ -295,13 +318,11 @@ def handle_voice_note(user, media_url: str) -> str:
         location=location,
     )
 
-    # Download from Twilio → upload to S3 (Twilio URLs expire in 24h)
-    s3_key = _download_media_to_s3(media_url, report.id)
-    report.audio_s3_key = s3_key
-    report.save(update_fields=['audio_s3_key'])
-
-    # Prefer Celery; fall back to background thread if broker unreachable
-    _start_transcription_async(report.id, s3_key)
+    # IMPORTANT: Do NOT call _download_media_to_s3 synchronously here.
+    # Twilio's webhook timeout is ~15s; the download can take up to 30s.
+    # Instead, start the full pipeline (download → S3 → transcribe) in background
+    # so we return the confirmation reply to the citizen immediately.
+    _start_full_pipeline_async(report.id, media_url)
 
     return f"Report #{report.id} darj ho gaya! AI transcription jaari hai (~30 sec). {village.name} ke log ab ise upvote kar sakte hain."
 

@@ -52,12 +52,16 @@ def whatsapp_webhook(request):
 
     logger.info(f"WhatsApp message from {from_number}: {body[:50]}")
 
-    response_text = handle_whatsapp_message(
-        phone=from_number.replace('whatsapp:', ''),
-        body=body,
-        media_url=media_url,
-        media_type=media_type,
-    )
+    try:
+        response_text = handle_whatsapp_message(
+            phone=from_number.replace('whatsapp:', ''),
+            body=body,
+            media_url=media_url,
+            media_type=media_type,
+        )
+    except Exception as e:
+        logger.error(f"WhatsApp handler error for {from_number}: {e}", exc_info=True)
+        response_text = "Kuch galat ho gaya. Thodi der baad phir koshish karein."
 
     # Return raw TwiML XML — must use HttpResponse not DRF Response,
     # otherwise DRF JSON-encodes the string and Twilio can't parse it.

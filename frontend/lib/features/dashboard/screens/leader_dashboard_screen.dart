@@ -6,9 +6,189 @@ import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/project.dart';
+import '../../../core/storage/secure_storage.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../auth/cubit/auth_cubit.dart';
+
+// ── Adopt + Proposal dialog (handles its own state to avoid context issues) ──
+
+class _AdoptProjectDialog extends StatefulWidget {
+  final PriorityCluster cluster;
+  final ApiClient apiClient;
+  const _AdoptProjectDialog({required this.cluster, required this.apiClient});
+
+  @override
+  State<_AdoptProjectDialog> createState() => _AdoptProjectDialogState();
+}
+
+class _AdoptProjectDialogState extends State<_AdoptProjectDialog> {
+  bool _loading = false;
+  Project? _adopted;
+  String? _error;
+
+  Future<void> _adopt() async {
+    setState(() { _loading = true; _error = null; });
+    try {
+      final resp = await widget.apiClient.post('/projects/adopt/', data: {
+        'cluster_id': widget.cluster.id,
+        'recommendation_index': 0,
+      });
+      final project = Project.fromJson(resp.data as Map<String, dynamic>);
+      setState(() { _loading = false; _adopted = project; });
+    } catch (e) {
+      setState(() { _loading = false; _error = 'Failed: $e'; });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      _adopted != null ? _proposalView(context) : _confirmView(context);
+
+  Widget _confirmView(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Adopt Project'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Category: ${widget.cluster.category.toUpperCase()}',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text('Reports: ${widget.cluster.reportCount}  •  Votes: ${widget.cluster.upvoteCount}'),
+          Text('Priority Score: ${widget.cluster.totalScore.toStringAsFixed(0)}/100'),
+          const SizedBox(height: 10),
+          const Text(
+            'Adopting will generate a PDF project proposal with government scheme funding plan.',
+            style: TextStyle(color: Colors.grey, fontSize: 13),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _loading ? null : () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _loading ? null : _adopt,
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+          child: _loading
+              ? const SizedBox(width: 16, height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Text('Adopt Project', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    );
+  }
+
+  Widget _proposalView(BuildContext context) {
+    final project = _adopted!;
+    final fp = project.fundPlans.isNotEmpty ? project.fundPlans.first : null;
+
+    return AlertDialog(
+      title: Row(
+        children: [
+          const Icon(Icons.description, color: Colors.green),
+          const SizedBox(width: 8),
+          const Expanded(child: Text('Proposal Ready!')),
+        ],
+      ),
+      content: SizedBox(
+        width: 400,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(project.title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              const SizedBox(height: 12),
+              _row('Total Cost', '₹${_fmt(project.estimatedCostInr)}'),
+              _row('Beneficiaries', '${project.beneficiaryCount ?? "—"} households'),
+              _row('Status', 'In Progress ✓', green: true),
+              if (fp != null) ...[
+                const SizedBox(height: 12),
+                const Text('Fund Allocation',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                const Divider(height: 8),
+                ...fp.schemesUsed.map((s) => _row(
+                    s.schemeName,
+                    '₹${_fmt(s.amountInr)} (${s.pctCovered.toStringAsFixed(0)}%)')),
+                const Divider(height: 8),
+                _row('Govt Schemes Cover',
+                    '${fp.savingsPct.toStringAsFixed(0)}% of total', green: true),
+                _row('Panchayat Pays',
+                    '₹${_fmt(fp.panchayatContributionInr)}', green: true),
+              ],
+              const SizedBox(height: 10),
+              Row(children: const [
+                Icon(Icons.picture_as_pdf, color: Colors.green, size: 16),
+                SizedBox(width: 6),
+                Text('PDF proposal ready to download',
+                    style: TextStyle(color: Colors.green, fontSize: 13)),
+              ]),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Close'),
+        ),
+        ElevatedButton.icon(
+          onPressed: () => _download(context, project),
+          icon: const Icon(Icons.download, size: 16),
+          label: const Text('Download PDF'),
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green, foregroundColor: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Widget _row(String label, String value, {bool green = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
+          Text(value, style: TextStyle(
+            fontSize: 13, fontWeight: FontWeight.w600,
+            color: green ? Colors.green.shade700 : Colors.black87,
+          )),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _download(BuildContext context, Project project) async {
+    final rawUrl = project.proposalDownloadUrl;
+    if (rawUrl == null) return;
+    Uri uri;
+    if (rawUrl.startsWith('http')) {
+      uri = Uri.parse(rawUrl);
+    } else {
+      final base = widget.apiClient.baseUrl.replaceFirst(RegExp(r'/api/v1$'), '');
+      final token = await SecureStorage.getAccessToken() ?? '';
+      uri = Uri.parse('$base$rawUrl?token=$token');
+    }
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  String _fmt(int cost) {
+    if (cost >= 100000) return '${(cost / 100000).toStringAsFixed(1)}L';
+    if (cost >= 1000) return '${(cost / 1000).toStringAsFixed(0)}K';
+    return '$cost';
+  }
+}
 
 class LeaderDashboardScreen extends StatelessWidget {
   const LeaderDashboardScreen({super.key});
@@ -46,12 +226,7 @@ class _DashboardView extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocConsumer<DashboardCubit, DashboardState>(
-        listener: (context, state) {
-          if (state is DashboardLoaded && state.lastAdoptedProject != null) {
-            _showProposalDialog(context, state.lastAdoptedProject!);
-          }
-        },
+      body: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
           if (state is DashboardLoading) return const Center(child: CircularProgressIndicator());
           if (state is DashboardError) {
@@ -212,110 +387,21 @@ class _DashboardView extends StatelessWidget {
     ];
   }
 
-  void _showProposalDialog(BuildContext context, Project project) {
-    final l10n = AppLocalizations.of(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.description, color: Colors.green),
-              const SizedBox(width: 8),
-              Text(l10n.proposalReady),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(project.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              if (project.fundPlans.isNotEmpty) ...[
-                Text('${l10n.totalCost}: ₹${_formatCostStatic(project.estimatedCostInr)}'),
-                ...project.fundPlans.take(1).map((fp) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${l10n.subsidyLabel}: ${fp.savingsPct.toStringAsFixed(0)}% ${l10n.subsidySavings}'),
-                    ...fp.schemesUsed.take(2).map((s) => Text(
-                      '• ${s.schemeName}: ₹${_formatCostStatic(s.amountInr)}',
-                      style: const TextStyle(fontSize: 13, color: Colors.grey),
-                    )),
-                  ],
-                )),
-              ],
-              const SizedBox(height: 8),
-              if (project.proposalDownloadUrl != null)
-                Text(l10n.pdfProposalReady,
-                    style: const TextStyle(color: Colors.grey, fontSize: 13))
-              else
-                Text(l10n.generatingProposal,
-                    style: const TextStyle(color: Colors.grey, fontSize: 13)),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.close)),
-            if (project.proposalDownloadUrl != null)
-              ElevatedButton.icon(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  final uri = Uri.parse(project.proposalDownloadUrl!);
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-                icon: const Icon(Icons.download),
-                label: Text(l10n.downloadPdf),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              ),
-          ],
-        ),
-      );
-    });
-  }
-
-  static String _formatCostStatic(int cost) {
-    if (cost >= 100000) return '${(cost / 100000).toStringAsFixed(1)}L';
-    if (cost >= 1000) return '${(cost / 1000).toStringAsFixed(0)}K';
-    return '$cost';
-  }
-
   void _showAdoptDialog(BuildContext context, PriorityCluster cluster) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
+    final apiClient = context.read<ApiClient>();
+    final cubit = context.read<DashboardCubit>();
+    showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(l10n.adoptProject),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${l10n.categoryLabel}: ${cluster.category.toUpperCase()}'),
-            Text('${l10n.reports}: ${cluster.reportCount}'),
-            Text('${l10n.priority}: ${cluster.totalScore.toStringAsFixed(0)}/100'),
-            const SizedBox(height: 8),
-            Text(l10n.aiProposalNote, style: const TextStyle(color: Colors.grey, fontSize: 13)),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<DashboardCubit>().adoptProject(cluster.id, 0);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.projectAdoptedSnackbar),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: Text(l10n.adoptProject, style: const TextStyle(color: Colors.white)),
-          ),
-        ],
+      barrierDismissible: false,
+      builder: (dialogContext) => _AdoptProjectDialog(
+        cluster: cluster,
+        apiClient: apiClient,
       ),
-    );
+    ).then((adopted) {
+      if (adopted == true && context.mounted) {
+        cubit.loadDashboard();
+      }
+    });
   }
 }
 
