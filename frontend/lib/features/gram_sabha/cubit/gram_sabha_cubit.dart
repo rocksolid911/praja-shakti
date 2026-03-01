@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/api/api_client.dart';
 import 'gram_sabha_state.dart';
@@ -38,7 +39,12 @@ class GramSabhaCubit extends Cubit<GramSabhaState> {
       await _api.post('/gramsabha-issues/', data: {'title': title, 'session': sessionId});
       await loadSessions();
     } catch (e) {
-      emit(GramSabhaError('Failed to raise issue'));
+      String msg = 'Failed to raise issue';
+      if (e is DioException && e.response != null) {
+        final d = e.response!.data;
+        msg = d is Map ? d.values.first?.toString() ?? msg : 'Server error ${e.response!.statusCode}';
+      }
+      emit(GramSabhaError(msg));
     }
   }
 
