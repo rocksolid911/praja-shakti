@@ -1087,6 +1087,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'How to get Kisan Credit Card?'**
   String get quickQuery5;
+
+  /// No description provided for @reportSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Report submitted! ID: WTR-{id}'**
+  String reportSubmitted(int id);
 }
 
 class _AppLocalizationsDelegate
