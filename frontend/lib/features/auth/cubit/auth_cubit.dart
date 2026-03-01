@@ -75,6 +75,14 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Returns the logged-in user's village ID, falling back to 1 for demo.
+  int get currentVillageId {
+    final s = state;
+    if (s is AuthAuthenticated) return s.user.villageId ?? 1;
+    if (s is AuthProfileLoaded) return s.user.villageId ?? 1;
+    return 1;
+  }
+
   Future<void> logout() async {
     await SecureStorage.clearTokens();
     emit(AuthInitial());
