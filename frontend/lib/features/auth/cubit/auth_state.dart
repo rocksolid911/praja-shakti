@@ -8,7 +8,8 @@ class AuthLoading extends AuthState {}
 
 class AuthOtpSent extends AuthState {
   final String phone;
-  AuthOtpSent(this.phone);
+  final String? otpDebug; // returned by backend in dev mode
+  AuthOtpSent(this.phone, {this.otpDebug});
 }
 
 class AuthAuthenticated extends AuthState {
