@@ -44,7 +44,13 @@ GoRouter createRouter(AuthCubit authCubit) {
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(
         path: '/otp',
-        builder: (_, state) => OTPScreen(phone: state.extra as String? ?? ''),
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return OTPScreen(
+            phone: extra['phone'] as String? ?? '',
+            otpDebug: extra['otpDebug'] as String?,
+          );
+        },
       ),
       GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
       ShellRoute(
