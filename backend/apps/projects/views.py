@@ -352,3 +352,42 @@ def adopt_project(request):
         project.save(update_fields=['proposal_s3_key'])
 
     return Response(ProjectSerializer(project).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def government_dashboard(request):
+    """Government dashboard: top voted reports + AI priority ranking across all villages."""
+    village_id = request.query_params.get('village', 1)
+
+    from apps.community.models import Report, ReportCluster
+    from apps.community.serializers import ReportSerializer, ReportClusterSerializer
+    from apps.ai_engine.models import PriorityScore
+    from apps.ai_engine.serializers import PriorityScoreSerializer
+
+    # Top 10 most-voted reports
+    top_reports = Report.objects.filter(
+        village_id=village_id
+    ).select_related('reporter', 'village').order_by('-vote_count')[:10]
+
+    # AI priority clusters ranked by score
+    priority_scores = PriorityScore.objects.filter(
+        cluster__village_id=village_id
+    ).select_related('cluster__village').order_by('-total_score')[:10]
+
+    # Summary counts
+    total_reports = Report.objects.filter(village_id=village_id).count()
+    critical_reports = Report.objects.filter(village_id=village_id, urgency='critical').count()
+    resolved_reports = Report.objects.filter(village_id=village_id, status='completed').count()
+    active_projects = Project.objects.filter(village_id=village_id, status__in=['adopted', 'in_progress']).count()
+
+    return Response({
+        'summary': {
+            'total_reports': total_reports,
+            'critical_reports': critical_reports,
+            'resolved_reports': resolved_reports,
+            'active_projects': active_projects,
+        },
+        'top_voted_reports': ReportSerializer(top_reports, many=True, context={'request': request}).data,
+        'ai_priority_ranking': PriorityScoreSerializer(priority_scores, many=True).data,
+    })

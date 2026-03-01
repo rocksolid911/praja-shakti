@@ -8,6 +8,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/models/project.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../auth/cubit/auth_cubit.dart';
 
 class LeaderDashboardScreen extends StatelessWidget {
   const LeaderDashboardScreen({super.key});
@@ -165,6 +166,7 @@ class _DashboardView extends StatelessWidget {
   List<Widget> _prioritySection(BuildContext context, DashboardLoaded state) {
     if (state.priorities.isEmpty) return [];
     final l10n = AppLocalizations.of(context);
+    final isLeader = context.read<AuthCubit>().currentUser?.isLeader ?? false;
     return [
       _SectionHeader(title: l10n.aiPriorityRanking, subtitle: l10n.issuesNeedingAttention),
       const SizedBox(height: 10),
@@ -172,7 +174,7 @@ class _DashboardView extends StatelessWidget {
         _PriorityCard(
           rank: e.key + 1,
           cluster: e.value,
-          onAdopt: () => _showAdoptDialog(context, e.value),
+          onAdopt: isLeader ? () => _showAdoptDialog(context, e.value) : null,
         ),
       ),
       const SizedBox(height: 20),
@@ -360,8 +362,8 @@ class _SectionHeader extends StatelessWidget {
 class _PriorityCard extends StatelessWidget {
   final int rank;
   final PriorityCluster cluster;
-  final VoidCallback onAdopt;
-  const _PriorityCard({required this.rank, required this.cluster, required this.onAdopt});
+  final VoidCallback? onAdopt;
+  const _PriorityCard({required this.rank, required this.cluster, this.onAdopt});
 
   @override
   Widget build(BuildContext context) {
@@ -426,18 +428,20 @@ class _PriorityCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: onAdopt,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade700,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                minimumSize: const Size(60, 32),
-                textStyle: const TextStyle(fontSize: 12),
+            if (onAdopt != null) ...[
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: onAdopt,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade700,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  minimumSize: const Size(60, 32),
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+                child: Text(AppLocalizations.of(context).adopt),
               ),
-              child: Text(AppLocalizations.of(context).adopt),
-            ),
+            ],
           ],
         ),
       ),
