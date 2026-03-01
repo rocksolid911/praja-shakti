@@ -89,7 +89,7 @@ class GramSabhaSessionViewSet(viewsets.ModelViewSet):
     filterset_fields = ['village', 'is_active']
 
     def get_queryset(self):
-        return GramSabhaSession.objects.select_related('village', 'created_by')
+        return GramSabhaSession.objects.select_related('village', 'created_by').prefetch_related('issues')
 
     @action(detail=True, methods=['post'])
     def end(self, request, pk=None):
