@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/report.dart';
@@ -41,7 +42,16 @@ class ReportCubit extends Cubit<ReportState> {
       final resp = await _api.post('/reports/', data: data);
       emit(ReportSubmitted(Report.fromJson(resp.data)));
     } catch (e) {
-      emit(ReportError('Failed to submit report. Please try again.'));
+      String msg = 'Failed to submit report. Please try again.';
+      if (e is DioException && e.response != null) {
+        final data = e.response!.data;
+        if (data is Map) {
+          msg = data.values.first?.toString() ?? msg;
+        } else {
+          msg = 'Server error ${e.response!.statusCode}';
+        }
+      }
+      emit(ReportError(msg));
     }
   }
 
