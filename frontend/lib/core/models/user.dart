@@ -20,7 +20,10 @@ class User {
   });
 
   String get fullName => '$firstName $lastName'.trim();
-  bool get isLeader => role == 'leader' || role == 'admin';
+  bool get isCitizen => role == 'citizen';
+  bool get isLeader => role == 'leader';
+  bool get isGovernment => role == 'government' || role == 'admin';
+  bool get hasFullAccess => isLeader || isGovernment;
 
   factory User.fromJson(Map<String, dynamic> json) => User(
     id: json['id'], phone: json['phone'] ?? '', username: json['username'] ?? '',

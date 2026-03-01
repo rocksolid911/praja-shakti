@@ -12,16 +12,18 @@ class GramSabhaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final villageId = context.read<AuthCubit>().currentVillageId;
+    final isLeader = context.read<AuthCubit>().currentUser?.hasFullAccess ?? false;
     return BlocProvider(
       create: (_) => GramSabhaCubit(context.read<ApiClient>())..loadSessions(villageId: villageId),
-      child: _GramSabhaView(villageId: villageId),
+      child: _GramSabhaView(villageId: villageId, isLeader: isLeader),
     );
   }
 }
 
 class _GramSabhaView extends StatelessWidget {
   final int villageId;
-  const _GramSabhaView({required this.villageId});
+  final bool isLeader;
+  const _GramSabhaView({required this.villageId, required this.isLeader});
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +67,15 @@ class _GramSabhaView extends StatelessWidget {
           return _buildEmpty(context);
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreateDialog(context),
-        icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context).newMeeting),
-        backgroundColor: Colors.purple.shade700,
-        foregroundColor: Colors.white,
-      ),
+      floatingActionButton: isLeader
+          ? FloatingActionButton.extended(
+              onPressed: () => _showCreateDialog(context),
+              icon: const Icon(Icons.add),
+              label: Text(AppLocalizations.of(context).newMeeting),
+              backgroundColor: Colors.purple.shade700,
+              foregroundColor: Colors.white,
+            )
+          : null,
     );
   }
 
@@ -85,14 +89,20 @@ class _GramSabhaView extends StatelessWidget {
           const SizedBox(height: 16),
           Text(l10n.noGramSabhaYet, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text(l10n.createNewMeeting, style: const TextStyle(color: Colors.grey)),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: () => _showCreateDialog(context),
-            icon: const Icon(Icons.add),
-            label: Text(l10n.createMeeting),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple.shade700, foregroundColor: Colors.white),
+          Text(
+            isLeader ? l10n.createNewMeeting : 'Sessions are created by Panchayat leaders',
+            style: const TextStyle(color: Colors.grey),
+            textAlign: TextAlign.center,
           ),
+          if (isLeader) ...[
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => _showCreateDialog(context),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.createMeeting),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.purple.shade700, foregroundColor: Colors.white),
+            ),
+          ],
         ],
       ),
     );
@@ -107,7 +117,7 @@ class _GramSabhaView extends StatelessWidget {
         session: state.sessions[i],
         onRaiseIssue: (title) => context.read<GramSabhaCubit>().raiseIssue(state.sessions[i].id, title),
         onVote: (issueId) => context.read<GramSabhaCubit>().voteIssue(state.sessions[i].id, issueId),
-        onEndSession: state.sessions[i].isActive
+        onEndSession: (isLeader && state.sessions[i].isActive)
             ? () => context.read<GramSabhaCubit>().endSession(state.sessions[i].id, villageId)
             : null,
       ),

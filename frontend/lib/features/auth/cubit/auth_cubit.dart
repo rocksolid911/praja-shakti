@@ -75,6 +75,14 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Returns the currently logged-in user, or null if not authenticated.
+  User? get currentUser {
+    final s = state;
+    if (s is AuthAuthenticated) return s.user;
+    if (s is AuthProfileLoaded) return s.user;
+    return null;
+  }
+
   /// Returns the logged-in user's village ID, falling back to 1 for demo.
   int get currentVillageId {
     final s = state;

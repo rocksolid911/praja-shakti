@@ -10,5 +10,6 @@ urlpatterns = [
     path('projects/adopt/', views.adopt_project, name='project-adopt'),
     path('dashboard/summary/', views.dashboard_summary, name='dashboard-summary'),
     path('dashboard/fund-status/', views.dashboard_fund_status, name='dashboard-fund-status'),
+    path('dashboard/government/', views.government_dashboard, name='government-dashboard'),
     path('', include(router.urls)),
 ]
