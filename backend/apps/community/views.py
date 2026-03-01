@@ -25,6 +25,15 @@ class ReportViewSet(viewsets.ModelViewSet):
             return ReportCreateSerializer
         return ReportSerializer
 
+    def create(self, request, *args, **kwargs):
+        create_serializer = ReportCreateSerializer(
+            data=request.data, context={'request': request}
+        )
+        create_serializer.is_valid(raise_exception=True)
+        report = create_serializer.save()
+        return_serializer = ReportSerializer(report, context={'request': request})
+        return Response(return_serializer.data, status=status.HTTP_201_CREATED)
+
     @action(detail=True, methods=['post'])
     def vote(self, request, pk=None):
         report = self.get_object()

@@ -39,7 +39,7 @@ class ReportCreateSerializer(serializers.ModelSerializer):
         fields = [
             'village', 'category', 'sub_category', 'description_text',
             'description_hindi', 'audio_s3_key', 'photo_s3_key',
-            'location', 'ward', 'is_gram_sabha',
+            'location', 'ward', 'urgency', 'is_gram_sabha',
         ]
 
     def create(self, validated_data):

@@ -101,7 +101,7 @@ class _ReportViewState extends State<_ReportView> {
         if (state is ReportSubmitted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('रिपोर्ट सबमिट हुई! ID: WTR-${state.report.id}'),
+              content: Text(AppLocalizations.of(context).reportSubmitted(state.report.id)),
               backgroundColor: Colors.green,
             ),
           );

@@ -161,5 +161,9 @@
   "quickQuery2": "MGNREGA ਵਿੱਚ ਕਿੰਨੇ ਦਿਨ ਕੰਮ ਮਿਲਦਾ ਹੈ?",
   "quickQuery3": "Jal Jeevan Mission ਕੀ ਹੈ?",
   "quickQuery4": "PMAY-G ਲਈ ਅਰਜ਼ੀ ਕਿਵੇਂ ਦੇਣੀ ਹੈ?",
-  "quickQuery5": "Kisan Credit Card ਕਿਵੇਂ ਬਣਵਾਈਏ?"
+  "quickQuery5": "Kisan Credit Card ਕਿਵੇਂ ਬਣਵਾਈਏ?",
+  "reportSubmitted": "ਰਿਪੋਰਟ ਜਮ੍ਹਾਂ ਹੋਈ! ID: WTR-{id}",
+  "@reportSubmitted": {
+    "placeholders": {"id": {"type": "int"}}
+  }
 }
