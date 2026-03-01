@@ -10,6 +10,7 @@ import '../../../core/api/api_client.dart';
 import '../../../core/models/report.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../auth/cubit/auth_cubit.dart';
 
 class CommunityFeedScreen extends StatelessWidget {
   const CommunityFeedScreen({super.key});
@@ -55,6 +56,8 @@ class _FeedView extends StatelessWidget {
       ),
       body: Column(
         children: [
+          // Leader info banner — shows panchayat leader contact details
+          const _LeaderBanner(),
           // Filter chips
           Container(
             height: 48,
@@ -210,6 +213,138 @@ class _FeedView extends StatelessWidget {
   }
 }
 
+/// Fetches and displays the panchayat leader's contact info above the feed.
+class _LeaderBanner extends StatefulWidget {
+  const _LeaderBanner();
+
+  @override
+  State<_LeaderBanner> createState() => _LeaderBannerState();
+}
+
+class _LeaderBannerState extends State<_LeaderBanner> {
+  Map<String, dynamic>? _leader;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLeader();
+  }
+
+  Future<void> _fetchLeader() async {
+    try {
+      final villageId = context.read<AuthCubit>().currentVillageId;
+      final api = context.read<ApiClient>();
+      final resp = await api.get(
+        '/auth/village-leader/',
+        queryParameters: {'village': villageId},
+      );
+      if (mounted) {
+        final data = resp.data as Map<String, dynamic>;
+        setState(() {
+          _leader = data.containsKey('id') ? data : null;
+          _loaded = true;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loaded = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded || _leader == null) return const SizedBox.shrink();
+
+    final name = (_leader!['name'] as String?)?.trim() ?? '';
+    final phone = (_leader!['phone'] as String?) ?? '';
+    final panchayat = (_leader!['panchayat'] as String?) ?? '';
+    final ward = _leader!['ward'];
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.person_pin, color: Colors.green.shade700, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Gram Panchayat Leader',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.green.shade700,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  name.isNotEmpty ? name : phone,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+                if (panchayat.isNotEmpty)
+                  Text(
+                    panchayat,
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                  ),
+              ],
+            ),
+          ),
+          if (ward != null) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.green.shade100,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                'Ward $ward',
+                style: TextStyle(fontSize: 10, color: Colors.green.shade800, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+          GestureDetector(
+            onTap: () async {
+              final uri = Uri.parse('tel:$phone');
+              if (await canLaunchUrl(uri)) launchUrl(uri);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.green.shade700,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.phone, size: 13, color: Colors.white),
+                  const SizedBox(width: 5),
+                  Text(
+                    phone,
+                    style: const TextStyle(
+                      fontSize: 11, color: Colors.white, fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ReportCard extends StatelessWidget {
   final Report report;
   final VoidCallback onVote;
@@ -225,6 +360,10 @@ class ReportCard extends StatelessWidget {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
+
+  bool get _isTranscriptionPending =>
+      report.descriptionText.startsWith('[Voice note') ||
+      report.descriptionText.startsWith('[Voice Note');
 
   @override
   Widget build(BuildContext context) {
@@ -291,12 +430,29 @@ class ReportCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          report.descriptionText,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                        ),
+                        // Show transcription pending state differently
+                        if (_isTranscriptionPending)
+                          Row(
+                            children: [
+                              Icon(Icons.access_time, size: 13, color: Colors.orange.shade600),
+                              const SizedBox(width: 4),
+                              Text(
+                                'AI transcription in progress...',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.orange.shade700,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          Text(
+                            report.descriptionText,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                          ),
                         const SizedBox(height: 6),
                         Row(
                           children: [

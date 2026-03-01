@@ -240,6 +240,21 @@ class AppLocalizationsHi extends AppLocalizations {
   String get navDashboard => 'डैशबोर्ड';
 
   @override
+  String get navGovDashboard => 'सरकारी डैशबोर्ड';
+
+  @override
+  String get navGramSabha => 'ग्राम सभा';
+
+  @override
+  String get navProjects => 'परियोजनाएं';
+
+  @override
+  String get navSchemes => 'योजनाएं';
+
+  @override
+  String get navManageUsers => 'उपयोगकर्ता प्रबंधन';
+
+  @override
   String get navMore => 'और';
 
   @override
