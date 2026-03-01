@@ -498,4 +498,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickQuery5 => 'How to get Kisan Credit Card?';
+
+  @override
+  String reportSubmitted(int id) {
+    return 'Report submitted! ID: WTR-$id';
+  }
 }
