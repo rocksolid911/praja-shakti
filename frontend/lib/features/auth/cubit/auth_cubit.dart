@@ -30,8 +30,9 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> sendOtp(String phone) async {
     emit(AuthLoading());
     try {
-      await _api.post('/auth/otp/send/', data: {'phone': phone});
-      emit(AuthOtpSent(phone));
+      final resp = await _api.post('/auth/otp/send/', data: {'phone': phone});
+      final otpDebug = resp.data['otp_debug']?.toString();
+      emit(AuthOtpSent(phone, otpDebug: otpDebug));
     } catch (e) {
       emit(AuthError(_parseError(e)));
     }

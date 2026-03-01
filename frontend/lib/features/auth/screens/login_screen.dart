@@ -26,14 +26,13 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthOtpSent) {
-          context.go('/otp', extra: state.phone);
-        } else if (state is AuthAuthenticated) {
-          context.go('/map');
+          context.go('/otp', extra: {'phone': state.phone, 'otpDebug': state.otpDebug});
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
+        // AuthAuthenticated is handled by GoRouter's role-based redirect
       },
       child: Scaffold(
         body: SafeArea(
