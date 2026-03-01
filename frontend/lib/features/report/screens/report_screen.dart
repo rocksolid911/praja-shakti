@@ -6,6 +6,7 @@ import '../cubit/report_cubit.dart';
 import '../cubit/report_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../auth/cubit/auth_cubit.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
@@ -255,7 +256,7 @@ class _ReportViewState extends State<_ReportView> {
       return;
     }
     context.read<ReportCubit>().submitTextReport(
-      villageId: 1,
+      villageId: context.read<AuthCubit>().currentVillageId,
       description: _descController.text.trim(),
       category: _category,
       urgency: _urgency,

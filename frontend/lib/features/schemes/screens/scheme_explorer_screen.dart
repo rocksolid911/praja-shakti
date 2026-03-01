@@ -4,6 +4,7 @@ import '../cubit/scheme_cubit.dart';
 import '../cubit/scheme_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../auth/cubit/auth_cubit.dart';
 
 class SchemeExplorerScreen extends StatelessWidget {
   const SchemeExplorerScreen({super.key});
@@ -232,7 +233,7 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
     final q = _queryController.text.trim();
     if (q.isEmpty) return;
     _queryController.clear();
-    context.read<SchemeCubit>().query(q);
+    context.read<SchemeCubit>().query(q, villageId: context.read<AuthCubit>().currentVillageId);
   }
 }
 
