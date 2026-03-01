@@ -49,13 +49,13 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_village_id(self, obj):
         if obj.panchayat:
-            v = obj.panchayat.village_set.first()
+            v = obj.panchayat.villages.first()
             return v.id if v else None
         return None
 
     def get_village_name(self, obj):
         if obj.panchayat:
-            v = obj.panchayat.village_set.first()
+            v = obj.panchayat.villages.first()
             return v.name if v else None
         return None
 
