@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
+from rest_framework_gis.fields import GeometryField
 from .models import Report, Vote, ReportCluster, GramSabhaSession, GramSabhaIssue
 
 
@@ -34,6 +35,8 @@ class ReportSerializer(serializers.ModelSerializer):
 
 
 class ReportCreateSerializer(serializers.ModelSerializer):
+    location = GeometryField(required=False, allow_null=True)
+
     class Meta:
         model = Report
         fields = [
