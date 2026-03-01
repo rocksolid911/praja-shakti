@@ -240,6 +240,21 @@ class AppLocalizationsMr extends AppLocalizations {
   String get navDashboard => 'डॅशबोर्ड';
 
   @override
+  String get navGovDashboard => 'Gov Dashboard';
+
+  @override
+  String get navGramSabha => 'Gram Sabha';
+
+  @override
+  String get navProjects => 'Projects';
+
+  @override
+  String get navSchemes => 'Schemes';
+
+  @override
+  String get navManageUsers => 'Manage Users';
+
+  @override
   String get navMore => 'अधिक';
 
   @override

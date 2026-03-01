@@ -240,6 +240,21 @@ class AppLocalizationsTa extends AppLocalizations {
   String get navDashboard => 'டாஷ்போர்டு';
 
   @override
+  String get navGovDashboard => 'Gov Dashboard';
+
+  @override
+  String get navGramSabha => 'Gram Sabha';
+
+  @override
+  String get navProjects => 'Projects';
+
+  @override
+  String get navSchemes => 'Schemes';
+
+  @override
+  String get navManageUsers => 'Manage Users';
+
+  @override
   String get navMore => 'மேலும்';
 
   @override
