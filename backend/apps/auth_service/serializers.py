@@ -44,10 +44,24 @@ class OTPVerifySerializer(serializers.Serializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     panchayat_name = serializers.CharField(source='panchayat.name', read_only=True, default=None)
+    village_id = serializers.SerializerMethodField()
+    village_name = serializers.SerializerMethodField()
+
+    def get_village_id(self, obj):
+        if obj.panchayat:
+            v = obj.panchayat.village_set.first()
+            return v.id if v else None
+        return None
+
+    def get_village_name(self, obj):
+        if obj.panchayat:
+            v = obj.panchayat.village_set.first()
+            return v.name if v else None
+        return None
 
     class Meta:
         model = User
         fields = ['id', 'phone', 'username', 'first_name', 'last_name', 'role',
                   'panchayat', 'panchayat_name', 'ward', 'language_preference',
-                  'whatsapp_number']
+                  'whatsapp_number', 'village_id', 'village_name']
         read_only_fields = ['id', 'phone', 'role']
