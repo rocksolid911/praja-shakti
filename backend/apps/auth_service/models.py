@@ -6,10 +6,11 @@ class User(AbstractUser):
     ROLES = [
         ('citizen', 'Citizen'),
         ('leader', 'Leader'),
+        ('government', 'Government'),
         ('admin', 'Admin'),
     ]
     phone = models.CharField(max_length=15, unique=True)
-    role = models.CharField(max_length=10, choices=ROLES, default='citizen')
+    role = models.CharField(max_length=12, choices=ROLES, default='citizen')
     panchayat = models.ForeignKey(
         'geo_intelligence.Panchayat',
         null=True, blank=True,
