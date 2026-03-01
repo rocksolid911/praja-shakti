@@ -100,25 +100,26 @@ class ReportClusterGeoSerializer(serializers.ModelSerializer):
         }
 
 
+class GramSabhaIssueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GramSabhaIssue
+        fields = ['id', 'session', 'report', 'title', 'vote_count']
+        read_only_fields = ['id', 'vote_count']
+
+
 class GramSabhaSessionSerializer(serializers.ModelSerializer):
     village_name = serializers.CharField(source='village.name', read_only=True)
     issue_count = serializers.IntegerField(source='issues.count', read_only=True)
+    issues = GramSabhaIssueSerializer(many=True, read_only=True)
 
     class Meta:
         model = GramSabhaSession
         fields = [
             'id', 'village', 'village_name', 'title', 'scheduled_at',
-            'is_active', 'transcript', 'created_by', 'issue_count', 'created_at',
+            'is_active', 'transcript', 'created_by', 'issue_count', 'issues', 'created_at',
         ]
         read_only_fields = ['id', 'created_by', 'created_at']
 
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user
         return super().create(validated_data)
-
-
-class GramSabhaIssueSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GramSabhaIssue
-        fields = ['id', 'session', 'report', 'title', 'vote_count']
-        read_only_fields = ['id', 'vote_count']
