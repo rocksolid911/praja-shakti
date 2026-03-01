@@ -7,15 +7,30 @@ import '../../../l10n/app_localizations.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
-  const OTPScreen({super.key, required this.phone});
+  final String? otpDebug;
+  const OTPScreen({super.key, required this.phone, this.otpDebug});
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
 }
 
 class _OTPScreenState extends State<OTPScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  late final List<TextEditingController> _controllers;
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill with debug OTP if provided (dev mode)
+    if (widget.otpDebug != null && widget.otpDebug!.length == 6) {
+      _controllers = List.generate(
+        6,
+        (i) => TextEditingController(text: widget.otpDebug![i]),
+      );
+    } else {
+      _controllers = List.generate(6, (_) => TextEditingController());
+    }
+  }
 
   String get _otp => _controllers.map((c) => c.text).join();
 
@@ -30,9 +45,8 @@ class _OTPScreenState extends State<OTPScreen> {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          context.go('/map');
-        } else if (state is AuthError) {
+        // AuthAuthenticated: GoRouter's redirect handles role-based navigation
+        if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
@@ -59,6 +73,32 @@ class _OTPScreenState extends State<OTPScreen> {
                 '${widget.phone} पर भेजा गया 6-अंकीय OTP',
                 style: TextStyle(color: Colors.grey.shade600),
               ),
+              if (widget.otpDebug != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.bug_report, size: 16, color: Colors.blue.shade700),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Dev OTP: ${widget.otpDebug}',
+                        style: TextStyle(
+                          color: Colors.blue.shade800,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
