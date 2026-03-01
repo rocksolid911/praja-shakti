@@ -19,6 +19,7 @@ import '../features/schemes/screens/scheme_explorer_screen.dart';
 import '../features/dashboard/screens/leader_dashboard_screen.dart';
 import '../features/gram_sabha/screens/gram_sabha_screen.dart';
 import '../features/dashboard/screens/government_dashboard_screen.dart';
+import '../features/auth/screens/user_management_screen.dart';
 
 GoRouter createRouter(AuthCubit authCubit) {
   return GoRouter(
@@ -69,6 +70,7 @@ GoRouter createRouter(AuthCubit authCubit) {
           GoRoute(path: '/dashboard', builder: (_, __) => const LeaderDashboardScreen()),
           GoRoute(path: '/gramsabha', builder: (_, __) => const GramSabhaScreen()),
           GoRoute(path: '/gov-dashboard', builder: (_, __) => const GovernmentDashboardScreen()),
+          GoRoute(path: '/users', builder: (_, __) => const UserManagementScreen()),
         ],
       ),
     ],
@@ -135,6 +137,7 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.dashboard, 'Dashboard', '/dashboard'),
     _NavItem(Icons.construction, 'Projects', '/projects'),
     _NavItem(Icons.search, 'Schemes', '/schemes'),
+    _NavItem(Icons.manage_accounts, 'Manage Users', '/users'),
     _NavItem(Icons.person, 'Profile', '/profile'),
   ];
 
@@ -224,6 +227,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   Widget _buildRailLayout(BuildContext context, String location, bool isDesktop) {
+    final l10n = AppLocalizations.of(context);
     final selectedIndex = _getRailIndex(location);
     final railItems = _railItems();
     return Scaffold(
