@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../cubit/report_cubit.dart';
 import '../cubit/report_state.dart';
 import '../../../core/api/api_client.dart';
@@ -197,6 +200,10 @@ class _ReportDetail extends StatelessWidget {
                 _metaRow(l10n.dateLabel, _formatDate(report.createdAt)),
                 if (report.latitude != null)
                   _metaRow(l10n.locationLabel, '${report.latitude!.toStringAsFixed(4)}, ${report.longitude!.toStringAsFixed(4)}'),
+                if (report.latitude != null && report.longitude != null) ...[
+                  const SizedBox(height: 12),
+                  _LocationMap(lat: report.latitude!, lng: report.longitude!, category: report.category),
+                ],
               ],
             ),
           ),
@@ -262,5 +269,88 @@ class _ReportDetail extends StatelessWidget {
 
   String _formatDate(DateTime dt) {
     return '${dt.day}/${dt.month}/${dt.year}';
+  }
+}
+
+class _LocationMap extends StatelessWidget {
+  final double lat;
+  final double lng;
+  final String category;
+
+  const _LocationMap({required this.lat, required this.lng, required this.category});
+
+  Color get _pinColor {
+    switch (category) {
+      case 'water': return Colors.blue;
+      case 'road': return Colors.orange;
+      case 'health': return Colors.red;
+      case 'education': return Colors.purple;
+      case 'electricity': return Colors.yellow.shade800;
+      case 'sanitation': return Colors.teal;
+      default: return Colors.grey.shade700;
+    }
+  }
+
+  Future<void> _navigate() async {
+    final uri = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$lat,$lng');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        height: 200,
+        child: Stack(
+          children: [
+            FlutterMap(
+              options: MapOptions(
+                initialCenter: LatLng(lat, lng),
+                initialZoom: 15.5,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom,
+                ),
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.prajashakti.app',
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: LatLng(lat, lng),
+                      width: 40,
+                      height: 40,
+                      child: Icon(Icons.location_pin, color: _pinColor, size: 40),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // Navigate button — bottom right
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: ElevatedButton.icon(
+                onPressed: _navigate,
+                icon: const Icon(Icons.navigation, size: 16),
+                label: const Text('Navigate', style: TextStyle(fontSize: 13)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blue.shade700,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
