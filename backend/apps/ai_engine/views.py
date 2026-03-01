@@ -23,19 +23,22 @@ def transcribe(request):
         input_data=serializer.validated_data,
     )
 
-    # Trigger async transcription
-    try:
-        from .tasks import transcribe_voice_note
-        result = transcribe_voice_note.delay(
-            serializer.validated_data.get('report_id'),
-            serializer.validated_data['audio_s3_key'],
-        )
-        task.celery_task_id = result.id
-        task.status = 'running'
-        task.save()
-    except Exception:
+    # Trigger async transcription (fail-fast: never blocks > 0.5s if Redis is down)
+    from apps.utils import is_redis_available
+    from .tasks import transcribe_voice_note
+    if is_redis_available():
+        try:
+            result = transcribe_voice_note.delay(
+                serializer.validated_data.get('report_id'),
+                serializer.validated_data['audio_s3_key'],
+            )
+            task.celery_task_id = result.id
+            task.status = 'running'
+        except Exception:
+            task.status = 'pending'
+    else:
         task.status = 'pending'
-        task.save()
+    task.save()
 
     return Response({
         'task_id': task.id,

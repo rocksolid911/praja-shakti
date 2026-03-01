@@ -5,11 +5,12 @@ from django.core.cache import cache
 from django.http import HttpResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from .models import State, District, Block, Panchayat, Village, Infrastructure
 from .serializers import (
+    StateSerializer, DistrictSerializer,
     VillageSerializer, VillageGeoJSONSerializer, PanchayatSerializer,
     InfrastructureSerializer, InfrastructureGeoJSONSerializer,
 )
@@ -19,26 +20,75 @@ from apps.projects.models import Project
 logger = logging.getLogger(__name__)
 
 
+class StateViewSet(viewsets.ReadOnlyModelViewSet):
+    """List all Indian states/UTs in the database."""
+    permission_classes = [AllowAny]
+    serializer_class = StateSerializer
+    pagination_class = None  # return all states in a single call
+
+    def get_queryset(self):
+        return State.objects.all().order_by('name')
+
+
+class DistrictViewSet(viewsets.ReadOnlyModelViewSet):
+    """List districts, optionally filtered by ?state={id}."""
+    permission_classes = [AllowAny]
+    serializer_class = DistrictSerializer
+    filterset_fields = ['state']
+    search_fields = ['name']
+    pagination_class = None
+
+    def get_queryset(self):
+        qs = District.objects.select_related('state').order_by('name')
+        state_id = self.request.query_params.get('state')
+        if state_id:
+            qs = qs.filter(state_id=state_id)
+        return qs
+
+
 class VillageViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    """
+    List villages.
+    Supports ?district={id} for dropdown cascade (resolves via block/panchayat).
+    Also supports legacy ?panchayat__block__district={id} filter.
+    """
+    permission_classes = [AllowAny]
     serializer_class = VillageSerializer
     filterset_fields = ['panchayat', 'panchayat__block', 'panchayat__block__district']
     search_fields = ['name', 'lgd_code']
+    pagination_class = None  # return all villages for the district in one call
 
     def get_queryset(self):
-        return Village.objects.select_related(
-            'panchayat__block__district__state'
-        )
+        qs = Village.objects.select_related('panchayat__block__district__state').order_by('name')
+        district_id = self.request.query_params.get('district')
+        if district_id:
+            qs = qs.filter(panchayat__block__district_id=district_id)
+        return qs
 
 
 class PanchayatViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    """
+    List panchayats (Gram Panchayats).
+    Supports:
+      ?district={id}  — filter by district (resolves via block → district)
+      ?village={id}   — return the single panchayat for that village
+    Returns all results with no pagination (usable as dropdown source).
+    """
+    permission_classes = [AllowAny]
     serializer_class = PanchayatSerializer
     filterset_fields = ['block', 'block__district']
     search_fields = ['name', 'lgd_code']
+    pagination_class = None
 
     def get_queryset(self):
-        return Panchayat.objects.select_related('block__district__state')
+        qs = Panchayat.objects.select_related('block__district__state').order_by('name')
+        district_id = self.request.query_params.get('district')
+        if district_id:
+            qs = qs.filter(block__district_id=district_id)
+        village_id = self.request.query_params.get('village')
+        if village_id:
+            qs = qs.filter(villages__id=village_id)
+        return qs
 
 
 @api_view(['GET'])
@@ -220,6 +270,180 @@ def village_boundary(request, village_id):
         }
 
     return Response(feature)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def setup_location(request):
+    """
+    Find or create the Block → Panchayat → Village chain for any district.
+
+    Allows users to add their village even if it isn't pre-loaded in the database.
+    Idempotent: repeated calls with the same names return the same objects.
+
+    Body: {district_id, panchayat_name, village_name}
+    Returns: {village_id, village_name, panchayat_id, panchayat_name, district_name, state_name, is_new}
+    """
+    import random
+    district_id = request.data.get('district_id')
+    panchayat_name = (request.data.get('panchayat_name') or '').strip()
+    village_name = (request.data.get('village_name') or '').strip()
+
+    if not all([district_id, panchayat_name, village_name]):
+        return Response(
+            {'error': 'district_id, panchayat_name, and village_name are required'},
+            status=400,
+        )
+
+    try:
+        district = District.objects.select_related('state').get(id=district_id)
+    except District.DoesNotExist:
+        return Response({'error': 'District not found'}, status=404)
+
+    # ── 1. Find or create a Block for this district ──────────────────────────
+    # Use short codes (≤10 chars) — LGD max_length is 10
+    def _unique_lgd(prefix, model_class):
+        """Generate a unique LGD code: single letter + 9 random digits = 10 chars max."""
+        for _ in range(100):
+            code = f'{prefix}{random.randint(100000000, 999999999)}'
+            if not model_class.objects.filter(lgd_code=code).exists():
+                return code
+        raise RuntimeError(f'Could not generate unique LGD code for prefix {prefix}')
+
+    block = Block.objects.filter(district=district).first()
+    if not block:
+        block = Block.objects.create(
+            district=district,
+            name=f'{district.name} Block',
+            lgd_code=_unique_lgd('B', Block),
+        )
+
+    # ── 2. Find or create Panchayat by name in this district ─────────────────
+    panchayat = (
+        Panchayat.objects.filter(block__district=district, name__iexact=panchayat_name).first()
+    )
+    is_new = panchayat is None
+    if not panchayat:
+        panchayat = Panchayat.objects.create(
+            block=block,
+            name=panchayat_name,
+            lgd_code=_unique_lgd('G', Panchayat),
+            ward_count=9,
+        )
+
+    # ── 3. Find or create Village by name in this panchayat ──────────────────
+    village = Village.objects.filter(panchayat=panchayat, name__iexact=village_name).first()
+    if not village:
+        is_new = True
+        village = Village.objects.create(
+            panchayat=panchayat,
+            name=village_name,
+            lgd_code=_unique_lgd('V', Village),
+        )
+
+    # ── 4. Update requesting user's panchayat (if authenticated) ────────────
+    if request.user.is_authenticated:
+        user = request.user
+        if user.panchayat_id != panchayat.id:
+            user.panchayat = panchayat
+            if not user.ward:
+                user.ward = 1
+            user.save(update_fields=['panchayat', 'ward'])
+
+    return Response({
+        'village_id': village.id,
+        'village_name': village.name,
+        'panchayat_id': panchayat.id,
+        'panchayat_name': panchayat.name,
+        'district_id': district.id,
+        'district_name': district.name,
+        'state_name': district.state.name,
+        'ward_count': panchayat.ward_count,
+        'fund_available_inr': panchayat.fund_available_inr,
+        'is_new': is_new,
+        'provisioning': True,
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def provision_village(request):
+    """
+    Trigger background data provisioning for a village.
+
+    Called after a citizen selects their village in the report screen.
+    Ensures district scheme stats and panchayat fund data are present.
+    Also updates the requesting user's panchayat to the selected village.
+
+    Body: {"village_id": 42}
+    Returns: {village_id, village_name, panchayat_id, district_stats_ready, fund_available_inr}
+    """
+    village_id = request.data.get('village_id')
+    if not village_id:
+        return Response({'error': 'village_id required'}, status=400)
+
+    try:
+        village = Village.objects.select_related(
+            'panchayat__block__district__state'
+        ).get(id=village_id)
+    except Village.DoesNotExist:
+        return Response({'error': 'Village not found'}, status=404)
+
+    panchayat = village.panchayat
+    district = panchayat.block.district
+
+    # Update requesting user's panchayat if not already set (or if changed)
+    user = request.user
+    if user.panchayat_id != panchayat.id:
+        user.panchayat = panchayat
+        if not user.ward:
+            user.ward = 1
+        user.save(update_fields=['panchayat', 'ward'])
+
+    # Ensure district stats and fund data exist synchronously (seed estimates if missing).
+    # This guarantees provisioning=false in the response so the frontend never shows
+    # a permanent "Loading..." spinner.
+    from apps.data_ingestion.models import DistrictSchemeStats
+    from apps.data_ingestion.tasks import _seed_district_stats_estimate, _seed_panchayat_fund_estimate
+
+    if not DistrictSchemeStats.objects.filter(district_lgd=district.lgd_code).exists():
+        logger.info(f"provision_village: seeding estimates for district {district.name}")
+        try:
+            _seed_district_stats_estimate(district)
+        except Exception as e:
+            logger.warning(f"provision_village: estimate seed failed: {e}")
+
+    # Re-fetch panchayat to pick up any fund updates
+    panchayat.refresh_from_db()
+    if panchayat.fund_available_inr == 0:
+        try:
+            _seed_panchayat_fund_estimate(panchayat)
+            panchayat.refresh_from_db()
+        except Exception as e:
+            logger.warning(f"provision_village: fund seed failed: {e}")
+
+    # Trigger background task to fetch real API data (replaces estimates later)
+    from apps.utils import dispatch_task
+    from apps.data_ingestion.tasks import provision_village_data, _run_provision_village
+    dispatch_task(provision_village_data, village_id, fallback=_run_provision_village)
+
+    return Response({
+        'village_id': village.id,
+        'village_name': village.name,
+        'panchayat_id': panchayat.id,
+        'panchayat_name': panchayat.name,
+        'district_id': district.id,
+        'district_name': district.name,
+        'state_name': district.state.name,
+        'district_stats_ready': True,
+        'fund_available_inr': panchayat.fund_available_inr,
+        'ward_count': panchayat.ward_count,
+        'population': village.population,
+        'households': village.households,
+        'ndvi_score': village.ndvi_score,
+        'groundwater_depth_m': village.groundwater_depth_m,
+        'provisioning': False,
+    })
 
 
 @api_view(['GET'])

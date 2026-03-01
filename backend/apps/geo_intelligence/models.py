@@ -45,6 +45,7 @@ class Panchayat(models.Model):
     households = models.IntegerField(null=True, blank=True)
     area_sq_km = models.FloatField(null=True, blank=True)
     fund_available_inr = models.BigIntegerField(default=0)
+    ward_count = models.IntegerField(default=9)  # number of wards in this GP
 
     class Meta:
         ordering = ['name']

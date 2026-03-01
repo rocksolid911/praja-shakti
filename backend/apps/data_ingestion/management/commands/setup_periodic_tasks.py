@@ -54,6 +54,22 @@ TASKS = [
         'kwargs': '{}',
         'description': 'Sync groundwater depth data from CGWB India-WRIS',
     },
+    {
+        'name': 'myScheme Descriptions Sync (Weekly Monday 4 AM IST)',
+        'task': 'apps.data_ingestion.tasks.sync_myscheme_schemes',
+        'crontab': {'hour': '4', 'minute': '0', 'day_of_week': '1',
+                    'day_of_month': '*', 'month_of_year': '*'},
+        'kwargs': '{}',
+        'description': 'Fetch real scheme eligibility/benefits from myscheme.gov.in',
+    },
+    {
+        'name': 'data.gov.in District Stats Sync (Weekly Monday 5 AM IST)',
+        'task': 'apps.data_ingestion.tasks.sync_datagov_district_stats',
+        'crontab': {'hour': '5', 'minute': '0', 'day_of_week': '1',
+                    'day_of_month': '*', 'month_of_year': '*'},
+        'kwargs': '{}',
+        'description': 'Fetch MGNREGA/JJM district stats from data.gov.in API',
+    },
 ]
 
 

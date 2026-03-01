@@ -7,6 +7,10 @@ import 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final ApiClient _api;
 
+  /// Holds registration data between [startRegistration] → OTP → [verifyOtp].
+  /// Cleared on every [sendOtp] (plain login) or after [verifyOtp] consumes it.
+  Map<String, dynamic>? _pendingRegistration;
+
   AuthCubit(this._api) : super(AuthInitial());
 
   // Legacy constructor for main.dart compatibility
@@ -28,12 +32,43 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> sendOtp(String phone) async {
+    _pendingRegistration = null; // plain login — clear any leftover registration data
     emit(AuthLoading());
     try {
       final resp = await _api.post('/auth/otp/send/', data: {'phone': phone});
       final otpDebug = resp.data['otp_debug']?.toString();
       emit(AuthOtpSent(phone, otpDebug: otpDebug));
     } catch (e) {
+      emit(AuthError(_parseError(e)));
+    }
+  }
+
+  /// Called from the registration form on the landing page.
+  /// Stores profile + location data, then sends OTP for phone verification.
+  Future<void> startRegistration({
+    required String phone,
+    required String firstName,
+    String lastName = '',
+    int? existingVillageId,
+    int? districtId,
+    String? panchayatName,
+    String? villageName,
+  }) async {
+    _pendingRegistration = {
+      'first_name': firstName,
+      'last_name': lastName,
+      if (existingVillageId != null) 'village_id': existingVillageId,
+      if (districtId != null) 'district_id': districtId,
+      if (panchayatName != null) 'panchayat_name': panchayatName,
+      if (villageName != null) 'village_name': villageName,
+    };
+    emit(AuthLoading());
+    try {
+      final resp = await _api.post('/auth/otp/send/', data: {'phone': phone});
+      final otpDebug = resp.data['otp_debug']?.toString();
+      emit(AuthOtpSent(phone, otpDebug: otpDebug));
+    } catch (e) {
+      _pendingRegistration = null;
       emit(AuthError(_parseError(e)));
     }
   }
@@ -46,6 +81,53 @@ class AuthCubit extends Cubit<AuthState> {
         access: resp.data['access'],
         refresh: resp.data['refresh'],
       );
+      if (_pendingRegistration != null) {
+        await _completeRegistration();
+        return;
+      }
+      final profileResp = await _api.get('/auth/profile/');
+      emit(AuthAuthenticated(User.fromJson(profileResp.data)));
+    } catch (e) {
+      emit(AuthError(_parseError(e)));
+    }
+  }
+
+  /// After OTP verification for a new registration: update name + location.
+  Future<void> _completeRegistration() async {
+    final data = _pendingRegistration!;
+    _pendingRegistration = null;
+
+    try {
+      // 1. Update name if provided
+      final nameData = <String, dynamic>{};
+      if ((data['first_name'] as String?)?.isNotEmpty == true) {
+        nameData['first_name'] = data['first_name'];
+      }
+      if ((data['last_name'] as String?)?.isNotEmpty == true) {
+        nameData['last_name'] = data['last_name'];
+      }
+      if (nameData.isNotEmpty) {
+        await _api.patch('/auth/profile/', data: nameData);
+      }
+
+      // 2. Set location (either existing village or new GP/village creation)
+      if (data['district_id'] != null && data['panchayat_name'] != null) {
+        await _api.post('/locations/setup-location/', data: {
+          'district_id': data['district_id'],
+          'panchayat_name': data['panchayat_name'],
+          'village_name': data['village_name'] ?? data['panchayat_name'],
+        });
+      } else if (data['village_id'] != null) {
+        await _api.post('/map/provision-village/', data: {
+          'village_id': data['village_id'],
+        });
+      }
+    } catch (_) {
+      // Best-effort: don't fail auth if profile update fails
+    }
+
+    // 3. Fetch final profile
+    try {
       final profileResp = await _api.get('/auth/profile/');
       emit(AuthAuthenticated(User.fromJson(profileResp.data)));
     } catch (e) {
@@ -89,6 +171,14 @@ class AuthCubit extends Cubit<AuthState> {
     final s = state;
     if (s is AuthAuthenticated) return s.user.villageId ?? 1;
     if (s is AuthProfileLoaded) return s.user.villageId ?? 1;
+    return 1;
+  }
+
+  /// Returns the logged-in user's panchayat ID, falling back to 1 for demo.
+  int get currentPanchayatId {
+    final s = state;
+    if (s is AuthAuthenticated) return s.user.panchayatId ?? 1;
+    if (s is AuthProfileLoaded) return s.user.panchayatId ?? 1;
     return 1;
   }
 
