@@ -4,21 +4,24 @@ import '../cubit/gram_sabha_cubit.dart';
 import '../cubit/gram_sabha_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../auth/cubit/auth_cubit.dart';
 
 class GramSabhaScreen extends StatelessWidget {
   const GramSabhaScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final villageId = context.read<AuthCubit>().currentVillageId;
     return BlocProvider(
-      create: (_) => GramSabhaCubit(context.read<ApiClient>())..loadSessions(),
-      child: const _GramSabhaView(),
+      create: (_) => GramSabhaCubit(context.read<ApiClient>())..loadSessions(villageId: villageId),
+      child: _GramSabhaView(villageId: villageId),
     );
   }
 }
 
 class _GramSabhaView extends StatelessWidget {
-  const _GramSabhaView();
+  final int villageId;
+  const _GramSabhaView({required this.villageId});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class _GramSabhaView extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<GramSabhaCubit>().loadSessions(),
+            onPressed: () => context.read<GramSabhaCubit>().loadSessions(villageId: villageId),
           ),
         ],
       ),
@@ -51,7 +54,7 @@ class _GramSabhaView extends StatelessWidget {
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   Text(state.message),
                   TextButton(
-                    onPressed: () => context.read<GramSabhaCubit>().loadSessions(),
+                    onPressed: () => context.read<GramSabhaCubit>().loadSessions(villageId: villageId),
                     child: Text(AppLocalizations.of(context).retry),
                   ),
                 ],
@@ -105,7 +108,7 @@ class _GramSabhaView extends StatelessWidget {
         onRaiseIssue: (title) => context.read<GramSabhaCubit>().raiseIssue(state.sessions[i].id, title),
         onVote: (issueId) => context.read<GramSabhaCubit>().voteIssue(state.sessions[i].id, issueId),
         onEndSession: state.sessions[i].isActive
-            ? () => context.read<GramSabhaCubit>().endSession(state.sessions[i].id, 1)
+            ? () => context.read<GramSabhaCubit>().endSession(state.sessions[i].id, villageId)
             : null,
       ),
     );
@@ -141,7 +144,7 @@ class _GramSabhaView extends StatelessWidget {
                 context.read<GramSabhaCubit>().createSession(
                   titleController.text,
                   DateTime.now().add(const Duration(days: 7)),
-                  1,
+                  villageId,
                 );
               }
             },
