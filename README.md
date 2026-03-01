@@ -58,21 +58,23 @@ Three pillars working together:
 ## ✨ Key Features
 
 ### 🗺️ Village Intelligence Map (7 Layers)
-Real-time map with toggleable layers — report heatmaps, satellite NDVI overlays, infrastructure gaps, active projects, and fund status all in one view.
+Real-time map with toggleable layers — report heatmaps, satellite NDVI overlays, infrastructure gaps, active projects, fund status, demographics, and project markers — all in one view. Each layer fetched from `/map/layers/` and rendered independently.
 
 ### 📱 WhatsApp Bot (Zero App Required)
-Citizens send voice notes in Hindi → AWS Transcribe converts to text → Claude Sonnet categorises → geo-tagged report appears on the map instantly.
+Citizens send voice notes in Hindi → AWS Transcribe converts to text → Claude Sonnet categorises → geo-tagged report appears on the map instantly. No smartphone or literacy required.
 
 ```
 Commands:
-  GAON Tusra        → Select your village
-  WARD 3            → Set your ward
+  GAON Tusra        → Select your village (required on first message)
+  WARD 3            → Set your ward number
   [Voice Note]      → Report a need (AI transcribes + categorises)
-  Status            → Check your report status
+  Status            → Check your latest report status
   Vote 1            → Upvote report #1
   PM-KUSUM          → Check scheme eligibility via RAG
-  Help              → Show all commands
+  Help              → Show all commands in Hindi
 ```
+
+New users are prompted to set their village with `GAON <name>` before any report is accepted. The command matches partial names and lists options if multiple villages match.
 
 ### 🧠 AI Priority Engine
 Composite scoring algorithm weighing community signals (votes, geographic spread, Gram Sabha mentions), satellite data, and urgency modifiers to rank clusters **0–100**.
@@ -81,14 +83,40 @@ Composite scoring algorithm weighing community signals (votes, geographic spread
 Priority Score = Community (40%) + Data Validation (40%) + Urgency (20%)
 ```
 
+Each sub-score is fully transparent — the API returns a breakdown of all contributing signals.
+
 ### 📚 Scheme RAG Chatbot
-pgvector-powered retrieval over 12 government schemes (PM-KUSUM, MGNREGA, JJM, PMGSY…). Ask in plain Hindi → get eligibility, application steps, and fund convergence plan.
+pgvector-powered retrieval over 12 government schemes (PM-KUSUM, MGNREGA, JJM, PMGSY…). Ask in plain Hindi → get eligibility, application steps, and a fund convergence plan. Falls back to keyword search if embeddings are unavailable.
 
 ### 🏛️ Digital Gram Sabha
-Leaders run AI-moderated village meetings. Citizens raise issues, vote on priorities, and at session end Claude Sonnet auto-generates a bilingual (Hindi + English) official summary.
+Leaders run AI-moderated village meetings. Citizens raise issues, vote on priorities, and at session end Claude Sonnet auto-generates a bilingual (Hindi + English) official summary saved to `session.transcript`.
 
 ### 📄 One-Click Proposal Generation
-Leaders tap "Adopt" → system generates a complete PDF project proposal with fund convergence plan, scheme applications, and expected impact metrics — in seconds.
+
+Leaders tap **Adopt** on any priority cluster → the system:
+
+1. Creates a project record with status `in_progress`
+2. Calculates a **Fund Convergence Plan** based on the project category:
+
+   | Category | Scheme Mix |
+   |---|---|
+   | Water | PM-KUSUM 60% + MGNREGA 20% + Jal Jeevan Mission 10% = **90% covered** |
+   | Road | PMGSY 60% + MGNREGA 30% = **90% covered** |
+   | Sanitation | SBM-G 90% = **90% covered** |
+   | Education | Samagra Shiksha 60% + MGNREGA 20% = **80% covered** |
+   | Electricity | PM-KUSUM 60% + MGNREGA 20% = **80% covered** |
+
+3. Generates a **PDF project proposal** (via ReportLab) with project details, location, fund table, scheme applications, and projected impact — uploaded to S3 with a 1-hour presigned download URL
+4. Shows the full fund breakdown and **Download PDF** button inside the app — no blank screens, no broken dialogs
+
+### 👥 Role-Based Access
+Three roles with automatic post-login routing:
+- **Citizen** → Community Feed
+- **Leader** → Leader Dashboard (with Adopt, Fund Status, Active Projects)
+- **Admin** → Government Dashboard + User Management
+
+### 🌍 12 Languages
+UI localised in English, Hindi, Bengali, Gujarati, Kannada, Malayalam, Marathi, Odia, Punjabi, Tamil, Telugu, and Urdu (ARB files + generated Dart delegates).
 
 ---
 
@@ -129,12 +157,13 @@ Leaders tap "Adopt" → system generates a complete PDF project proposal with fu
 | Layer | Technology |
 |---|---|
 | **Backend** | Django 5.x + Django REST Framework |
-| **Async Tasks** | Celery 5.x + Redis 7 |
+| **Async Tasks** | Celery 5.x + Redis 7 (thread fallback if broker down) |
 | **Database** | PostgreSQL 16 + PostGIS + pgvector |
-| **AI / LLM** | AWS Bedrock — Claude Sonnet 4.6 |
+| **AI / LLM** | AWS Bedrock — Claude Sonnet 4.6 (inference profile) |
 | **Voice** | AWS Transcribe (Hindi `hi-IN`) |
 | **Embeddings** | Amazon Titan Embed Text v2 (1024-dim) |
 | **Storage** | AWS S3 (5 buckets) |
+| **PDF Generation** | ReportLab (server-side, no external dependencies) |
 | **Frontend** | Flutter 3.x — Web + iOS + Android |
 | **State Mgmt** | flutter_bloc (Cubit pattern) |
 | **Navigation** | GoRouter (ShellRoute + responsive shell) |
@@ -161,8 +190,6 @@ Leaders tap "Adopt" → system generates a complete PDF project proposal with fu
 ```bash
 cd backend
 source venv/bin/activate
-
-# Start Django API server
 python manage.py runserver
 ```
 
@@ -201,7 +228,7 @@ ngrok http 8000
 # Message +1 415 523 8886 on WhatsApp: "GAON Tusra"
 ```
 
-> 📖 See [RUNNING.md](RUNNING.md) for full setup, troubleshooting, and all API endpoints.
+> 📖 See [RUNNING.md](RUNNING.md) for full setup, credentials, troubleshooting, and all API endpoints.
 
 ---
 
@@ -211,12 +238,12 @@ ngrok http 8000
 praja-shakti/
 ├── backend/                    Django 5.x API
 │   ├── apps/
-│   │   ├── auth_service/       JWT auth, OTP, roles
+│   │   ├── auth_service/       JWT auth, OTP, role-based routing
 │   │   ├── community/          Reports, votes, clusters, Gram Sabha
 │   │   ├── geo_intelligence/   Satellite, maps, geospatial
 │   │   ├── scheme_rag/         RAG pipeline, pgvector, fund convergence
 │   │   ├── ai_engine/          Bedrock, Transcribe, scoring, recommendations
-│   │   ├── projects/           Project lifecycle, tracking, ratings
+│   │   ├── projects/           Project lifecycle, PDF proposals, ratings
 │   │   └── notifications/      WhatsApp bot, FCM, SMS
 │   └── docker-compose.yml      PostgreSQL + Redis
 │
@@ -230,8 +257,8 @@ praja-shakti/
 │           ├── community/      Feed, upvoting, clusters
 │           ├── projects/       Tracker, timeline, ratings
 │           ├── schemes/        RAG chatbot
-│           ├── gram_sabha/     Digital village meetings
-│           └── dashboard/      Leader dashboard, adopt flow
+│           ├── gram_sabha/     Digital village meetings + AI summary
+│           └── dashboard/      Leader dashboard, adopt flow, proposal dialog
 │
 ├── scripts/                    ETL, data ingestion, RAG indexing
 ├── data/                       DISHA Dashboard scraped data (8 villages)
@@ -247,13 +274,21 @@ praja-shakti/
 | Village | Tusra, Balangir, Odisha |
 | Population | 4,800 |
 | Reports | 65 (water, road, health) |
-| Clusters | 2 (water: priority 94/100) |
-| Projects | 3 (adopted, in_progress, completed) |
+| Clusters | 2 (water: priority 94/100, road: 45/100) |
+| Projects | 3 (solar borewell in_progress, road repair in_progress, toilet block completed) |
 | Schemes | 12 (PM-KUSUM, MGNREGA, JJM…) |
 | NDVI Score | 0.12 (high stress zone) |
 | Groundwater | 14.2m depth (CGWB) |
 | Fund Available | ₹12L (eGramSwaraj) |
-| AI Recommendation | Solar borewell, ₹4.5L, 60% PM-KUSUM subsidy |
+| Solar Borewell | ₹4.5L total — 90% scheme-funded (PM-KUSUM 60% + MGNREGA 20% + JJM 10%) |
+| Panchayat Pays | ₹45,000 (10% of ₹4.5L) |
+
+### Demo Users
+
+| Role | Phone | OTP (dev) |
+|---|---|---|
+| Leader | `+919078277159` | See Django terminal or `otp_debug` field |
+| Citizen | Any new number | Register via OTP flow |
 
 ---
 
@@ -263,23 +298,30 @@ praja-shakti/
 0:00  Open Flutter web app → Village Intelligence Map
       → 65 red markers on Tusra village
 
-0:10  Send WhatsApp voice note in Hindi
-      → AI transcribes → categorises → marker appears on map live
+0:10  Send WhatsApp voice note in Hindi ("paani nahi aa raha")
+      → AI transcribes → categorises as water/critical
+      → new red marker appears on map live
 
 0:25  Toggle Satellite layer
       → Bhuvan NDVI overlay → red stress zone matches water reports
 
-0:35  GET /ai/priorities/?village=1
-      → Water cluster: Priority Score 94/100 (community 38 + data 36 + urgency 20)
+0:35  Leader Dashboard → AI Priority Ranking
+      → Water cluster: Priority Score 94/100
+        (Community: 38 + Data: 38 + Urgency: 18)
 
-0:50  GET /ai/recommendations/?village=1
-      → Solar borewell: ₹4.5L cost, PM-KUSUM 60% + MGNREGA 25% + Panchayat 15%
+0:50  See AI Recommendation
+      → Solar borewell, ₹4.5L
+      → PM-KUSUM 60% + MGNREGA 20% + Jal Jeevan 10% = 90% funded
 
-1:05  Leader taps "Adopt Project"
-      → PDF proposal auto-generated → download link returned
+1:05  Tap "Adopt" → Confirm → loading spinner
+      → PDF proposal generated & uploaded to S3
+      → Fund breakdown appears inline:
+        "Govt Schemes Cover: 90%  |  Panchayat Pays: ₹45,000"
+      → "Download PDF" button opens proposal in browser
 
-1:15  Map marker: Red → Yellow → Blue → Green
-      → Citizen receives WhatsApp: "आपकी रिपोर्ट पर काम शुरू हो गया!"
+1:20  Map marker: Red → Yellow → Blue
+      Dashboard "Active Projects" shows Solar Borewell
+      Citizen receives WhatsApp: "आपकी रिपोर्ट पर काम शुरू हो गया!"
 ```
 
 ---
@@ -304,34 +346,38 @@ Platform-adaptive icons: Cupertino on iOS, Material on Android/Web.
 Base: http://127.0.0.1:8000/api/v1/
 
 Auth
-  POST  /auth/otp/send/           Send OTP (returns otp_debug in dev)
-  POST  /auth/login/              {phone, otp} → JWT tokens
+  POST  /auth/otp/send/           {"phone": "+91XXXXXXXXXX"} → otp_debug in dev
+  POST  /auth/login/              {phone, otp} → JWT tokens + role
+  GET   /auth/profile/
 
 Community
-  GET   /reports/?village=1       All village reports
-  POST  /reports/{id}/vote/       Upvote a report
+  GET   /reports/?village=1
+  POST  /reports/{id}/vote/
   GET   /reports/clusters/?village=1   Spatial clusters (GeoJSON)
 
 AI & Intelligence
-  GET   /ai/priorities/?village=1      Ranked clusters with scores
+  GET   /ai/priorities/?village=1      Ranked clusters with score breakdown
   GET   /ai/recommendations/?village=1 AI project recommendations
-  POST  /ai/scheme-query/              {query, village_id} → RAG answer
+  POST  /ai/scheme-query/              {query, village_id} → RAG answer + sources
 
 Leader Actions
   GET   /dashboard/summary/?panchayat=1
+  GET   /dashboard/fund-status/?panchayat=1
   POST  /projects/adopt/               {cluster_id, recommendation_index}
-  GET   /projects/?village=1
+                                       → creates project, fund plan, PDF proposal
+  GET   /projects/?village=1&status=in_progress
+  GET   /projects/{id}/proposal/       Stream PDF (auth via Bearer or ?token=<jwt>)
 
 Map
   GET   /map/layers/?village=1&layers=infra,heatmap,demographics,fund_status
-  GET   /map/tiles/{z}/{x}/{y}.png     Bhuvan NDVI proxy (cached)
+  GET   /map/tiles/{z}/{x}/{y}.png     Bhuvan NDVI proxy (Redis-cached 7 days)
 
 Gram Sabha
   POST  /gramsabha/               Create session
-  POST  /gramsabha/{id}/end/      End session → triggers AI summary
+  POST  /gramsabha/{id}/end/      End session → triggers Claude AI summary
 
 WhatsApp
-  POST  /webhooks/whatsapp/       Twilio webhook (no auth required)
+  POST  /webhooks/whatsapp/       Twilio webhook (AllowAny — no JWT required)
 ```
 
 ---
@@ -378,7 +424,7 @@ BHUVAN_TOKEN=...
 | Panchayats | 2,50,000+ across India |
 | Citizens reachable | 800 million (via WhatsApp — no smartphone required) |
 | Schemes covered | 50+ central + state schemes |
-| Languages | Hindi first; extensible to 22 scheduled languages |
+| Languages | 12 implemented; extensible to all 22 scheduled languages |
 | Fund efficiency | 40–60% improvement in scheme utilisation |
 
 ---
