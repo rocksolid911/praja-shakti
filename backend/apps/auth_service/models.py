@@ -18,7 +18,7 @@ class User(AbstractUser):
         related_name='users',
     )
     ward = models.IntegerField(null=True, blank=True)
-    language_preference = models.CharField(max_length=10, default='hi')
+    language_preference = models.CharField(max_length=10, default='en')
     whatsapp_number = models.CharField(max_length=15, blank=True)
 
     USERNAME_FIELD = 'phone'

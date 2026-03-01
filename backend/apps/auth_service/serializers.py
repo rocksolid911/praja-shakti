@@ -28,7 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             role=validated_data.get('role', 'citizen'),
             panchayat=validated_data.get('panchayat'),
             ward=validated_data.get('ward'),
-            language_preference=validated_data.get('language_preference', 'hi'),
+            language_preference=validated_data.get('language_preference', 'en'),
         )
         return user
 
