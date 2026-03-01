@@ -6,6 +6,8 @@ import '../cubit/project_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/models/project.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../auth/cubit/auth_cubit.dart';
+import '../../auth/cubit/auth_state.dart';
 
 class ProjectDetailScreen extends StatelessWidget {
   final int projectId;
@@ -46,6 +48,11 @@ class _ProjectDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final authState = context.watch<AuthCubit>().state;
+    final isLeader = (authState is AuthAuthenticated && authState.user.isLeader) ||
+        (authState is AuthProfileLoaded && authState.user.isLeader);
+    final canUpdateStatus = isLeader &&
+        (project.status == 'in_progress' || project.status == 'delayed');
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -126,6 +133,11 @@ class _ProjectDetail extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
+        // Leader progress actions (leaders only, for in_progress / delayed)
+        if (canUpdateStatus) ...[
+          _LeaderActionsCard(project: project),
+          const SizedBox(height: 12),
+        ],
         // Description
         Card(
           child: Padding(
@@ -360,6 +372,178 @@ class _RatingSectionState extends State<_RatingSection> {
           child: Text(AppLocalizations.of(context).submitRating),
         ),
       ],
+    );
+  }
+}
+
+// ── Leader progress actions ───────────────────────────────────────────────────
+
+class _LeaderActionsCard extends StatelessWidget {
+  final Project project;
+  const _LeaderActionsCard({required this.project});
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<ProjectCubit>();
+    final apiClient = context.read<ApiClient>();
+    return Card(
+      color: Colors.green.shade50,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.green.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.admin_panel_settings, color: Colors.green.shade700, size: 18),
+                const SizedBox(width: 6),
+                const Text('Leader Actions',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Current status: ${project.status.replaceAll('_', ' ').toUpperCase()}',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (project.status == 'delayed')
+                  ElevatedButton.icon(
+                    onPressed: () => _openDialog(context, cubit, apiClient, 'in_progress',
+                        'Resume Project', 'Mark this project as back in progress?'),
+                    icon: const Icon(Icons.play_arrow, size: 18),
+                    label: const Text('Resume'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, foregroundColor: Colors.white),
+                  ),
+                if (project.status == 'in_progress')
+                  OutlinedButton.icon(
+                    onPressed: () => _openDialog(context, cubit, apiClient, 'delayed',
+                        'Mark as Delayed', 'Flag this project as delayed due to obstacles?'),
+                    icon: const Icon(Icons.warning_amber, size: 18, color: Colors.orange),
+                    label: const Text('Mark Delayed',
+                        style: TextStyle(color: Colors.orange)),
+                    style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.orange)),
+                  ),
+                ElevatedButton.icon(
+                  onPressed: () => _openDialog(context, cubit, apiClient, 'completed',
+                      'Mark as Completed',
+                      'Mark this project as complete? Citizens will be able to rate it.'),
+                  icon: const Icon(Icons.done_all, size: 18),
+                  label: const Text('Mark Complete'),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green, foregroundColor: Colors.white),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openDialog(BuildContext context, ProjectCubit cubit, ApiClient apiClient,
+      String newStatus, String title, String message) {
+    showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => _UpdateStatusDialog(
+        projectId: project.id,
+        newStatus: newStatus,
+        title: title,
+        message: message,
+        apiClient: apiClient,
+      ),
+    ).then((updated) {
+      if (updated == true && context.mounted) {
+        cubit.loadProjectDetail(project.id);
+      }
+    });
+  }
+}
+
+class _UpdateStatusDialog extends StatefulWidget {
+  final int projectId;
+  final String newStatus;
+  final String title;
+  final String message;
+  final ApiClient apiClient;
+
+  const _UpdateStatusDialog({
+    required this.projectId,
+    required this.newStatus,
+    required this.title,
+    required this.message,
+    required this.apiClient,
+  });
+
+  @override
+  State<_UpdateStatusDialog> createState() => _UpdateStatusDialogState();
+}
+
+class _UpdateStatusDialogState extends State<_UpdateStatusDialog> {
+  bool _loading = false;
+  String? _error;
+
+  Future<void> _submit() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await widget.apiClient.patch(
+        '/projects/${widget.projectId}/update_status/',
+        data: {'status': widget.newStatus},
+      );
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (e) {
+      setState(() {
+        _loading = false;
+        _error = 'Update failed. Please try again.';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.message),
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+          ],
+          if (_loading) ...[
+            const SizedBox(height: 16),
+            const Center(child: CircularProgressIndicator()),
+          ],
+        ],
+      ),
+      actions: _loading
+          ? null
+          : [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: _submit,
+                child: const Text('Confirm'),
+              ),
+            ],
     );
   }
 }

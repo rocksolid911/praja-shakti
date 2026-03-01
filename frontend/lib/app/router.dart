@@ -7,7 +7,7 @@ import '../features/auth/cubit/auth_cubit.dart';
 import '../features/auth/cubit/auth_state.dart';
 import '../core/models/user.dart';
 import '../l10n/app_localizations.dart';
-import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/landing_screen.dart';
 import '../features/auth/screens/otp_screen.dart';
 import '../features/auth/screens/profile_screen.dart';
 import '../features/map/screens/map_screen.dart';
@@ -40,7 +40,7 @@ GoRouter createRouter(AuthCubit authCubit) {
       return null;
     },
     routes: [
-      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+      GoRoute(path: '/login', builder: (_, __) => const LandingScreen()),
       GoRoute(
         path: '/otp',
         builder: (_, state) {
@@ -370,6 +370,6 @@ class _AppShellState extends State<AppShell> {
 
 // Keep backward compat — app.dart uses `appRouter`
 final _tempRouter = GoRouter(initialLocation: '/login', routes: [
-  GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+  GoRoute(path: '/login', builder: (_, __) => const LandingScreen()),
 ]);
 GoRouter get appRouter => _tempRouter; // replaced at runtime in app.dart

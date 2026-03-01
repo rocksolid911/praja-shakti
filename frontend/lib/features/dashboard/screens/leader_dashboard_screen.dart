@@ -195,8 +195,13 @@ class LeaderDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authCubit = context.read<AuthCubit>();
     return BlocProvider(
-      create: (_) => DashboardCubit(context.read<ApiClient>())..loadDashboard(),
+      create: (_) => DashboardCubit(context.read<ApiClient>())
+        ..loadDashboard(
+          villageId: authCubit.currentVillageId,
+          panchayatId: authCubit.currentPanchayatId,
+        ),
       child: const _DashboardView(),
     );
   }
@@ -205,8 +210,21 @@ class LeaderDashboardScreen extends StatelessWidget {
 class _DashboardView extends StatelessWidget {
   const _DashboardView();
 
+  void _reload(BuildContext context) {
+    final auth = context.read<AuthCubit>();
+    context.read<DashboardCubit>().loadDashboard(
+      villageId: auth.currentVillageId,
+      panchayatId: auth.currentPanchayatId,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final auth = context.read<AuthCubit>();
+    final villageName = auth.currentUser?.villageName ?? '';
+    final panchayatName = auth.currentUser?.panchayatName ?? '';
+    final subtitle = villageName.isNotEmpty ? '$villageName • $panchayatName' : 'Select your village';
+
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
@@ -214,7 +232,7 @@ class _DashboardView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(AppLocalizations.of(context).leaderDashboard, style: const TextStyle(fontSize: 16)),
-            const Text('Tusra Village, Balangir', style: TextStyle(fontSize: 11, color: Colors.white70)),
+            Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.white70)),
           ],
         ),
         backgroundColor: Colors.blue.shade800,
@@ -222,7 +240,7 @@ class _DashboardView extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<DashboardCubit>().loadDashboard(),
+            onPressed: () => _reload(context),
           ),
         ],
       ),
@@ -237,7 +255,7 @@ class _DashboardView extends StatelessWidget {
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   Text(state.message),
                   TextButton(
-                    onPressed: () => context.read<DashboardCubit>().loadDashboard(),
+                    onPressed: () => _reload(context),
                     child: Text(AppLocalizations.of(context).retry),
                   ),
                 ],
@@ -263,8 +281,12 @@ class _DashboardView extends StatelessWidget {
   }
 
   Widget _buildMobileDashboard(BuildContext context, DashboardLoaded state) {
+    final auth = context.read<AuthCubit>();
     return RefreshIndicator(
-      onRefresh: () => context.read<DashboardCubit>().loadDashboard(),
+      onRefresh: () => context.read<DashboardCubit>().loadDashboard(
+        villageId: auth.currentVillageId,
+        panchayatId: auth.currentPanchayatId,
+      ),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
