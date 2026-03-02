@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.db.models import Avg
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action, permission_classes
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
@@ -212,6 +213,25 @@ def _generate_and_upload_proposal(project: 'Project') -> str:
         return ''
 
 
+def _upload_photo_to_s3(file, project_id: int) -> str:
+    """Upload a file-like object to S3 and return the s3_key."""
+    ext = file.name.rsplit('.', 1)[-1].lower() if '.' in file.name else 'jpg'
+    s3_key = f"projects/{project_id}/{uuid4().hex}.{ext}"
+    s3 = boto3.client(
+        's3',
+        region_name=settings.AWS_REGION,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    )
+    s3.put_object(
+        Bucket=settings.AWS_S3_CITIZEN_PHOTOS_BUCKET,
+        Key=s3_key,
+        Body=file.read(),
+        ContentType=getattr(file, 'content_type', 'image/jpeg'),
+    )
+    return s3_key
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ProjectSerializer
@@ -237,12 +257,22 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project.save()
         return Response(ProjectSerializer(project).data)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], parser_classes=[MultiPartParser, JSONParser])
     def photos(self, request, pk=None):
         project = self.get_object()
+        s3_key = ''
+        if 'file' in request.FILES:
+            try:
+                s3_key = _upload_photo_to_s3(request.FILES['file'], project.id)
+            except Exception as e:
+                logger.error(f"Photo S3 upload failed for project {project.id}: {e}")
+                return Response({'error': 'Photo upload failed'}, status=500)
+        else:
+            s3_key = request.data.get('s3_key', '')
+
         serializer = ProjectPhotoSerializer(data={
             'project': project.id,
-            's3_key': request.data.get('s3_key', ''),
+            's3_key': s3_key,
             'caption': request.data.get('caption', ''),
             'is_delay_report': request.data.get('is_delay_report', False),
         })

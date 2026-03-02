@@ -1,6 +1,10 @@
+import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../cubit/project_cubit.dart';
 import '../cubit/project_state.dart';
 import '../../../core/api/api_client.dart';
@@ -138,6 +142,9 @@ class _ProjectDetail extends StatelessWidget {
           _LeaderActionsCard(project: project),
           const SizedBox(height: 12),
         ],
+        // Progress photo gallery
+        _PhotoGallerySection(project: project),
+        const SizedBox(height: 12),
         // Description
         Card(
           child: Padding(
@@ -197,14 +204,31 @@ class _ProjectDetail extends StatelessWidget {
                   const SizedBox(height: 12),
                   ...project.fundPlans.first.schemesUsed.map((s) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        Expanded(child: Text(s.schemeName, style: const TextStyle(fontSize: 13))),
-                        Text(
-                          '₹${_formatCost(s.amountInr)} (${s.pctCovered.toStringAsFixed(0)}%)',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                        ),
-                      ],
+                    child: GestureDetector(
+                      onTap: () => context.go(
+                          '/schemes?query=${Uri.encodeComponent(s.schemeName)}'),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              s.schemeName,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '₹${_formatCost(s.amountInr)} (${s.pctCovered.toStringAsFixed(0)}%)',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(Icons.open_in_new,
+                              size: 12, color: Colors.blue.shade300),
+                        ],
+                      ),
                     ),
                   )),
                 ],
@@ -372,6 +396,343 @@ class _RatingSectionState extends State<_RatingSection> {
           child: Text(AppLocalizations.of(context).submitRating),
         ),
       ],
+    );
+  }
+}
+
+// ── Progress photo gallery ────────────────────────────────────────────────────
+
+void _showFullScreenPhoto(BuildContext context, String url) {
+  showDialog(
+    context: context,
+    builder: (_) => Dialog(
+      backgroundColor: Colors.black,
+      insetPadding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          InteractiveViewer(
+            child: CachedNetworkImage(
+              imageUrl: url,
+              fit: BoxFit.contain,
+              placeholder: (_, __) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (_, __, ___) =>
+                  const Icon(Icons.broken_image, color: Colors.white, size: 48),
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _PhotoGallerySection extends StatelessWidget {
+  final Project project;
+  const _PhotoGallerySection({required this.project});
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<ProjectCubit>();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text('Progress Photos',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(width: 8),
+                if (project.photos.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${project.photos.length}',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade800),
+                    ),
+                  ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.add_a_photo_outlined),
+                  tooltip: 'Add photo',
+                  onPressed: () =>
+                      _showPhotoUploadDialog(context, project.id, cubit),
+                ),
+              ],
+            ),
+            if (project.photos.isEmpty) ...[
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  'No photos yet. Be the first to document progress!',
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 4),
+            ] else ...[
+              const SizedBox(height: 12),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1.2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: project.photos.length,
+                itemBuilder: (context, i) {
+                  final photo = project.photos[i];
+                  final url = photo.photoUrl ?? '';
+                  return GestureDetector(
+                    onTap: url.isNotEmpty
+                        ? () => _showFullScreenPhoto(context, url)
+                        : null,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          url.isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: url,
+                                  fit: BoxFit.cover,
+                                  placeholder: (_, __) => Container(
+                                    color: Colors.grey.shade200,
+                                    child: const Center(
+                                        child: CircularProgressIndicator()),
+                                  ),
+                                  errorWidget: (_, __, ___) => Container(
+                                    color: Colors.grey.shade200,
+                                    child: const Icon(Icons.broken_image,
+                                        color: Colors.grey),
+                                  ),
+                                )
+                              : Container(
+                                  color: Colors.grey.shade200,
+                                  child: const Icon(Icons.broken_image,
+                                      color: Colors.grey),
+                                ),
+                          // Delay badge overlay
+                          if (photo.isDelayReport)
+                            Positioned(
+                              top: 6,
+                              left: 6,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade700,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.warning_amber,
+                                        size: 10, color: Colors.white),
+                                    SizedBox(width: 2),
+                                    Text('DELAY',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          // Caption at bottom
+                          if (photo.caption.isNotEmpty)
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 4),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.topCenter,
+                                    colors: [
+                                      Colors.black.withOpacity(0.6),
+                                      Colors.transparent,
+                                    ],
+                                  ),
+                                ),
+                                child: Text(
+                                  photo.caption,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 10),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPhotoUploadDialog(
+      BuildContext context, int projectId, ProjectCubit cubit) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => _PhotoUploadDialog(
+        projectId: projectId,
+        cubit: cubit,
+      ),
+    );
+  }
+}
+
+class _PhotoUploadDialog extends StatefulWidget {
+  final int projectId;
+  final ProjectCubit cubit;
+  const _PhotoUploadDialog({required this.projectId, required this.cubit});
+
+  @override
+  State<_PhotoUploadDialog> createState() => _PhotoUploadDialogState();
+}
+
+class _PhotoUploadDialogState extends State<_PhotoUploadDialog> {
+  Uint8List? _imageBytes;
+  String _filename = '';
+  final _captionController = TextEditingController();
+  bool _isDelayReport = false;
+  bool _uploading = false;
+
+  @override
+  void dispose() {
+    _captionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked == null) return;
+    final bytes = await picked.readAsBytes();
+    setState(() {
+      _imageBytes = bytes;
+      _filename = picked.name;
+    });
+  }
+
+  Future<void> _upload() async {
+    if (_imageBytes == null) return;
+    setState(() => _uploading = true);
+    await widget.cubit.uploadPhoto(
+      widget.projectId,
+      bytes: _imageBytes!,
+      filename: _filename,
+      caption: _captionController.text.trim(),
+      isDelayReport: _isDelayReport,
+    );
+    if (mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Photo uploaded successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Add Progress Photo'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_imageBytes != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.memory(_imageBytes!,
+                    height: 160, fit: BoxFit.cover),
+              ),
+              const SizedBox(height: 12),
+            ] else ...[
+              OutlinedButton.icon(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.photo_library),
+                label: const Text('Choose from Gallery'),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (_imageBytes != null)
+              TextButton.icon(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.swap_horiz, size: 16),
+                label: const Text('Change photo'),
+              ),
+            TextField(
+              controller: _captionController,
+              maxLines: 2,
+              decoration: InputDecoration(
+                labelText: 'Caption (optional)',
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              value: _isDelayReport,
+              onChanged: (v) => setState(() => _isDelayReport = v ?? false),
+              title: const Text('Flag as delay report',
+                  style: TextStyle(fontSize: 14)),
+              subtitle: const Text('Marks this as documenting a project delay',
+                  style: TextStyle(fontSize: 11)),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
+            ),
+            if (_uploading) ...[
+              const SizedBox(height: 12),
+              const Center(child: CircularProgressIndicator()),
+            ],
+          ],
+        ),
+      ),
+      actions: _uploading
+          ? null
+          : [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: _imageBytes != null ? _upload : null,
+                child: const Text('Upload'),
+              ),
+            ],
     );
   }
 }

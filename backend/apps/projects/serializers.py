@@ -4,10 +4,35 @@ from apps.scheme_rag.models import FundConvergencePlan
 
 
 class ProjectPhotoSerializer(serializers.ModelSerializer):
+    photo_url = serializers.SerializerMethodField()
+
     class Meta:
         model = ProjectPhoto
-        fields = ['id', 'project', 's3_key', 'caption', 'is_delay_report', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'project', 's3_key', 'caption', 'is_delay_report', 'created_at', 'photo_url']
+        read_only_fields = ['id', 'created_at', 'photo_url']
+
+    def get_photo_url(self, obj):
+        if not obj.s3_key:
+            return None
+        # If the key already looks like a full URL, return as-is
+        if obj.s3_key.startswith('http'):
+            return obj.s3_key
+        try:
+            import boto3
+            from django.conf import settings
+            s3 = boto3.client(
+                's3',
+                region_name=settings.AWS_REGION,
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            )
+            return s3.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': settings.AWS_S3_CITIZEN_PHOTOS_BUCKET, 'Key': obj.s3_key},
+                ExpiresIn=3600,
+            )
+        except Exception:
+            return None
 
 
 class ProjectRatingSerializer(serializers.ModelSerializer):

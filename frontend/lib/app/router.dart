@@ -22,6 +22,7 @@ import '../features/dashboard/screens/leader_dashboard_screen.dart';
 import '../features/gram_sabha/screens/gram_sabha_screen.dart';
 import '../features/dashboard/screens/government_dashboard_screen.dart';
 import '../features/auth/screens/user_management_screen.dart';
+import '../features/projects/screens/completed_projects_screen.dart';
 
 GoRouter createRouter(AuthCubit authCubit) {
   return GoRouter(
@@ -75,11 +76,17 @@ GoRouter createRouter(AuthCubit authCubit) {
               projectId: int.parse(state.pathParameters['id']!),
             ),
           ),
-          GoRoute(path: '/schemes', builder: (_, __) => const SchemeExplorerScreen()),
+          GoRoute(
+            path: '/schemes',
+            builder: (_, state) => SchemeExplorerScreen(
+              initialQuery: state.uri.queryParameters['query'],
+            ),
+          ),
           GoRoute(path: '/dashboard', builder: (_, __) => const LeaderDashboardScreen()),
           GoRoute(path: '/gramsabha', builder: (_, __) => const GramSabhaScreen()),
           GoRoute(path: '/gov-dashboard', builder: (_, __) => const GovernmentDashboardScreen()),
           GoRoute(path: '/users', builder: (_, __) => const UserManagementScreen()),
+          GoRoute(path: '/completed', builder: (_, __) => const CompletedProjectsScreen()),
         ],
       ),
     ],
@@ -114,15 +121,19 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.map, l10n.navMap, '/map'),
     _NavItem(Icons.mic, l10n.navReport, '/report'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
+    _NavItem(Icons.construction, l10n.navProjects, '/projects'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.verified, l10n.completed, '/completed'),
   ];
   static List<_NavItem> _citizenBottomItems(AppLocalizations l10n) => [
     _NavItem(Icons.map, l10n.navMap, '/map'),
     _NavItem(Icons.mic, l10n.navReport, '/report'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
-    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.construction, l10n.navProjects, '/projects'),
   ];
   static List<_NavItem> _citizenMoreItems(AppLocalizations l10n) => [
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.verified, l10n.completed, '/completed'),
     _NavItem(Icons.person, l10n.profile, '/profile'),
   ];
 
@@ -135,17 +146,18 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.dashboard, l10n.navDashboard, '/dashboard'),
     _NavItem(Icons.construction, l10n.navProjects, '/projects'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.manage_accounts, l10n.navManageUsers, '/users'),
   ];
   static List<_NavItem> _leaderBottomItems(AppLocalizations l10n) => [
     _NavItem(Icons.map, l10n.navMap, '/map'),
     _NavItem(Icons.mic, l10n.navReport, '/report'),
     _NavItem(Icons.dashboard, l10n.navDashboard, '/dashboard'),
-    _NavItem(Icons.groups, l10n.navGramSabha, '/gramsabha'),
+    _NavItem(Icons.manage_accounts, l10n.navManageUsers, '/users'),
   ];
   static List<_NavItem> _leaderMoreItems(AppLocalizations l10n) => [
     _NavItem(Icons.construction, l10n.navProjects, '/projects'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
-    _NavItem(Icons.manage_accounts, l10n.navManageUsers, '/users'),
+    _NavItem(Icons.groups, l10n.navGramSabha, '/gramsabha'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
     _NavItem(Icons.person, l10n.profile, '/profile'),
   ];
@@ -304,7 +316,14 @@ class _AppShellState extends State<AppShell> {
             ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: widget.child),
+          Expanded(
+            child: Column(
+              children: [
+                _UserInfoBar(user: user),
+                Expanded(child: widget.child),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -317,7 +336,12 @@ class _AppShellState extends State<AppShell> {
     final bottomItems = _bottomItemsFor(l10n, user);
     final selectedIndex = _bottomIndexFor(location, bottomItems);
     return Scaffold(
-      body: widget.child,
+      body: Column(
+        children: [
+          _UserInfoBar(user: user),
+          Expanded(child: widget.child),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex.clamp(0, bottomItems.length),
         onDestinationSelected: (i) {
@@ -367,6 +391,76 @@ class _AppShellState extends State<AppShell> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Compact banner shown at the top of every authenticated screen.
+class _UserInfoBar extends StatelessWidget {
+  final User? user;
+  const _UserInfoBar({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    if (user == null) return const SizedBox.shrink();
+    final name = user!.fullName.isNotEmpty ? user!.fullName : user!.username;
+    final phone = user!.phone;
+    final roleColor = user!.isGovernment
+        ? Colors.blue.shade700
+        : user!.isLeader
+            ? Colors.orange.shade800
+            : Colors.green.shade700;
+    final roleLabel = user!.isGovernment
+        ? 'Govt'
+        : user!.isLeader
+            ? 'Leader'
+            : 'Citizen';
+    return Container(
+      width: double.infinity,
+      color: roleColor.withOpacity(0.08),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 14,
+            backgroundColor: roleColor.withOpacity(0.2),
+            child: Text(
+              (name.isNotEmpty ? name[0] : phone[0]).toUpperCase(),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: roleColor),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  name.isNotEmpty ? name : phone,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  phone,
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+            decoration: BoxDecoration(
+              color: roleColor,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Text(
+              roleLabel,
+              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
     );
   }

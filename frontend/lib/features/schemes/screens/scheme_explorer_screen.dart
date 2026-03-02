@@ -7,19 +7,21 @@ import '../../../l10n/app_localizations.dart';
 import '../../auth/cubit/auth_cubit.dart';
 
 class SchemeExplorerScreen extends StatelessWidget {
-  const SchemeExplorerScreen({super.key});
+  final String? initialQuery;
+  const SchemeExplorerScreen({super.key, this.initialQuery});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => SchemeCubit(context.read<ApiClient>()),
-      child: const _SchemeExplorerView(),
+      child: _SchemeExplorerView(initialQuery: initialQuery),
     );
   }
 }
 
 class _SchemeExplorerView extends StatefulWidget {
-  const _SchemeExplorerView();
+  final String? initialQuery;
+  const _SchemeExplorerView({this.initialQuery});
 
   @override
   State<_SchemeExplorerView> createState() => _SchemeExplorerViewState();
@@ -36,6 +38,17 @@ class _SchemeExplorerViewState extends State<_SchemeExplorerView> {
     l10n.quickQuery4,
     l10n.quickQuery5,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _queryController.text = widget.initialQuery!;
+        _sendQuery(context);
+      });
+    }
+  }
 
   @override
   void dispose() {
