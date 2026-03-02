@@ -50,7 +50,7 @@ Commands:
 - Voice note bhejein: Report banaye
 - "Status" ya "Mera report": Apne report ka status dekhein
 - "Vote 123": Report #123 ko upvote karein
-- "GAON <naam>": Apna gaon set/change karein
+- "GAON [naam]": Apna gaon set/change karein
 - "WARD <number>": Apna ward set karein
 - Scheme ka naam (e.g., "PM-KUSUM"): Eligibility jaanein
 - "Help": Ye help message
@@ -99,7 +99,7 @@ def handle_whatsapp_message(phone: str, body: str, media_url: str = '', media_ty
     # Village gate: users without panchayat must select village first
     if not user.panchayat and not body_lower.startswith('gaon '):
         return ("Namaste! PrajaShakti mein aapka swagat hai.\n\n"
-                "Pehle apna gaon batayein:\nGAON <gaon ka naam>\n\n"
+                "Pehle apna gaon batayein:\nGAON [gaon ka naam]\n\n"
                 "Example: GAON Tusra")
 
     # GAON command — set/change village
@@ -253,6 +253,38 @@ Respond ONLY with valid JSON:
 
         logger.info(f"Report #{report_id} transcribed and categorized as {report.category}")
 
+        # Notify the reporter that their voice note has been processed
+        try:
+            reporter = report.reporter
+            if reporter and reporter.phone:
+                village_name = report.village.name if report.village_id else 'aapka gaon'
+                category_hindi = {
+                    'water': 'Paani', 'road': 'Rasta', 'health': 'Swasthya',
+                    'education': 'Shiksha', 'electricity': 'Bijli',
+                    'sanitation': 'Safai', 'other': 'Anya',
+                }.get(report.category, report.category or 'Samasya')
+                desc = (report.description_text or '').strip()
+                short_desc = (desc[:60] + '...') if len(desc) > 60 else desc
+                msg = (
+                    f"\u2705 Report #{report_id} process ho gaya!\n\n"
+                    f"\U0001f4cb *{category_hindi}:* {short_desc}\n"
+                    f"\U0001f4cd {village_name}\n\n"
+                    f"App mein track karein ya *STATUS* bhejein."
+                )
+                # We are already in a daemon thread — call directly (synchronous is fine)
+                from apps.notifications.tasks import send_whatsapp_message
+                send_whatsapp_message(reporter.phone, msg)
+        except Exception as ne:
+            logger.warning(f"Reporter notification failed for report #{report_id}: {ne}")
+
+        # Notify other village users about the new report
+        try:
+            from apps.notifications.tasks import notify_village_new_report
+            from apps.utils import dispatch_task
+            dispatch_task(notify_village_new_report, report_id, fallback=None)
+        except Exception as ne:
+            logger.warning(f"Village notification dispatch failed for report #{report_id}: {ne}")
+
     except Exception as e:
         logger.error(f"Transcription pipeline failed for report #{report_id}: {e}")
 
@@ -270,6 +302,24 @@ def _run_full_pipeline(report_id: int, twilio_url: str):
 
     try:
         s3_key = _download_media_to_s3(twilio_url, report_id)
+
+        if s3_key.startswith('http'):
+            # S3 upload failed — the fallback URL cannot be passed to AWS Transcribe
+            # (it would produce an invalid s3:// URI). Skip transcription and go
+            # straight to keyword categorization so the report at least gets a
+            # category and becomes visible in the community feed.
+            logger.warning(
+                f"S3 upload failed for report #{report_id}; "
+                "skipping transcription, triggering keyword categorization"
+            )
+            try:
+                from apps.ai_engine.tasks import categorize_report
+                from apps.utils import dispatch_task
+                dispatch_task(categorize_report, report_id, '', fallback=None)
+            except Exception as ce:
+                logger.error(f"Fallback categorization dispatch failed for report #{report_id}: {ce}")
+            return
+
         # Update report with real S3 key (was 'pending' until download completes)
         Report.objects.filter(pk=report_id).update(audio_s3_key=s3_key)
         # Queue Celery task (or fall back to thread) — exits immediately instead of blocking 2 min
