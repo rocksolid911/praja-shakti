@@ -10,7 +10,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final apiClient = ApiClient();
   final authCubit = AuthCubit(apiClient)..checkAuth();
-  final localeCubit = LocaleCubit();
+  final localeCubit = LocaleCubit()..loadSavedLocale();
   final router = createRouter(authCubit);
 
   runApp(

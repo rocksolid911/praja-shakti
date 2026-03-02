@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../../../core/api/api_client.dart';
+import '../../../core/cubit/locale_cubit.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -73,8 +74,8 @@ class _LandingScreenState extends State<LandingScreen>
                     labelStyle: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 14),
                     tabs: const [
-                      Tab(text: 'लॉगिन करें'),
-                      Tab(text: 'नया खाता बनाएं'),
+                      Tab(text: 'Login'),
+                      Tab(text: 'Register'),
                     ],
                   ),
                 ),
@@ -141,7 +142,7 @@ class _HeroSection extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'ग्राम विकास की आवाज़',
+                  'Voice of Rural Development',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.85),
                     fontSize: 13,
@@ -150,7 +151,151 @@ class _HeroSection extends StatelessWidget {
               ],
             ),
           ),
+          const _LanguagePickerChip(),
         ],
+      ),
+    );
+  }
+}
+
+// ── Compact language picker for login page ────────────────────────────────────
+
+class _LanguagePickerChip extends StatelessWidget {
+  const _LanguagePickerChip();
+
+  static const _languages = [
+    ('en', 'English', '🇬🇧'),
+    ('hi', 'हिंदी', '🇮🇳'),
+    ('or', 'ଓଡ଼ିଆ', '🇮🇳'),
+    ('te', 'తెలుగు', '🇮🇳'),
+    ('ta', 'தமிழ்', '🇮🇳'),
+    ('mr', 'मराठी', '🇮🇳'),
+    ('bn', 'বাংলা', '🇮🇳'),
+    ('gu', 'ગુજરાતી', '🇮🇳'),
+    ('kn', 'ಕನ್ನಡ', '🇮🇳'),
+    ('ml', 'മലയാളം', '🇮🇳'),
+    ('pa', 'ਪੰਜਾਬੀ', '🇮🇳'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LocaleCubit, Locale>(
+      builder: (context, locale) {
+        final current = _languages.firstWhere(
+          (l) => l.$1 == locale.languageCode,
+          orElse: () => _languages.first,
+        );
+        return GestureDetector(
+          onTap: () => _showPicker(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(current.$3, style: const TextStyle(fontSize: 16)),
+                const SizedBox(width: 6),
+                Text(current.$1.toUpperCase(),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(width: 4),
+                const Icon(Icons.expand_more, color: Colors.white, size: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPicker(BuildContext context) {
+    final cubit = context.read<LocaleCubit>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => BlocProvider.value(
+        value: cubit,
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.85,
+          expand: false,
+          builder: (_, controller) => BlocBuilder<LocaleCubit, Locale>(
+            builder: (ctx, locale) => Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40, height: 4,
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2)),
+                ),
+                const SizedBox(height: 16),
+                const Text('Select Language',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text('Choose your preferred language',
+                    style: TextStyle(
+                        color: Colors.grey.shade600, fontSize: 13)),
+                const SizedBox(height: 12),
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView.builder(
+                    controller: controller,
+                    itemCount: _languages.length,
+                    itemBuilder: (context, i) {
+                      final lang = _languages[i];
+                      final selected = locale.languageCode == lang.$1;
+                      return ListTile(
+                        leading: Container(
+                          width: 40, height: 40,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? Colors.green.shade100
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(lang.$3,
+                              style: const TextStyle(fontSize: 22)),
+                        ),
+                        title: Text(lang.$2,
+                            style: TextStyle(
+                                fontWeight: selected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: selected
+                                    ? Colors.green.shade800
+                                    : Colors.black87)),
+                        subtitle: Text(lang.$1.toUpperCase(),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade500)),
+                        trailing: selected
+                            ? Icon(Icons.check_circle,
+                                color: Colors.green.shade700)
+                            : null,
+                        onTap: () {
+                          ctx.read<LocaleCubit>().setLocale(Locale(lang.$1));
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -190,14 +335,14 @@ class _LoginTabState extends State<_LoginTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'अपना मोबाइल नंबर दर्ज करें',
+              'Enter your mobile number',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
             const SizedBox(height: 4),
             Text(
-              'OTP से लॉगिन करें — कोई पासवर्ड नहीं',
+              'Login with OTP — no password needed',
               style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
             ),
             const SizedBox(height: 16),
@@ -213,9 +358,9 @@ class _LoginTabState extends State<_LoginTab> {
                 fillColor: Colors.grey.shade50,
               ),
               validator: (v) {
-                if (v == null || v.isEmpty) return 'मोबाइल नंबर आवश्यक है';
+                if (v == null || v.isEmpty) return 'Mobile number is required';
                 final d = v.replaceAll(RegExp(r'\D'), '');
-                if (d.length < 10) return '10 अंकों का नंबर दर्ज करें';
+                if (d.length < 10) return 'Enter a 10-digit number';
                 return null;
               },
             ),
@@ -236,7 +381,7 @@ class _LoginTabState extends State<_LoginTab> {
                                 color: Colors.white, strokeWidth: 2),
                           )
                         : const Icon(Icons.sms_outlined),
-                    label: const Text('OTP भेजें',
+                    label: const Text('Send OTP',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
@@ -252,7 +397,7 @@ class _LoginTabState extends State<_LoginTab> {
             const SizedBox(height: 20),
             Center(
               child: Text(
-                'पंजीकृत नागरिकों के लिए',
+                'For registered citizens',
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
               ),
             ),
@@ -429,23 +574,23 @@ class _RegisterTabState extends State<_RegisterTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Name fields ──────────────────────────────────────────────
-            _sectionLabel('पूरा नाम *'),
+            _sectionLabel('Full Name *'),
             Row(
               children: [
                 Expanded(
                   child: _inputField(
                     controller: _firstNameCtrl,
-                    hint: 'पहला नाम',
+                    hint: 'First name',
                     icon: Icons.person_outline,
                     validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'आवश्यक' : null,
+                        (v == null || v.trim().isEmpty) ? 'Required' : null,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: _inputField(
                     controller: _lastNameCtrl,
-                    hint: 'अंतिम नाम',
+                    hint: 'Last name',
                     icon: Icons.person_outline,
                   ),
                 ),
@@ -454,23 +599,23 @@ class _RegisterTabState extends State<_RegisterTab> {
             const SizedBox(height: 14),
 
             // ── Phone ────────────────────────────────────────────────────
-            _sectionLabel('मोबाइल नंबर *'),
+            _sectionLabel('Mobile Number *'),
             _inputField(
               controller: _phoneCtrl,
               hint: '+91 98765 43210',
               icon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
               validator: (v) {
-                if (v == null || v.isEmpty) return 'मोबाइल नंबर आवश्यक है';
+                if (v == null || v.isEmpty) return 'Mobile number is required';
                 final d = v.replaceAll(RegExp(r'\D'), '');
-                if (d.length < 10) return '10 अंकों का नंबर दर्ज करें';
+                if (d.length < 10) return 'Enter a 10-digit number';
                 return null;
               },
             ),
             const SizedBox(height: 14),
 
             // ── Location ─────────────────────────────────────────────────
-            _sectionLabel('आपका स्थान *'),
+            _sectionLabel('Your Location *'),
             _buildLocationCascade(),
 
             const SizedBox(height: 24),
@@ -492,7 +637,7 @@ class _RegisterTabState extends State<_RegisterTab> {
                                 color: Colors.white, strokeWidth: 2),
                           )
                         : const Icon(Icons.how_to_reg_outlined),
-                    label: const Text('पंजीकरण करें और OTP पाएं',
+                    label: const Text('Register & Get OTP',
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
@@ -524,7 +669,7 @@ class _RegisterTabState extends State<_RegisterTab> {
         children: [
           // State
           _cascadeDropdown(
-            label: 'राज्य',
+            label: 'State',
             icon: Icons.map_outlined,
             value: _selState?.name,
             items: _states.map((s) => s.name).toList(),
@@ -538,7 +683,7 @@ class _RegisterTabState extends State<_RegisterTab> {
             const SizedBox(height: 10),
             // District
             _cascadeDropdown(
-              label: 'जिला',
+              label: 'District',
               icon: Icons.location_city_outlined,
               value: _selDistrict?.name,
               items: _districts.map((d) => d.name).toList(),
@@ -553,7 +698,7 @@ class _RegisterTabState extends State<_RegisterTab> {
             const SizedBox(height: 10),
             // Gram Panchayat
             _cascadeDropdown(
-              label: 'ग्राम पंचायत',
+              label: 'Gram Panchayat',
               icon: Icons.account_balance_outlined,
               value: _selPanchayat?.name,
               items: _panchayats.map((p) => p.name).toList(),
@@ -568,7 +713,7 @@ class _RegisterTabState extends State<_RegisterTab> {
             const SizedBox(height: 10),
             // Village
             _cascadeDropdown(
-              label: 'गाँव',
+              label: 'Village',
               icon: Icons.cottage_outlined,
               value: _selVillage?.name,
               items: _villages.map((v) => v.name).toList(),
@@ -599,7 +744,7 @@ class _RegisterTabState extends State<_RegisterTab> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          '${_selDistrict!.name} के लिए डेटा उपलब्ध नहीं — नाम लिखें',
+                          'No data for ${_selDistrict!.name} — please enter names',
                           style: TextStyle(
                               fontSize: 11, color: Colors.orange.shade800),
                         ),
@@ -609,14 +754,14 @@ class _RegisterTabState extends State<_RegisterTab> {
                   const SizedBox(height: 8),
                   _inputField(
                     controller: _gpCtrl,
-                    hint: 'ग्राम पंचायत का नाम',
+                    hint: 'Gram Panchayat name',
                     icon: Icons.account_balance_outlined,
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 6),
                   _inputField(
                     controller: _villageManualCtrl,
-                    hint: 'गाँव का नाम',
+                    hint: 'Village name',
                     icon: Icons.cottage_outlined,
                     onChanged: (_) => setState(() {}),
                   ),
@@ -664,7 +809,7 @@ class _RegisterTabState extends State<_RegisterTab> {
                 ))
             : DropdownButtonFormField<String>(
                 value: value,
-                hint: Text('चुनें — $label',
+                hint: Text('Select $label',
                     style: const TextStyle(fontSize: 13)),
                 isExpanded: true,
                 decoration: InputDecoration(
@@ -729,7 +874,7 @@ class _RegisterTabState extends State<_RegisterTab> {
     if (!_formKey.currentState!.validate()) return;
     if (!_locationComplete) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('कृपया अपना स्थान चुनें')),
+        const SnackBar(content: Text('Please select your location')),
       );
       return;
     }
