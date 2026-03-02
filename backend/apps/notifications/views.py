@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import logging
+from html import escape
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -67,7 +68,7 @@ def whatsapp_webhook(request):
     # otherwise DRF JSON-encodes the string and Twilio can't parse it.
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Message>{response_text}</Message>
+    <Message>{escape(response_text)}</Message>
 </Response>"""
 
     return HttpResponse(twiml, content_type='text/xml')

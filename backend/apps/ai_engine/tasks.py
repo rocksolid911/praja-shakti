@@ -133,10 +133,30 @@ Respond ONLY with valid JSON matching this schema:
     # Text reports are notified immediately on creation — skip here to avoid duplicates.
     if report.audio_s3_key:
         try:
-            from apps.notifications.tasks import notify_village_new_report
+            from apps.notifications.tasks import notify_village_new_report, send_whatsapp_message
             notify_village_new_report.delay(report_id)
+
+            # Also send the reporter a follow-up confirming their voice note was processed.
+            if report.reporter_id:
+                reporter = report.reporter
+                if reporter and reporter.phone:
+                    category_hindi = {
+                        'water': 'Paani', 'road': 'Rasta', 'health': 'Swasthya',
+                        'education': 'Shiksha', 'electricity': 'Bijli',
+                        'sanitation': 'Safai', 'other': 'Anya',
+                    }.get(report.category, report.category or 'Samasya')
+                    desc = (report.description_text or '').strip()
+                    short_desc = (desc[:60] + '...') if len(desc) > 60 else desc
+                    village_name = report.village.name if report.village_id else 'aapka gaon'
+                    msg = (
+                        f"\u2705 Report #{report_id} process ho gaya!\n\n"
+                        f"\U0001f4cb *{category_hindi}:* {short_desc}\n"
+                        f"\U0001f4cd {village_name}\n\n"
+                        f"App mein track karein ya *STATUS* bhejein."
+                    )
+                    send_whatsapp_message.delay(reporter.phone, msg)
         except Exception as e:
-            logger.warning(f"Village notification dispatch failed for report #{report_id}: {e}")
+            logger.warning(f"Notification dispatch failed for report #{report_id}: {e}")
 
     # Trigger clustering
     cluster_village_reports.delay(report.village_id)
