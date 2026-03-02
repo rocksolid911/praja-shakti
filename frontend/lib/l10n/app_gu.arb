@@ -170,5 +170,34 @@
   "reportSubmitted": "અહેવાલ સબમિટ થયો! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "નોંધણી",
+  "voiceOfRuralDev": "ગ્રામીણ વિકાસનો અવાજ",
+  "enterMobileNumber": "તમારો મોબાઈલ નંબર દાખલ કરો",
+  "loginWithOtp": "OTP વડે લૉગઇન — પાસવર્ડ નહીં",
+  "mobileRequired": "મોબાઈલ નંબર જરૂરી છે",
+  "enterTenDigits": "10 અંકનો નંબર દાખલ કરો",
+  "forRegisteredCitizens": "નોંધાયેલ નાગરિકો માટે",
+  "fullName": "પૂરું નામ",
+  "firstName": "પ્રથમ નામ",
+  "lastName": "અટક",
+  "required": "જરૂરી",
+  "mobileNumberLabel": "મોબાઈલ નંબર",
+  "yourLocation": "તમારું સ્થાન",
+  "registerGetOtp": "નોંધણી કરો ને OTP મેળવો",
+  "stateLabel": "રાજ્ય",
+  "districtLabel": "જિલ્લો",
+  "gramPanchayatLabel": "ગ્રામ પંચાયત",
+  "selectItem": "{item} પસંદ કરો",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "કૃપા કરીને તમારું સ્થાન પસંદ કરો",
+  "noDataForDistrict": "{district} માટે ડેટા ઉપલબ્ધ નથી — નામ લખો",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "ગ્રામ પંચાયત નામ",
+  "villageName": "ગામ નામ",
+  "choosePreferredLanguage": "તમારી પસંદગીની ભાષા પસંદ કરો"
 }

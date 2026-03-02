@@ -170,5 +170,34 @@
   "reportSubmitted": "அறிக்கை சமர்ப்பிக்கப்பட்டது! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "பதிவு",
+  "voiceOfRuralDev": "கிராம வளர்ச்சியின் குரல்",
+  "enterMobileNumber": "உங்கள் மொபைல் எண்ணை உள்ளிடவும்",
+  "loginWithOtp": "OTP மூலம் உள்நுழைக — கடவுச்சொல் தேவையில்லை",
+  "mobileRequired": "மொபைல் எண் தேவை",
+  "enterTenDigits": "10 இலக்க எண்ணை உள்ளிடவும்",
+  "forRegisteredCitizens": "பதிவு செய்யப்பட்ட குடிமக்களுக்கு",
+  "fullName": "முழு பெயர்",
+  "firstName": "முதல் பெயர்",
+  "lastName": "கடைசி பெயர்",
+  "required": "தேவை",
+  "mobileNumberLabel": "மொபைல் எண்",
+  "yourLocation": "உங்கள் இடம்",
+  "registerGetOtp": "பதிவு செய்து OTP பெறுங்கள்",
+  "stateLabel": "மாநிலம்",
+  "districtLabel": "மாவட்டம்",
+  "gramPanchayatLabel": "கிராம பஞ்சாயத்து",
+  "selectItem": "{item} தேர்வு செய்யவும்",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "தயவுசெய்து உங்கள் இடத்தை தேர்வு செய்யவும்",
+  "noDataForDistrict": "{district} க்கு தரவு இல்லை — பெயர்களை உள்ளிடவும்",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "கிராம பஞ்சாயத்து பெயர்",
+  "villageName": "கிராமத்தின் பெயர்",
+  "choosePreferredLanguage": "உங்கள் விருப்பமான மொழியை தேர்வு செய்யவும்"
 }

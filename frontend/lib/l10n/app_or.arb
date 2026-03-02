@@ -170,5 +170,34 @@
   "reportSubmitted": "ରିପୋର୍ଟ ଦାଖଲ ହୋଇଛି! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "ପଞ୍ଜୀକରଣ",
+  "voiceOfRuralDev": "ଗ୍ରାମୀଣ ବିକାଶର ସ୍ୱର",
+  "enterMobileNumber": "ଆପଣଙ୍କ ମୋବାଇଲ ନମ୍ବର ଦିଅନ୍ତୁ",
+  "loginWithOtp": "OTP ରେ ଲଗଇନ — କୌଣସି ପାସୱାର୍ଡ ନାହିଁ",
+  "mobileRequired": "ମୋବାଇଲ ନମ୍ବର ଆବଶ୍ୟକ",
+  "enterTenDigits": "10 ଅଙ୍କ ନମ୍ବର ଦିଅନ୍ତୁ",
+  "forRegisteredCitizens": "ପଞ୍ଜୀଭୁକ୍ତ ନାଗରିକଙ୍କ ପାଇଁ",
+  "fullName": "ପୂର୍ଣ୍ଣ ନାମ",
+  "firstName": "ପ୍ରଥମ ନାମ",
+  "lastName": "ଶେଷ ନାମ",
+  "required": "ଆବଶ୍ୟକ",
+  "mobileNumberLabel": "ମୋବାଇଲ ନମ୍ବର",
+  "yourLocation": "ଆପଣଙ୍କ ସ୍ଥାନ",
+  "registerGetOtp": "ପଞ୍ଜୀକରଣ ଓ OTP ପାଆନ୍ତୁ",
+  "stateLabel": "ରାଜ୍ୟ",
+  "districtLabel": "ଜିଲ୍ଲା",
+  "gramPanchayatLabel": "ଗ୍ରାମ ପଞ୍ଚାୟତ",
+  "selectItem": "{item} ବାଛନ୍ତୁ",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "ଦୟାକରି ଆପଣଙ୍କ ସ୍ଥାନ ବାଛନ୍ତୁ",
+  "noDataForDistrict": "{district} ପାଇଁ ଡାଟା ଉପଲବ୍ଧ ନୁହେଁ — ନାମ ଲିଖନ୍ତୁ",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "ଗ୍ରାମ ପଞ୍ଚାୟତ ନାମ",
+  "villageName": "ଗ୍ରାମ ନାମ",
+  "choosePreferredLanguage": "ଆପଣଙ୍କ ପସନ୍ଦର ଭାଷା ବାଛନ୍ତୁ"
 }

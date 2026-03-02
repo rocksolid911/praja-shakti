@@ -170,5 +170,34 @@
   "reportSubmitted": "রিপোর্ট জমা হয়েছে! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "নিবন্ধন",
+  "voiceOfRuralDev": "গ্রামীণ উন্নয়নের কণ্ঠস্বর",
+  "enterMobileNumber": "আপনার মোবাইল নম্বর দিন",
+  "loginWithOtp": "OTP দিয়ে লগইন — পাসওয়ার্ড দরকার নেই",
+  "mobileRequired": "মোবাইল নম্বর আবশ্যক",
+  "enterTenDigits": "১০ সংখ্যার নম্বর দিন",
+  "forRegisteredCitizens": "নিবন্ধিত নাগরিকদের জন্য",
+  "fullName": "পূর্ণ নাম",
+  "firstName": "প্রথম নাম",
+  "lastName": "শেষ নাম",
+  "required": "প্রয়োজনীয়",
+  "mobileNumberLabel": "মোবাইল নম্বর",
+  "yourLocation": "আপনার স্থান",
+  "registerGetOtp": "নিবন্ধন করুন ও OTP পান",
+  "stateLabel": "রাজ্য",
+  "districtLabel": "জেলা",
+  "gramPanchayatLabel": "গ্রাম পঞ্চায়েত",
+  "selectItem": "{item} বেছে নিন",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "অনুগ্রহ করে আপনার স্থান বেছে নিন",
+  "noDataForDistrict": "{district} এর জন্য ডেটা নেই — নাম লিখুন",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "গ্রাম পঞ্চায়েত নাম",
+  "villageName": "গ্রামের নাম",
+  "choosePreferredLanguage": "আপনার পছন্দের ভাষা বেছে নিন"
 }

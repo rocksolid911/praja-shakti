@@ -170,5 +170,34 @@
   "reportSubmitted": "रिपोर्ट सबमिट हुई! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "पंजीकरण",
+  "voiceOfRuralDev": "ग्रामीण विकास की आवाज़",
+  "enterMobileNumber": "अपना मोबाइल नंबर दर्ज करें",
+  "loginWithOtp": "OTP से लॉगिन करें — कोई पासवर्ड नहीं",
+  "mobileRequired": "मोबाइल नंबर आवश्यक है",
+  "enterTenDigits": "10 अंकों का नंबर दर्ज करें",
+  "forRegisteredCitizens": "पंजीकृत नागरिकों के लिए",
+  "fullName": "पूरा नाम",
+  "firstName": "पहला नाम",
+  "lastName": "अंतिम नाम",
+  "required": "आवश्यक",
+  "mobileNumberLabel": "मोबाइल नंबर",
+  "yourLocation": "आपका स्थान",
+  "registerGetOtp": "पंजीकरण करें और OTP पाएं",
+  "stateLabel": "राज्य",
+  "districtLabel": "जिला",
+  "gramPanchayatLabel": "ग्राम पंचायत",
+  "selectItem": "{item} चुनें",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "कृपया अपना स्थान चुनें",
+  "noDataForDistrict": "{district} के लिए डेटा उपलब्ध नहीं — नाम लिखें",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "ग्राम पंचायत का नाम",
+  "villageName": "गाँव का नाम",
+  "choosePreferredLanguage": "अपनी पसंदीदा भाषा चुनें"
 }
