@@ -82,6 +82,7 @@
   "navProjects": "Projects",
   "navSchemes": "Schemes",
   "navManageUsers": "Manage Users",
+  "navCompletedProjects": "Completed Projects",
   "navMore": "మరిన్ని",
   "reportDetails": "నివేదిక వివరాలు",
   "projectDetails": "ప్రాజెక్ట్ వివరాలు",
@@ -169,6 +170,10 @@
   "quickQuery5": "Kisan Credit Card ఎలా పొందాలి?",
   "reportSubmitted": "నివేదిక సమర్పించబడింది! ID: WTR-{id}",
   "@reportSubmitted": {
-    "placeholders": {"id": {"type": "int"}}
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
   }
 }

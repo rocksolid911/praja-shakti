@@ -608,6 +608,12 @@ abstract class AppLocalizations {
   /// **'Manage Users'**
   String get navManageUsers;
 
+  /// No description provided for @navCompletedProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed Projects'**
+  String get navCompletedProjects;
+
   /// No description provided for @navMore.
   ///
   /// In en, this message translates to:

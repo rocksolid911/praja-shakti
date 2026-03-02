@@ -255,6 +255,9 @@ class AppLocalizationsGu extends AppLocalizations {
   String get navManageUsers => 'Manage Users';
 
   @override
+  String get navCompletedProjects => 'Completed Projects';
+
+  @override
   String get navMore => 'વધુ';
 
   @override

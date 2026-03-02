@@ -255,6 +255,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get navManageUsers => 'उपयोगकर्ता प्रबंधन';
 
   @override
+  String get navCompletedProjects => 'पूर्ण परियोजनाएं';
+
+  @override
   String get navMore => 'और';
 
   @override
