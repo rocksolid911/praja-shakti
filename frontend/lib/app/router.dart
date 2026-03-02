@@ -131,6 +131,7 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.dashboard, l10n.navDashboard, '/dashboard'),
     _NavItem(Icons.construction, l10n.navProjects, '/projects'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.manage_accounts, l10n.navManageUsers, '/users'),
   ];
   static List<_NavItem> _leaderBottomItems(AppLocalizations l10n) => [
     _NavItem(Icons.map, l10n.navMap, '/map'),
