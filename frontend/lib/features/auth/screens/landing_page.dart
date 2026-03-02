@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/cubit/locale_cubit.dart';
 
 // ─── Theme constants ───────────────────────────────────────────────────────────
 const _primary = Color(0xFF1565C0);
@@ -73,6 +75,8 @@ class _LandingNavBar extends StatelessWidget {
               _navItem('Gram Panchayat'),
               const SizedBox(width: 16),
             ],
+            const _NavLanguagePicker(),
+            const SizedBox(width: 12),
             ElevatedButton(
               onPressed: onGetStarted,
               style: ElevatedButton.styleFrom(
@@ -1002,6 +1006,149 @@ class _SilhouettePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter _) => false;
+}
+
+// ─── Navbar Language Picker ───────────────────────────────────────────────────
+class _NavLanguagePicker extends StatelessWidget {
+  const _NavLanguagePicker();
+
+  static const _languages = [
+    ('en', 'English', '🇬🇧'),
+    ('hi', 'हिंदी', '🇮🇳'),
+    ('or', 'ଓଡ଼ିଆ', '🇮🇳'),
+    ('te', 'తెలుగు', '🇮🇳'),
+    ('ta', 'தமிழ்', '🇮🇳'),
+    ('mr', 'मराठी', '🇮🇳'),
+    ('bn', 'বাংলা', '🇮🇳'),
+    ('gu', 'ગુજરાતી', '🇮🇳'),
+    ('kn', 'ಕನ್ನಡ', '🇮🇳'),
+    ('ml', 'മലയാളം', '🇮🇳'),
+    ('pa', 'ਪੰਜਾਬੀ', '🇮🇳'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LocaleCubit, Locale>(
+      builder: (context, locale) {
+        final current = _languages.firstWhere(
+          (l) => l.$1 == locale.languageCode,
+          orElse: () => _languages.first,
+        );
+        return GestureDetector(
+          onTap: () => _showPicker(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(current.$3, style: const TextStyle(fontSize: 15)),
+                const SizedBox(width: 5),
+                Text(
+                  current.$1.toUpperCase(),
+                  style: const TextStyle(
+                      color: _textPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 3),
+                Icon(Icons.expand_more, color: Colors.grey.shade600, size: 15),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPicker(BuildContext context) {
+    final cubit = context.read<LocaleCubit>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => BlocProvider.value(
+        value: cubit,
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.85,
+          expand: false,
+          builder: (_, controller) => BlocBuilder<LocaleCubit, Locale>(
+            builder: (ctx, locale) => Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2)),
+                ),
+                const SizedBox(height: 16),
+                const Text('Select Language',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text('Choose your preferred language',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                const SizedBox(height: 12),
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView.builder(
+                    controller: controller,
+                    itemCount: _languages.length,
+                    itemBuilder: (context, i) {
+                      final lang = _languages[i];
+                      final selected = locale.languageCode == lang.$1;
+                      return ListTile(
+                        leading: Container(
+                          width: 40,
+                          height: 40,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? Colors.green.shade100
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(lang.$3,
+                              style: const TextStyle(fontSize: 22)),
+                        ),
+                        title: Text(lang.$2,
+                            style: TextStyle(
+                                fontWeight: selected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: selected
+                                    ? Colors.green.shade800
+                                    : Colors.black87)),
+                        subtitle: Text(lang.$1.toUpperCase(),
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey.shade500)),
+                        trailing: selected
+                            ? Icon(Icons.check_circle,
+                                color: Colors.green.shade700)
+                            : null,
+                        onTap: () {
+                          ctx.read<LocaleCubit>().setLocale(Locale(lang.$1));
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _MapGridPainter extends CustomPainter {
