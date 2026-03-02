@@ -55,7 +55,7 @@ def send_whatsapp_message(phone: str, message: str):
 @shared_task
 def notify_village_new_report(report_id: int):
     """
-    Notify all users in the same panchayat about a new community report.
+    Notify ALL registered users about a new community report.
     Excludes the reporter themselves. Fires one send_whatsapp_message task per user.
     """
     from apps.community.models import Report
@@ -63,25 +63,17 @@ def notify_village_new_report(report_id: int):
     User = get_user_model()
 
     try:
-        report = Report.objects.select_related(
-            'village__panchayat', 'reporter'
-        ).get(id=report_id)
+        report = Report.objects.select_related('village', 'reporter').get(id=report_id)
     except Report.DoesNotExist:
         logger.warning(f"notify_village_new_report: report #{report_id} not found")
         return
 
-    panchayat = report.village.panchayat if report.village else None
-    if not panchayat:
-        logger.info(f"Report #{report_id} has no panchayat — skipping village notification")
-        return
-
     phones = list(
-        User.objects.filter(panchayat=panchayat)
-        .exclude(id=report.reporter_id)
+        User.objects.exclude(id=report.reporter_id)
         .values_list('phone', flat=True)
     )
     if not phones:
-        logger.info(f"No other users in panchayat #{panchayat.id} — nothing to notify")
+        logger.info(f"No other users to notify for report #{report_id}")
         return
 
     category_labels = {
@@ -109,5 +101,5 @@ def notify_village_new_report(report_id: int):
 
     logger.info(
         f"Queued WhatsApp notification for report #{report_id} "
-        f"to {len(phones)} user(s) in panchayat #{panchayat.id}"
+        f"to {len(phones)} user(s)"
     )
