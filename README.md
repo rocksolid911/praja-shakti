@@ -122,6 +122,8 @@ UI localised in English, Hindi, Bengali, Gujarati, Kannada, Malayalam, Marathi, 
 
 ## 🏗️ Architecture
 
+![PrajaShakti AI Architecture](Architecture_Diagram.png)
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Citizens                                 │
