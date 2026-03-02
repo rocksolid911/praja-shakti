@@ -195,10 +195,9 @@ class AuthCubit extends Cubit<AuthState> {
       }
       if (data is String && data.isNotEmpty) return data;
     } catch (_) {}
-    // Show the underlying message in debug to help diagnose
     try {
       final msg = (e as dynamic).message?.toString() ?? '';
-      if (msg.isNotEmpty) return 'Network error: $msg';
+      if (msg.isNotEmpty) return 'Network error. Please try again.';
     } catch (_) {}
     return 'An error occurred. Please try again.';
   }
