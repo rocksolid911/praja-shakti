@@ -244,6 +244,8 @@ class _AppShellState extends State<AppShell> {
     final railItems = _railItemsFor(l10n, user);
     final selectedIndex = _railIndexFor(location, railItems);
     return Scaffold(
+      // AppBar-level header guarantees it is always above inner Scaffold AppBars
+      appBar: user != null ? _UserHeader.asAppBar(user) : null,
       body: Row(
         children: [
           NavigationRail(
@@ -273,6 +275,15 @@ class _AppShellState extends State<AppShell> {
                               const Icon(Icons.person_outline),
                               const SizedBox(height: 2),
                               Text(l10n.profile, style: const TextStyle(fontSize: 10)),
+                              if (user != null) ...[
+                                const SizedBox(height: 1),
+                                Text(
+                                  user.fullName.isNotEmpty ? user.fullName : user.phone,
+                                  style: const TextStyle(fontSize: 9, color: Colors.black54),
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -300,14 +311,7 @@ class _AppShellState extends State<AppShell> {
             ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
-          Expanded(
-            child: Column(
-              children: [
-                if (user != null) _UserHeader(user: user),
-                Expanded(child: widget.child),
-              ],
-            ),
-          ),
+          Expanded(child: widget.child),
         ],
       ),
     );
@@ -320,12 +324,9 @@ class _AppShellState extends State<AppShell> {
     final bottomItems = _bottomItemsFor(l10n, user);
     final selectedIndex = _bottomIndexFor(location, bottomItems);
     return Scaffold(
-      body: Column(
-        children: [
-          if (user != null) _UserHeader(user: user),
-          Expanded(child: widget.child),
-        ],
-      ),
+      // AppBar-level header guarantees it is always above inner Scaffold AppBars
+      appBar: user != null ? _UserHeader.asAppBar(user) : null,
+      body: widget.child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex.clamp(0, bottomItems.length),
         onDestinationSelected: (i) {
@@ -382,9 +383,15 @@ class _AppShellState extends State<AppShell> {
 
 // ── User identity header — shown at top of every authenticated page ───────────
 
-class _UserHeader extends StatelessWidget {
+class _UserHeader extends StatelessWidget implements PreferredSizeWidget {
   final User user;
   const _UserHeader({required this.user});
+
+  /// Returns this header as a PreferredSizeWidget for use as Scaffold.appBar.
+  static _UserHeader asAppBar(User user) => _UserHeader(user: user);
+
+  @override
+  Size get preferredSize => const Size.fromHeight(52);
 
   @override
   Widget build(BuildContext context) {
@@ -402,7 +409,8 @@ class _UserHeader extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: roleColor.withOpacity(0.07),
         border: Border(bottom: BorderSide(color: roleColor.withOpacity(0.2))),
@@ -418,7 +426,7 @@ class _UserHeader extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (name != null)
                   Text(
