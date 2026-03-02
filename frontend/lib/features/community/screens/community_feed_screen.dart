@@ -427,18 +427,17 @@ class ReportCard extends StatelessWidget {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: Colors.grey.shade300),
+                                color: Colors.indigo.shade600,
+                                borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                '#${report.id}',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.w600,
+                                'Report #${report.id}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
