@@ -31,6 +31,12 @@ class ReportViewSet(viewsets.ModelViewSet):
         )
         create_serializer.is_valid(raise_exception=True)
         report = create_serializer.save()
+
+        # Notify all panchayat users about the new report
+        from apps.utils import dispatch_task
+        from apps.notifications.tasks import notify_village_new_report
+        dispatch_task(notify_village_new_report, report.id)
+
         return_serializer = ReportSerializer(report, context={'request': request})
         return Response(return_serializer.data, status=status.HTTP_201_CREATED)
 
