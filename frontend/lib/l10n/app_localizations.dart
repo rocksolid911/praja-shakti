@@ -608,12 +608,6 @@ abstract class AppLocalizations {
   /// **'Manage Users'**
   String get navManageUsers;
 
-  /// No description provided for @navCompletedProjects.
-  ///
-  /// In en, this message translates to:
-  /// **'Completed Projects'**
-  String get navCompletedProjects;
-
   /// No description provided for @navMore.
   ///
   /// In en, this message translates to:
@@ -1129,6 +1123,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report submitted! ID: WTR-{id}'**
   String reportSubmitted(int id);
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// No description provided for @voiceOfRuralDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice of Rural Development'**
+  String get voiceOfRuralDev;
+
+  /// No description provided for @enterMobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your mobile number'**
+  String get enterMobileNumber;
+
+  /// No description provided for @loginWithOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Login with OTP — no password needed'**
+  String get loginWithOtp;
+
+  /// No description provided for @mobileRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number is required'**
+  String get mobileRequired;
+
+  /// No description provided for @enterTenDigits.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a 10-digit number'**
+  String get enterTenDigits;
+
+  /// No description provided for @forRegisteredCitizens.
+  ///
+  /// In en, this message translates to:
+  /// **'For registered citizens'**
+  String get forRegisteredCitizens;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastName;
+
+  /// No description provided for @required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// No description provided for @mobileNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Number'**
+  String get mobileNumberLabel;
+
+  /// No description provided for @yourLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Location'**
+  String get yourLocation;
+
+  /// No description provided for @registerGetOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Register & Get OTP'**
+  String get registerGetOtp;
+
+  /// No description provided for @stateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get stateLabel;
+
+  /// No description provided for @districtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get districtLabel;
+
+  /// No description provided for @gramPanchayatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram Panchayat'**
+  String get gramPanchayatLabel;
+
+  /// No description provided for @selectItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {item}'**
+  String selectItem(String item);
+
+  /// No description provided for @pleaseSelectLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your location'**
+  String get pleaseSelectLocation;
+
+  /// No description provided for @noDataForDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for {district} — please enter names'**
+  String noDataForDistrict(String district);
+
+  /// No description provided for @gramPanchayatName.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram Panchayat name'**
+  String get gramPanchayatName;
+
+  /// No description provided for @villageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Village name'**
+  String get villageName;
+
+  /// No description provided for @choosePreferredLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred language'**
+  String get choosePreferredLanguage;
 }
 
 class _AppLocalizationsDelegate

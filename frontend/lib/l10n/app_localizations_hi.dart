@@ -255,9 +255,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get navManageUsers => 'उपयोगकर्ता प्रबंधन';
 
   @override
-  String get navCompletedProjects => 'पूर्ण परियोजनाएं';
-
-  @override
   String get navMore => 'और';
 
   @override
@@ -519,4 +516,77 @@ class AppLocalizationsHi extends AppLocalizations {
   String reportSubmitted(int id) {
     return 'रिपोर्ट सबमिट हुई! ID: WTR-$id';
   }
+
+  @override
+  String get register => 'पंजीकरण';
+
+  @override
+  String get voiceOfRuralDev => 'ग्रामीण विकास की आवाज़';
+
+  @override
+  String get enterMobileNumber => 'अपना मोबाइल नंबर दर्ज करें';
+
+  @override
+  String get loginWithOtp => 'OTP से लॉगिन करें — कोई पासवर्ड नहीं';
+
+  @override
+  String get mobileRequired => 'मोबाइल नंबर आवश्यक है';
+
+  @override
+  String get enterTenDigits => '10 अंकों का नंबर दर्ज करें';
+
+  @override
+  String get forRegisteredCitizens => 'पंजीकृत नागरिकों के लिए';
+
+  @override
+  String get fullName => 'पूरा नाम';
+
+  @override
+  String get firstName => 'पहला नाम';
+
+  @override
+  String get lastName => 'अंतिम नाम';
+
+  @override
+  String get required => 'आवश्यक';
+
+  @override
+  String get mobileNumberLabel => 'मोबाइल नंबर';
+
+  @override
+  String get yourLocation => 'आपका स्थान';
+
+  @override
+  String get registerGetOtp => 'पंजीकरण करें और OTP पाएं';
+
+  @override
+  String get stateLabel => 'राज्य';
+
+  @override
+  String get districtLabel => 'जिला';
+
+  @override
+  String get gramPanchayatLabel => 'ग्राम पंचायत';
+
+  @override
+  String selectItem(String item) {
+    return '$item चुनें';
+  }
+
+  @override
+  String get pleaseSelectLocation => 'कृपया अपना स्थान चुनें';
+
+  @override
+  String noDataForDistrict(String district) {
+    return '$district के लिए डेटा उपलब्ध नहीं — नाम लिखें';
+  }
+
+  @override
+  String get gramPanchayatName => 'ग्राम पंचायत का नाम';
+
+  @override
+  String get villageName => 'गाँव का नाम';
+
+  @override
+  String get choosePreferredLanguage => 'अपनी पसंदीदा भाषा चुनें';
 }

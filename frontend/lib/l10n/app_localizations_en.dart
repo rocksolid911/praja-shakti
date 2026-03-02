@@ -255,9 +255,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navManageUsers => 'Manage Users';
 
   @override
-  String get navCompletedProjects => 'Completed Projects';
-
-  @override
   String get navMore => 'More';
 
   @override
@@ -521,4 +518,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String reportSubmitted(int id) {
     return 'Report submitted! ID: WTR-$id';
   }
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get voiceOfRuralDev => 'Voice of Rural Development';
+
+  @override
+  String get enterMobileNumber => 'Enter your mobile number';
+
+  @override
+  String get loginWithOtp => 'Login with OTP — no password needed';
+
+  @override
+  String get mobileRequired => 'Mobile number is required';
+
+  @override
+  String get enterTenDigits => 'Enter a 10-digit number';
+
+  @override
+  String get forRegisteredCitizens => 'For registered citizens';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get firstName => 'First name';
+
+  @override
+  String get lastName => 'Last name';
+
+  @override
+  String get required => 'Required';
+
+  @override
+  String get mobileNumberLabel => 'Mobile Number';
+
+  @override
+  String get yourLocation => 'Your Location';
+
+  @override
+  String get registerGetOtp => 'Register & Get OTP';
+
+  @override
+  String get stateLabel => 'State';
+
+  @override
+  String get districtLabel => 'District';
+
+  @override
+  String get gramPanchayatLabel => 'Gram Panchayat';
+
+  @override
+  String selectItem(String item) {
+    return 'Select $item';
+  }
+
+  @override
+  String get pleaseSelectLocation => 'Please select your location';
+
+  @override
+  String noDataForDistrict(String district) {
+    return 'No data for $district — please enter names';
+  }
+
+  @override
+  String get gramPanchayatName => 'Gram Panchayat name';
+
+  @override
+  String get villageName => 'Village name';
+
+  @override
+  String get choosePreferredLanguage => 'Choose your preferred language';
 }

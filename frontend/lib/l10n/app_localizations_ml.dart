@@ -255,9 +255,6 @@ class AppLocalizationsMl extends AppLocalizations {
   String get navManageUsers => 'Manage Users';
 
   @override
-  String get navCompletedProjects => 'Completed Projects';
-
-  @override
   String get navMore => 'കൂടുതൽ';
 
   @override
@@ -520,4 +517,78 @@ class AppLocalizationsMl extends AppLocalizations {
   String reportSubmitted(int id) {
     return 'റിപ്പോർട്ട് സമർപ്പിച്ചു! ID: WTR-$id';
   }
+
+  @override
+  String get register => 'രജിസ്ട്രേഷൻ';
+
+  @override
+  String get voiceOfRuralDev => 'ഗ്രാമ വികസനത്തിന്റെ ശബ്ദം';
+
+  @override
+  String get enterMobileNumber => 'നിങ്ങളുടെ മൊബൈൽ നമ്പർ നൽകുക';
+
+  @override
+  String get loginWithOtp => 'OTP ഉപയോഗിച്ച് ലോഗിൻ — പാസ്‌വേഡ് ആവശ്യമില്ല';
+
+  @override
+  String get mobileRequired => 'മൊബൈൽ നമ്പർ ആവശ്യമാണ്';
+
+  @override
+  String get enterTenDigits => '10 അക്ക നമ്പർ നൽകുക';
+
+  @override
+  String get forRegisteredCitizens => 'രജിസ്ട്രേഷൻ ചെയ്ത പൗരന്മാർക്ക്';
+
+  @override
+  String get fullName => 'പൂർണ്ണ പേര്';
+
+  @override
+  String get firstName => 'ആദ്യ പേര്';
+
+  @override
+  String get lastName => 'അവസാന പേര്';
+
+  @override
+  String get required => 'ആവശ്യം';
+
+  @override
+  String get mobileNumberLabel => 'മൊബൈൽ നമ്പർ';
+
+  @override
+  String get yourLocation => 'നിങ്ങളുടെ സ്ഥലം';
+
+  @override
+  String get registerGetOtp => 'രജിസ്ട്രേഷൻ ചെയ്ത് OTP നേടുക';
+
+  @override
+  String get stateLabel => 'സംസ്ഥാനം';
+
+  @override
+  String get districtLabel => 'ജില്ല';
+
+  @override
+  String get gramPanchayatLabel => 'ഗ്രാമ പഞ്ചായത്ത്';
+
+  @override
+  String selectItem(String item) {
+    return '$item തിരഞ്ഞെടുക്കുക';
+  }
+
+  @override
+  String get pleaseSelectLocation => 'ദയവായി നിങ്ങളുടെ സ്ഥലം തിരഞ്ഞെടുക്കുക';
+
+  @override
+  String noDataForDistrict(String district) {
+    return '$district ന് ഡേറ്റ ഇല്ല — പേരുകൾ നൽകുക';
+  }
+
+  @override
+  String get gramPanchayatName => 'ഗ്രാമ പഞ്ചായത്ത് പേര്';
+
+  @override
+  String get villageName => 'ഗ്രാമത്തിന്റെ പേര്';
+
+  @override
+  String get choosePreferredLanguage =>
+      'നിങ്ങൾക്ക് ഇഷ്ടമുള്ള ഭാഷ തിരഞ്ഞെടുക്കുക';
 }

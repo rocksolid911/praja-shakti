@@ -5,6 +5,7 @@ import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/cubit/locale_cubit.dart';
+import '../../../l10n/app_localizations.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -31,6 +32,7 @@ class _LandingScreenState extends State<LandingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthOtpSent) {
@@ -73,9 +75,9 @@ class _LandingScreenState extends State<LandingScreen>
                     unselectedLabelColor: Colors.grey.shade600,
                     labelStyle: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 14),
-                    tabs: const [
-                      Tab(text: 'Login'),
-                      Tab(text: 'Register'),
+                    tabs: [
+                      Tab(text: l10n.login),
+                      Tab(text: l10n.register),
                     ],
                   ),
                 ),
@@ -106,6 +108,7 @@ class _LandingScreenState extends State<LandingScreen>
 class _HeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
@@ -142,7 +145,7 @@ class _HeroSection extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Voice of Rural Development',
+                  l10n.voiceOfRuralDev,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.85),
                     fontSize: 13,
@@ -239,13 +242,19 @@ class _LanguagePickerChip extends StatelessWidget {
                       borderRadius: BorderRadius.circular(2)),
                 ),
                 const SizedBox(height: 16),
-                const Text('Select Language',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                BlocBuilder<LocaleCubit, Locale>(
+                  builder: (ctx2, _) => Text(
+                    AppLocalizations.of(ctx2).selectLanguage,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('Choose your preferred language',
-                    style: TextStyle(
-                        color: Colors.grey.shade600, fontSize: 13)),
+                BlocBuilder<LocaleCubit, Locale>(
+                  builder: (ctx2, _) => Text(
+                    AppLocalizations.of(ctx2).choosePreferredLanguage,
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 const Divider(height: 1),
                 Expanded(
@@ -327,6 +336,7 @@ class _LoginTabState extends State<_LoginTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       child: Form(
@@ -335,14 +345,14 @@ class _LoginTabState extends State<_LoginTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Enter your mobile number',
+              l10n.enterMobileNumber,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Login with OTP — no password needed',
+              l10n.loginWithOtp,
               style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
             ),
             const SizedBox(height: 16),
@@ -358,9 +368,9 @@ class _LoginTabState extends State<_LoginTab> {
                 fillColor: Colors.grey.shade50,
               ),
               validator: (v) {
-                if (v == null || v.isEmpty) return 'Mobile number is required';
+                if (v == null || v.isEmpty) return l10n.mobileRequired;
                 final d = v.replaceAll(RegExp(r'\D'), '');
-                if (d.length < 10) return 'Enter a 10-digit number';
+                if (d.length < 10) return l10n.enterTenDigits;
                 return null;
               },
             ),
@@ -368,6 +378,7 @@ class _LoginTabState extends State<_LoginTab> {
             BlocBuilder<AuthCubit, AuthState>(
               builder: (context, state) {
                 final loading = state is AuthLoading;
+                final l = AppLocalizations.of(context);
                 return SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -381,8 +392,8 @@ class _LoginTabState extends State<_LoginTab> {
                                 color: Colors.white, strokeWidth: 2),
                           )
                         : const Icon(Icons.sms_outlined),
-                    label: const Text('Send OTP',
-                        style: TextStyle(
+                    label: Text(l.sendOtp,
+                        style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade700,
@@ -397,7 +408,7 @@ class _LoginTabState extends State<_LoginTab> {
             const SizedBox(height: 20),
             Center(
               child: Text(
-                'For registered citizens',
+                l10n.forRegisteredCitizens,
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
               ),
             ),
@@ -566,6 +577,7 @@ class _RegisterTabState extends State<_RegisterTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
       child: Form(
@@ -574,23 +586,23 @@ class _RegisterTabState extends State<_RegisterTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Name fields ──────────────────────────────────────────────
-            _sectionLabel('Full Name *'),
+            _sectionLabel('${l10n.fullName} *'),
             Row(
               children: [
                 Expanded(
                   child: _inputField(
                     controller: _firstNameCtrl,
-                    hint: 'First name',
+                    hint: l10n.firstName,
                     icon: Icons.person_outline,
                     validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Required' : null,
+                        (v == null || v.trim().isEmpty) ? l10n.required : null,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: _inputField(
                     controller: _lastNameCtrl,
-                    hint: 'Last name',
+                    hint: l10n.lastName,
                     icon: Icons.person_outline,
                   ),
                 ),
@@ -599,24 +611,24 @@ class _RegisterTabState extends State<_RegisterTab> {
             const SizedBox(height: 14),
 
             // ── Phone ────────────────────────────────────────────────────
-            _sectionLabel('Mobile Number *'),
+            _sectionLabel('${l10n.mobileNumberLabel} *'),
             _inputField(
               controller: _phoneCtrl,
               hint: '+91 98765 43210',
               icon: Icons.phone_outlined,
               keyboardType: TextInputType.phone,
               validator: (v) {
-                if (v == null || v.isEmpty) return 'Mobile number is required';
+                if (v == null || v.isEmpty) return l10n.mobileRequired;
                 final d = v.replaceAll(RegExp(r'\D'), '');
-                if (d.length < 10) return 'Enter a 10-digit number';
+                if (d.length < 10) return l10n.enterTenDigits;
                 return null;
               },
             ),
             const SizedBox(height: 14),
 
             // ── Location ─────────────────────────────────────────────────
-            _sectionLabel('Your Location *'),
-            _buildLocationCascade(),
+            _sectionLabel('${l10n.yourLocation} *'),
+            _buildLocationCascade(l10n),
 
             const SizedBox(height: 24),
 
@@ -624,6 +636,7 @@ class _RegisterTabState extends State<_RegisterTab> {
             BlocBuilder<AuthCubit, AuthState>(
               builder: (context, state) {
                 final loading = state is AuthLoading;
+                final l = AppLocalizations.of(context);
                 return SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -637,8 +650,8 @@ class _RegisterTabState extends State<_RegisterTab> {
                                 color: Colors.white, strokeWidth: 2),
                           )
                         : const Icon(Icons.how_to_reg_outlined),
-                    label: const Text('Register & Get OTP',
-                        style: TextStyle(
+                    label: Text(l.registerGetOtp,
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade700,
@@ -656,7 +669,7 @@ class _RegisterTabState extends State<_RegisterTab> {
     );
   }
 
-  Widget _buildLocationCascade() {
+  Widget _buildLocationCascade(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -669,11 +682,12 @@ class _RegisterTabState extends State<_RegisterTab> {
         children: [
           // State
           _cascadeDropdown(
-            label: 'State',
+            label: l10n.stateLabel,
             icon: Icons.map_outlined,
             value: _selState?.name,
             items: _states.map((s) => s.name).toList(),
             loading: _loadingStates,
+            hint: l10n.selectItem(l10n.stateLabel),
             onChanged: (name) {
               final s = _states.firstWhere((e) => e.name == name);
               _onStateSelected(s);
@@ -683,11 +697,12 @@ class _RegisterTabState extends State<_RegisterTab> {
             const SizedBox(height: 10),
             // District
             _cascadeDropdown(
-              label: 'District',
+              label: l10n.districtLabel,
               icon: Icons.location_city_outlined,
               value: _selDistrict?.name,
               items: _districts.map((d) => d.name).toList(),
               loading: _loadingDistricts,
+              hint: l10n.selectItem(l10n.districtLabel),
               onChanged: (name) {
                 final d = _districts.firstWhere((e) => e.name == name);
                 _onDistrictSelected(d);
@@ -698,11 +713,12 @@ class _RegisterTabState extends State<_RegisterTab> {
             const SizedBox(height: 10),
             // Gram Panchayat
             _cascadeDropdown(
-              label: 'Gram Panchayat',
+              label: l10n.gramPanchayatLabel,
               icon: Icons.account_balance_outlined,
               value: _selPanchayat?.name,
               items: _panchayats.map((p) => p.name).toList(),
               loading: _loadingPanchayats,
+              hint: l10n.selectItem(l10n.gramPanchayatLabel),
               onChanged: (name) {
                 final p = _panchayats.firstWhere((e) => e.name == name);
                 _onPanchayatSelected(p);
@@ -713,11 +729,12 @@ class _RegisterTabState extends State<_RegisterTab> {
             const SizedBox(height: 10),
             // Village
             _cascadeDropdown(
-              label: 'Village',
+              label: l10n.villageLabel,
               icon: Icons.cottage_outlined,
               value: _selVillage?.name,
               items: _villages.map((v) => v.name).toList(),
               loading: _loadingVillages,
+              hint: l10n.selectItem(l10n.villageLabel),
               onChanged: (name) {
                 final v = _villages.firstWhere((e) => e.name == name);
                 setState(() => _selVillage = v);
@@ -744,7 +761,7 @@ class _RegisterTabState extends State<_RegisterTab> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'No data for ${_selDistrict!.name} — please enter names',
+                          l10n.noDataForDistrict(_selDistrict!.name),
                           style: TextStyle(
                               fontSize: 11, color: Colors.orange.shade800),
                         ),
@@ -754,14 +771,14 @@ class _RegisterTabState extends State<_RegisterTab> {
                   const SizedBox(height: 8),
                   _inputField(
                     controller: _gpCtrl,
-                    hint: 'Gram Panchayat name',
+                    hint: l10n.gramPanchayatName,
                     icon: Icons.account_balance_outlined,
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 6),
                   _inputField(
                     controller: _villageManualCtrl,
-                    hint: 'Village name',
+                    hint: l10n.villageName,
                     icon: Icons.cottage_outlined,
                     onChanged: (_) => setState(() {}),
                   ),
@@ -780,6 +797,7 @@ class _RegisterTabState extends State<_RegisterTab> {
     required String? value,
     required List<String> items,
     required bool loading,
+    required String hint,
     required ValueChanged<String> onChanged,
   }) {
     return Column(
@@ -809,8 +827,7 @@ class _RegisterTabState extends State<_RegisterTab> {
                 ))
             : DropdownButtonFormField<String>(
                 value: value,
-                hint: Text('Select $label',
-                    style: const TextStyle(fontSize: 13)),
+                hint: Text(hint, style: const TextStyle(fontSize: 13)),
                 isExpanded: true,
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(
@@ -874,7 +891,7 @@ class _RegisterTabState extends State<_RegisterTab> {
     if (!_formKey.currentState!.validate()) return;
     if (!_locationComplete) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select your location')),
+        SnackBar(content: Text(AppLocalizations.of(context).pleaseSelectLocation)),
       );
       return;
     }

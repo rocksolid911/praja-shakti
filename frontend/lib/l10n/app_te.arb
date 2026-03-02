@@ -170,5 +170,34 @@
   "reportSubmitted": "నివేదిక సమర్పించబడింది! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "నమోదు",
+  "voiceOfRuralDev": "గ్రామీణ అభివృద్ధి స్వరం",
+  "enterMobileNumber": "మీ మొబైల్ నంబర్ నమోదు చేయండి",
+  "loginWithOtp": "OTP తో లాగిన్ — పాస్‌వర్డ్ అవసరం లేదు",
+  "mobileRequired": "మొబైల్ నంబర్ అవసరం",
+  "enterTenDigits": "10 అంకెల నంబర్ నమోదు చేయండి",
+  "forRegisteredCitizens": "నమోదు చేసిన పౌరులకు",
+  "fullName": "పూర్తి పేరు",
+  "firstName": "మొదటి పేరు",
+  "lastName": "చివరి పేరు",
+  "required": "అవసరం",
+  "mobileNumberLabel": "మొబైల్ నంబర్",
+  "yourLocation": "మీ స్థానం",
+  "registerGetOtp": "నమోదు చేసి OTP పొందండి",
+  "stateLabel": "రాష్ట్రం",
+  "districtLabel": "జిల్లా",
+  "gramPanchayatLabel": "గ్రామ పంచాయతీ",
+  "selectItem": "{item} ఎంచుకోండి",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "దయచేసి మీ స్థానం ఎంచుకోండి",
+  "noDataForDistrict": "{district} కోసం డేటా లేదు — పేర్లు నమోదు చేయండి",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "గ్రామ పంచాయతీ పేరు",
+  "villageName": "గ్రామం పేరు",
+  "choosePreferredLanguage": "మీకు నచ్చిన భాష ఎంచుకోండి"
 }

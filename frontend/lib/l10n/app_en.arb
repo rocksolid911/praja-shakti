@@ -170,5 +170,34 @@
   "reportSubmitted": "Report submitted! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "Register",
+  "voiceOfRuralDev": "Voice of Rural Development",
+  "enterMobileNumber": "Enter your mobile number",
+  "loginWithOtp": "Login with OTP — no password needed",
+  "mobileRequired": "Mobile number is required",
+  "enterTenDigits": "Enter a 10-digit number",
+  "forRegisteredCitizens": "For registered citizens",
+  "fullName": "Full Name",
+  "firstName": "First name",
+  "lastName": "Last name",
+  "required": "Required",
+  "mobileNumberLabel": "Mobile Number",
+  "yourLocation": "Your Location",
+  "registerGetOtp": "Register & Get OTP",
+  "stateLabel": "State",
+  "districtLabel": "District",
+  "gramPanchayatLabel": "Gram Panchayat",
+  "selectItem": "Select {item}",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "Please select your location",
+  "noDataForDistrict": "No data for {district} — please enter names",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "Gram Panchayat name",
+  "villageName": "Village name",
+  "choosePreferredLanguage": "Choose your preferred language"
 }

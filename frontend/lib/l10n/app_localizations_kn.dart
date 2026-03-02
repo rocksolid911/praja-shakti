@@ -255,9 +255,6 @@ class AppLocalizationsKn extends AppLocalizations {
   String get navManageUsers => 'Manage Users';
 
   @override
-  String get navCompletedProjects => 'Completed Projects';
-
-  @override
   String get navMore => 'ಇನ್ನಷ್ಟು';
 
   @override
@@ -520,4 +517,77 @@ class AppLocalizationsKn extends AppLocalizations {
   String reportSubmitted(int id) {
     return 'ವರದಿ ಸಲ್ಲಿಸಲಾಗಿದೆ! ID: WTR-$id';
   }
+
+  @override
+  String get register => 'ನೋಂದಣಿ';
+
+  @override
+  String get voiceOfRuralDev => 'ಗ್ರಾಮೀಣ ಅಭಿವೃದ್ಧಿಯ ಧ್ವನಿ';
+
+  @override
+  String get enterMobileNumber => 'ನಿಮ್ಮ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ';
+
+  @override
+  String get loginWithOtp => 'OTP ಮೂಲಕ ಲಾಗಿನ್ — ಪಾಸ್‌ವರ್ಡ್ ಬೇಕಿಲ್ಲ';
+
+  @override
+  String get mobileRequired => 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ಅಗತ್ಯ';
+
+  @override
+  String get enterTenDigits => '10 ಅಂಕಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ';
+
+  @override
+  String get forRegisteredCitizens => 'ನೋಂದಾಯಿತ ನಾಗರಿಕರಿಗಾಗಿ';
+
+  @override
+  String get fullName => 'ಪೂರ್ಣ ಹೆಸರು';
+
+  @override
+  String get firstName => 'ಮೊದಲ ಹೆಸರು';
+
+  @override
+  String get lastName => 'ಕೊನೆಯ ಹೆಸರು';
+
+  @override
+  String get required => 'ಅಗತ್ಯ';
+
+  @override
+  String get mobileNumberLabel => 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ';
+
+  @override
+  String get yourLocation => 'ನಿಮ್ಮ ಸ್ಥಳ';
+
+  @override
+  String get registerGetOtp => 'ನೋಂದಣಿ ಮಾಡಿ ಮತ್ತು OTP ಪಡೆಯಿರಿ';
+
+  @override
+  String get stateLabel => 'ರಾಜ್ಯ';
+
+  @override
+  String get districtLabel => 'ಜಿಲ್ಲೆ';
+
+  @override
+  String get gramPanchayatLabel => 'ಗ್ರಾಮ ಪಂಚಾಯಿತಿ';
+
+  @override
+  String selectItem(String item) {
+    return '$item ಆಯ್ಕೆ ಮಾಡಿ';
+  }
+
+  @override
+  String get pleaseSelectLocation => 'ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸ್ಥಳ ಆಯ್ಕೆ ಮಾಡಿ';
+
+  @override
+  String noDataForDistrict(String district) {
+    return '$district ಗೆ ಡೇಟಾ ಇಲ್ಲ — ಹೆಸರು ನಮೂದಿಸಿ';
+  }
+
+  @override
+  String get gramPanchayatName => 'ಗ್ರಾಮ ಪಂಚಾಯಿತಿ ಹೆಸರು';
+
+  @override
+  String get villageName => 'ಗ್ರಾಮದ ಹೆಸರು';
+
+  @override
+  String get choosePreferredLanguage => 'ನಿಮ್ಮ ಆದ್ಯತೆಯ ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ';
 }

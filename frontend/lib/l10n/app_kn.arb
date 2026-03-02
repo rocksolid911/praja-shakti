@@ -170,5 +170,34 @@
   "reportSubmitted": "ವರದಿ ಸಲ್ಲಿಸಲಾಗಿದೆ! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "ನೋಂದಣಿ",
+  "voiceOfRuralDev": "ಗ್ರಾಮೀಣ ಅಭಿವೃದ್ಧಿಯ ಧ್ವನಿ",
+  "enterMobileNumber": "ನಿಮ್ಮ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
+  "loginWithOtp": "OTP ಮೂಲಕ ಲಾಗಿನ್ — ಪಾಸ್‌ವರ್ಡ್ ಬೇಕಿಲ್ಲ",
+  "mobileRequired": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ಅಗತ್ಯ",
+  "enterTenDigits": "10 ಅಂಕಿ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
+  "forRegisteredCitizens": "ನೋಂದಾಯಿತ ನಾಗರಿಕರಿಗಾಗಿ",
+  "fullName": "ಪೂರ್ಣ ಹೆಸರು",
+  "firstName": "ಮೊದಲ ಹೆಸರು",
+  "lastName": "ಕೊನೆಯ ಹೆಸರು",
+  "required": "ಅಗತ್ಯ",
+  "mobileNumberLabel": "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+  "yourLocation": "ನಿಮ್ಮ ಸ್ಥಳ",
+  "registerGetOtp": "ನೋಂದಣಿ ಮಾಡಿ ಮತ್ತು OTP ಪಡೆಯಿರಿ",
+  "stateLabel": "ರಾಜ್ಯ",
+  "districtLabel": "ಜಿಲ್ಲೆ",
+  "gramPanchayatLabel": "ಗ್ರಾಮ ಪಂಚಾಯಿತಿ",
+  "selectItem": "{item} ಆಯ್ಕೆ ಮಾಡಿ",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸ್ಥಳ ಆಯ್ಕೆ ಮಾಡಿ",
+  "noDataForDistrict": "{district} ಗೆ ಡೇಟಾ ಇಲ್ಲ — ಹೆಸರು ನಮೂದಿಸಿ",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "ಗ್ರಾಮ ಪಂಚಾಯಿತಿ ಹೆಸರು",
+  "villageName": "ಗ್ರಾಮದ ಹೆಸರು",
+  "choosePreferredLanguage": "ನಿಮ್ಮ ಆದ್ಯತೆಯ ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ"
 }
