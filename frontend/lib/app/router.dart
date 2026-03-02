@@ -300,7 +300,14 @@ class _AppShellState extends State<AppShell> {
             ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: widget.child),
+          Expanded(
+            child: Column(
+              children: [
+                if (user != null) _UserHeader(user: user),
+                Expanded(child: widget.child),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -313,7 +320,12 @@ class _AppShellState extends State<AppShell> {
     final bottomItems = _bottomItemsFor(l10n, user);
     final selectedIndex = _bottomIndexFor(location, bottomItems);
     return Scaffold(
-      body: widget.child,
+      body: Column(
+        children: [
+          if (user != null) _UserHeader(user: user),
+          Expanded(child: widget.child),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex.clamp(0, bottomItems.length),
         onDestinationSelected: (i) {
@@ -363,6 +375,90 @@ class _AppShellState extends State<AppShell> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── User identity header — shown at top of every authenticated page ───────────
+
+class _UserHeader extends StatelessWidget {
+  final User user;
+  const _UserHeader({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = user.fullName.isNotEmpty ? user.fullName : null;
+    final roleLabel = user.isLeader
+        ? 'Leader'
+        : user.isGovernment
+            ? 'Government'
+            : 'Citizen';
+    final roleColor = user.isLeader
+        ? Colors.blue.shade700
+        : user.isGovernment
+            ? Colors.purple.shade700
+            : Colors.green.shade700;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: roleColor.withOpacity(0.07),
+        border: Border(bottom: BorderSide(color: roleColor.withOpacity(0.2))),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: roleColor.withOpacity(0.15),
+            child: Icon(Icons.person, size: 18, color: roleColor),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (name != null)
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade900,
+                      height: 1.2,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                Text(
+                  user.phone,
+                  style: TextStyle(
+                    fontSize: name != null ? 11 : 13,
+                    color: name != null ? Colors.grey.shade600 : Colors.grey.shade900,
+                    fontWeight: name != null ? FontWeight.normal : FontWeight.w600,
+                    height: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: roleColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              roleLabel,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: roleColor,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
