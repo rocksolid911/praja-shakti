@@ -180,20 +180,20 @@ class _HeroSection extends StatelessWidget {
             children: [
               Icon(Icons.star, color: _saffron, size: 14),
               SizedBox(width: 6),
-              Text('ग्राम विकास AI प्लेटफॉर्म',
+              Text('Village Development AI Platform',
                   style: TextStyle(color: _saffron, fontSize: 12, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
         const SizedBox(height: 24),
         const Text(
-          'Gaon Ki Awaaz,\nSarkar Tak Pahunche',
+          'Your Village\'s Voice,\nReaching the Government',
           style: TextStyle(
               color: Colors.white, fontSize: 44, fontWeight: FontWeight.bold, height: 1.2),
         ),
         const SizedBox(height: 16),
         Text(
-          'गाँव की समस्याओं को AI से तुरंत सरकार तक पहुँचाएं — सैटेलाइट डेटा, सरकारी योजनाएं और सामुदायिक आवाज़ एक जगह।',
+          'Report village problems via voice or photo — AI matches them to government schemes, satellite data validates, and panchayats act.',
           style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 17, height: 1.6),
         ),
         const SizedBox(height: 32),
@@ -201,9 +201,9 @@ class _HeroSection extends StatelessWidget {
           spacing: 20,
           runSpacing: 10,
           children: [
-            _badge(Icons.shield_outlined, 'सरकार समर्थित', _green),
+            _badge(Icons.shield_outlined, 'Govt. Supported', _green),
             _badge(Icons.psychology_outlined, 'AI-Powered', _saffron),
-            _badge(Icons.people_outline, '2.5 लाख+ पंचायत', _primary),
+            _badge(Icons.people_outline, '2.5 Lakh+ Panchayats', _primary),
           ],
         ),
         const SizedBox(height: 40),
@@ -214,7 +214,7 @@ class _HeroSection extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onGetStarted,
               icon: const Icon(Icons.arrow_forward, size: 18),
-              label: const Text('अभी शुरू करें',
+              label: const Text('Get Started Now',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _saffron,
@@ -227,7 +227,7 @@ class _HeroSection extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onGetStarted,
               icon: const Icon(Icons.play_circle_outline, size: 18),
-              label: const Text('Live Demo देखें', style: TextStyle(fontSize: 16)),
+              label: const Text('Watch Live Demo', style: TextStyle(fontSize: 16)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: const BorderSide(color: Colors.white54),
@@ -407,12 +407,12 @@ class _FeaturesSection extends StatelessWidget {
   const _FeaturesSection();
 
   static const _items = [
-    (Icons.camera_alt_outlined, 'Photo Reporting', 'फोटो, वॉयस नोट या टेक्स्ट में समस्या दर्ज करें', Color(0xFF1565C0)),
-    (Icons.map_outlined, 'Live Tracking', 'रियल-टाइम मैप पर समस्या की स्थिति देखें', Color(0xFF138808)),
-    (Icons.thumb_up_alt_outlined, 'Community Upvotes', 'गाँव के लोग मिलकर प्राथमिकता तय करते हैं', Color(0xFFFF9933)),
-    (Icons.wifi_off, 'Offline Support', 'इंटरनेट के बिना भी रिपोर्ट करें', Color(0xFF7B1FA2)),
-    (Icons.translate, 'Multi-Language', 'हिंदी, ओड़िया, तेलुगु सहित 11 भाषाएँ', Color(0xFFE91E63)),
-    (Icons.notifications_outlined, 'WhatsApp Alerts', 'हर अपडेट पर WhatsApp नोटिफिकेशन पाएं', Color(0xFF00838F)),
+    (Icons.camera_alt_outlined, 'Photo Reporting', 'Report issues via photo, voice note, or text in seconds.', Color(0xFF1565C0)),
+    (Icons.map_outlined, 'Live Tracking', 'Track issue status in real-time on an interactive village map.', Color(0xFF138808)),
+    (Icons.thumb_up_alt_outlined, 'Community Upvotes', 'Villagers vote together to prioritize the most critical issues.', Color(0xFFFF9933)),
+    (Icons.wifi_off, 'Offline Support', 'Report problems even without an internet connection.', Color(0xFF7B1FA2)),
+    (Icons.translate, 'Multi-Language', 'Supports English, Hindi, Odia, Telugu and 8 more languages.', Color(0xFFE91E63)),
+    (Icons.notifications_outlined, 'WhatsApp Alerts', 'Get instant WhatsApp notifications on every status update.', Color(0xFF00838F)),
   ];
 
   @override
@@ -423,7 +423,7 @@ class _FeaturesSection extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 80 : 24, vertical: 80),
       child: Column(
         children: [
-          const _SectionLabel(label: 'सुविधाएँ', title: 'Built for Villages,\nPowered by People'),
+          const _SectionLabel(label: 'Features', title: 'Built for Villages,\nPowered by People'),
           const SizedBox(height: 56),
           GridView.builder(
             shrinkWrap: true,
@@ -521,14 +521,14 @@ class _HowItWorksSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width >= 900;
     const steps = [
-      (Icons.mic_none, '1', 'Report', 'Shikayat Darj Karein',
-          'वॉयस नोट, फोटो या टेक्स्ट में बताएं। AI Hindi में समझकर तुरंत दर्ज करता है।',
+      (Icons.mic_none, '1', 'Report', 'Submit your grievance',
+          'Use voice note, photo or text. AI understands your language and logs it instantly.',
           Color(0xFF1565C0)),
-      (Icons.account_balance_outlined, '2', 'Route to Panchayat', 'Panchayat Tak Pahunche',
-          'AI समस्या को वर्गीकृत करता है, सैटेलाइट से जाँचता है और सही योजना से मिलाता है।',
+      (Icons.account_balance_outlined, '2', 'Route to Panchayat', 'AI matches the right scheme',
+          'AI categorizes the issue, validates with satellite data, and matches the best government scheme.',
           Color(0xFF138808)),
-      (Icons.check_circle_outline, '3', 'Resolve & Verify', 'Samasya Ka Samadhan',
-          'पंचायत प्रोजेक्ट अपनाती है। नागरिक प्रगति ट्रैक करते हैं और रेटिंग देते हैं।',
+      (Icons.check_circle_outline, '3', 'Resolve & Verify', 'Track until completion',
+          'Panchayat adopts the project. Citizens track progress, upload photos, and rate the outcome.',
           Color(0xFFFF9933)),
     ];
 
@@ -537,7 +537,7 @@ class _HowItWorksSection extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 80 : 24, vertical: 80),
       child: Column(
         children: [
-          const _SectionLabel(label: 'प्रक्रिया', title: 'Simple 3-Step Process'),
+          const _SectionLabel(label: 'Process', title: 'Simple 3-Step Process'),
           const SizedBox(height: 56),
           if (isDesktop)
             Row(
@@ -678,7 +678,7 @@ class _StatsSection extends StatelessWidget {
               style: TextStyle(
                   color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('Parivartan Ki Kahaani',
+          Text('A Story of Real Change',
               style: TextStyle(
                   color: Colors.white.withOpacity(0.65),
                   fontSize: 16,
@@ -754,7 +754,7 @@ class _PanchayatSection extends StatelessWidget {
       child: Column(
         children: [
           const _SectionLabel(
-              label: 'पंचायत', title: 'Strengthening Grassroots\nGovernance'),
+              label: 'Panchayat', title: 'Strengthening Grassroots\nGovernance'),
           const SizedBox(height: 56),
           GridView.builder(
             shrinkWrap: true,
@@ -838,7 +838,7 @@ class _FooterSection extends StatelessWidget {
           ),
           child: Column(
             children: [
-              const Text('Apne Gaon Ko Badlein',
+              const Text('Transform Your Village',
                   style: TextStyle(
                       color: _saffron,
                       fontSize: 15,
