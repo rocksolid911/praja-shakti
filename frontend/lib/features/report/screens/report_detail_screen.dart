@@ -27,29 +27,22 @@ class _ReportDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ReportCubit, ReportState>(
-      builder: (context, state) {
-        final appBarTitle = state is ReportLoaded
-            ? 'Report #${state.report.id}'
-            : AppLocalizations.of(context).reportDetails;
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(appBarTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          body: Builder(builder: (context) {
-            if (state is ReportLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state is ReportError) {
-              return Center(child: Text(state.message));
-            }
-            if (state is ReportLoaded) {
-              return _ReportDetail(report: state.report);
-            }
-            return const SizedBox.shrink();
-          }),
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(title: Text(AppLocalizations.of(context).reportDetails)),
+      body: BlocBuilder<ReportCubit, ReportState>(
+        builder: (context, state) {
+          if (state is ReportLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state is ReportError) {
+            return Center(child: Text(state.message));
+          }
+          if (state is ReportLoaded) {
+            return _ReportDetail(report: state.report);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 }
@@ -64,34 +57,6 @@ class _ReportDetail extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        // Report number banner
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.indigo.shade600, Colors.indigo.shade400],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.tag, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Report #${report.id}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
         // Status banner
         Container(
           padding: const EdgeInsets.all(16),
