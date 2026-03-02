@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/cubit/locale_cubit.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ─── Theme constants ───────────────────────────────────────────────────────────
 const _primary = Color(0xFF1565C0);
@@ -40,6 +41,7 @@ class _LandingNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width >= 768;
+    final l10n = AppLocalizations.of(context)!;
     return SliverAppBar(
       pinned: true,
       floating: true,
@@ -69,10 +71,10 @@ class _LandingNavBar extends StatelessWidget {
             ),
             const Spacer(),
             if (isDesktop) ...[
-              _navItem('Features'),
-              _navItem('How it Works'),
-              _navItem('Impact'),
-              _navItem('Gram Panchayat'),
+              _navItem(l10n.landingNavFeatures),
+              _navItem(l10n.landingNavHowItWorks),
+              _navItem(l10n.landingNavImpact),
+              _navItem(l10n.landingNavGramPanchayat),
               const SizedBox(width: 16),
             ],
             const _NavLanguagePicker(),
@@ -86,7 +88,8 @@ class _LandingNavBar extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 elevation: 0,
               ),
-              child: const Text('Open App', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              child: Text(l10n.landingOpenApp,
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
             ),
           ],
         ),
@@ -145,14 +148,14 @@ class _HeroSection extends StatelessWidget {
                     children: [
                       Expanded(flex: 5, child: _heroContent(context)),
                       const SizedBox(width: 60),
-                      Expanded(flex: 4, child: _heroCard()),
+                      Expanded(flex: 4, child: _heroCard(context)),
                     ],
                   )
                 : Column(
                     children: [
                       _heroContent(context),
                       const SizedBox(height: 40),
-                      _heroCard(),
+                      _heroCard(context),
                     ],
                   ),
           ),
@@ -169,6 +172,7 @@ class _HeroSection extends StatelessWidget {
       Container(width: size, height: size, decoration: BoxDecoration(shape: BoxShape.circle, color: color));
 
   Widget _heroContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -179,25 +183,25 @@ class _HeroSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             color: _saffron.withOpacity(0.1),
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.star, color: _saffron, size: 14),
-              SizedBox(width: 6),
-              Text('Village Development AI Platform',
-                  style: TextStyle(color: _saffron, fontSize: 12, fontWeight: FontWeight.w600)),
+              const Icon(Icons.star, color: _saffron, size: 14),
+              const SizedBox(width: 6),
+              Text(l10n.landingHeroBadge,
+                  style: const TextStyle(color: _saffron, fontSize: 12, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Your Village\'s Voice,\nReaching the Government',
-          style: TextStyle(
+        Text(
+          l10n.landingHeroTitle,
+          style: const TextStyle(
               color: Colors.white, fontSize: 44, fontWeight: FontWeight.bold, height: 1.2),
         ),
         const SizedBox(height: 16),
         Text(
-          'Report village problems via voice or photo — AI matches them to government schemes, satellite data validates, and panchayats act.',
+          l10n.landingHeroSubtitle,
           style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 17, height: 1.6),
         ),
         const SizedBox(height: 32),
@@ -205,9 +209,9 @@ class _HeroSection extends StatelessWidget {
           spacing: 20,
           runSpacing: 10,
           children: [
-            _badge(Icons.shield_outlined, 'Govt. Supported', _green),
-            _badge(Icons.psychology_outlined, 'AI-Powered', _saffron),
-            _badge(Icons.people_outline, '2.5 Lakh+ Panchayats', _primary),
+            _badge(Icons.shield_outlined, l10n.landingBadgeGovt, _green),
+            _badge(Icons.psychology_outlined, l10n.landingBadgeAi, _saffron),
+            _badge(Icons.people_outline, l10n.landingBadgePanchayats, _primary),
           ],
         ),
         const SizedBox(height: 40),
@@ -218,8 +222,8 @@ class _HeroSection extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onGetStarted,
               icon: const Icon(Icons.arrow_forward, size: 18),
-              label: const Text('Get Started Now',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              label: Text(l10n.landingGetStarted,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _saffron,
                 foregroundColor: Colors.white,
@@ -231,7 +235,7 @@ class _HeroSection extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onGetStarted,
               icon: const Icon(Icons.play_circle_outline, size: 18),
-              label: const Text('Watch Live Demo', style: TextStyle(fontSize: 16)),
+              label: Text(l10n.landingWatchDemo, style: const TextStyle(fontSize: 16)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: const BorderSide(color: Colors.white54),
@@ -256,7 +260,8 @@ class _HeroSection extends StatelessWidget {
         ],
       );
 
-  Widget _heroCard() {
+  Widget _heroCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -304,29 +309,36 @@ class _HeroSection extends StatelessWidget {
                       color: Colors.red.shade700,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.circle, color: Colors.white, size: 7),
-                        SizedBox(width: 4),
-                        Text('Live',
-                            style: TextStyle(
+                        const Icon(Icons.circle, color: Colors.white, size: 7),
+                        const SizedBox(width: 4),
+                        Text(l10n.landingLive,
+                            style: const TextStyle(
                                 color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
                 ),
-                Positioned(
+                const Positioned(
                   top: 10,
                   right: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Color(0x1AFFFFFF),
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Text('59 Reports',
+                              style: TextStyle(color: Colors.white70, fontSize: 11)),
+                        ),
+                      ),
                     ),
-                    child: const Text('59 Reports',
-                        style: TextStyle(color: Colors.white70, fontSize: 11)),
                   ),
                 ),
               ],
@@ -372,8 +384,8 @@ class _HeroSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colors.amber.withOpacity(0.4)),
                   ),
-                  child: const Text('Adopted',
-                      style: TextStyle(
+                  child: Text(l10n.adopted,
+                      style: const TextStyle(
                           color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold)),
                 ),
               ],
@@ -410,24 +422,24 @@ class _HeroSection extends StatelessWidget {
 class _FeaturesSection extends StatelessWidget {
   const _FeaturesSection();
 
-  static const _items = [
-    (Icons.camera_alt_outlined, 'Photo Reporting', 'Report issues via photo, voice note, or text in seconds.', Color(0xFF1565C0)),
-    (Icons.map_outlined, 'Live Tracking', 'Track issue status in real-time on an interactive village map.', Color(0xFF138808)),
-    (Icons.thumb_up_alt_outlined, 'Community Upvotes', 'Villagers vote together to prioritize the most critical issues.', Color(0xFFFF9933)),
-    (Icons.wifi_off, 'Offline Support', 'Report problems even without an internet connection.', Color(0xFF7B1FA2)),
-    (Icons.translate, 'Multi-Language', 'Supports English, Hindi, Odia, Telugu and 8 more languages.', Color(0xFFE91E63)),
-    (Icons.notifications_outlined, 'WhatsApp Alerts', 'Get instant WhatsApp notifications on every status update.', Color(0xFF00838F)),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width >= 768;
+    final l10n = AppLocalizations.of(context)!;
+    final items = [
+      (Icons.camera_alt_outlined, l10n.featurePhotoReportingTitle, l10n.featurePhotoReportingDesc, const Color(0xFF1565C0)),
+      (Icons.map_outlined, l10n.featureLiveTrackingTitle, l10n.featureLiveTrackingDesc, const Color(0xFF138808)),
+      (Icons.thumb_up_alt_outlined, l10n.featureCommunityUpvotesTitle, l10n.featureCommunityUpvotesDesc, const Color(0xFFFF9933)),
+      (Icons.wifi_off, l10n.featureOfflineSupportTitle, l10n.featureOfflineSupportDesc, const Color(0xFF7B1FA2)),
+      (Icons.translate, l10n.featureMultiLanguageTitle, l10n.featureMultiLanguageDesc, const Color(0xFFE91E63)),
+      (Icons.notifications_outlined, l10n.featureWhatsappAlertsTitle, l10n.featureWhatsappAlertsDesc, const Color(0xFF00838F)),
+    ];
     return Container(
       color: const Color(0xFFF8F9FA),
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 80 : 24, vertical: 80),
       child: Column(
         children: [
-          const _SectionLabel(label: 'Features', title: 'Built for Villages,\nPowered by People'),
+          _SectionLabel(label: l10n.landingFeaturesLabel, title: l10n.landingFeaturesTitle),
           const SizedBox(height: 56),
           GridView.builder(
             shrinkWrap: true,
@@ -438,12 +450,12 @@ class _FeaturesSection extends StatelessWidget {
               mainAxisSpacing: 20,
               childAspectRatio: isDesktop ? 1.4 : 3.8,
             ),
-            itemCount: _items.length,
+            itemCount: items.length,
             itemBuilder: (_, i) => _FeatureCard(
-              icon: _items[i].$1,
-              title: _items[i].$2,
-              subtitle: _items[i].$3,
-              color: _items[i].$4,
+              icon: items[i].$1,
+              title: items[i].$2,
+              subtitle: items[i].$3,
+              color: items[i].$4,
             ),
           ),
         ],
@@ -524,16 +536,14 @@ class _HowItWorksSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width >= 900;
-    const steps = [
-      (Icons.mic_none, '1', 'Report', 'Submit your grievance',
-          'Use voice note, photo or text. AI understands your language and logs it instantly.',
-          Color(0xFF1565C0)),
-      (Icons.account_balance_outlined, '2', 'Route to Panchayat', 'AI matches the right scheme',
-          'AI categorizes the issue, validates with satellite data, and matches the best government scheme.',
-          Color(0xFF138808)),
-      (Icons.check_circle_outline, '3', 'Resolve & Verify', 'Track until completion',
-          'Panchayat adopts the project. Citizens track progress, upload photos, and rate the outcome.',
-          Color(0xFFFF9933)),
+    final l10n = AppLocalizations.of(context)!;
+    final steps = [
+      (Icons.mic_none, '1', l10n.stepReportTitle, l10n.stepReportSubtitle,
+          l10n.stepReportDesc, const Color(0xFF1565C0)),
+      (Icons.account_balance_outlined, '2', l10n.stepRouteTitle, l10n.stepRouteSubtitle,
+          l10n.stepRouteDesc, const Color(0xFF138808)),
+      (Icons.check_circle_outline, '3', l10n.stepResolveTitle, l10n.stepResolveSubtitle,
+          l10n.stepResolveDesc, const Color(0xFFFF9933)),
     ];
 
     return Container(
@@ -541,7 +551,7 @@ class _HowItWorksSection extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 80 : 24, vertical: 80),
       child: Column(
         children: [
-          const _SectionLabel(label: 'Process', title: 'Simple 3-Step Process'),
+          _SectionLabel(label: l10n.landingProcessLabel, title: l10n.landingProcessTitle),
           const SizedBox(height: 56),
           if (isDesktop)
             Row(
@@ -662,27 +672,27 @@ class _StepCard extends StatelessWidget {
 class _StatsSection extends StatelessWidget {
   const _StatsSection();
 
-  static const _stats = [
-    ('5,200+', 'Villages Connected', Icons.location_city_outlined),
-    ('1,84,000+', 'Grievances Filed', Icons.assignment_outlined),
-    ('89%', 'Issues Resolved', Icons.check_circle_outline),
-    ('14 Days', 'Avg Resolution', Icons.schedule),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width >= 768;
+    final l10n = AppLocalizations.of(context)!;
+    final stats = [
+      ('5,200+', l10n.statVillagesConnected, Icons.location_city_outlined),
+      ('1,84,000+', l10n.statGrievancesFiled, Icons.assignment_outlined),
+      ('89%', l10n.statIssuesResolved, Icons.check_circle_outline),
+      ('14 Days', l10n.statAvgResolution, Icons.schedule),
+    ];
     return Container(
       width: double.infinity,
       color: _primary,
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 80 : 24, vertical: 64),
       child: Column(
         children: [
-          const Text('Real Villages. Real Impact',
-              style: TextStyle(
+          Text(l10n.statsTitle,
+              style: const TextStyle(
                   color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text('A Story of Real Change',
+          Text(l10n.statsSubtitle,
               style: TextStyle(
                   color: Colors.white.withOpacity(0.65),
                   fontSize: 16,
@@ -697,7 +707,7 @@ class _StatsSection extends StatelessWidget {
               mainAxisSpacing: 20,
               childAspectRatio: 1.3,
             ),
-            itemCount: _stats.length,
+            itemCount: stats.length,
             itemBuilder: (_, i) => Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -708,15 +718,15 @@ class _StatsSection extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(_stats[i].$3, color: _saffron, size: 32),
+                  Icon(stats[i].$3, color: _saffron, size: 32),
                   const SizedBox(height: 12),
-                  Text(_stats[i].$1,
+                  Text(stats[i].$1,
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 28,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
-                  Text(_stats[i].$2,
+                  Text(stats[i].$2,
                       style: TextStyle(
                           color: Colors.white.withOpacity(0.75), fontSize: 13),
                       textAlign: TextAlign.center),
@@ -734,31 +744,27 @@ class _StatsSection extends StatelessWidget {
 class _PanchayatSection extends StatelessWidget {
   const _PanchayatSection();
 
-  static const _benefits = [
-    (Icons.account_balance_outlined, 'Digital Gram Panchayat',
-        'AI-powered dashboard for leaders to manage issues, funds, and projects.',
-        Color(0xFF1565C0)),
-    (Icons.verified_outlined, 'Government Partnership',
-        'Direct integration with eGramSwaraj, DISHA, and 12+ central schemes.',
-        Color(0xFF138808)),
-    (Icons.bar_chart, 'Data-Driven Decisions',
-        'Satellite + census + community data for unbiased AI prioritization.',
-        Color(0xFFFF9933)),
-    (Icons.groups_outlined, 'Gram Sabha Empowerment',
-        'Digital Gram Sabha with live voting, AI transcription, and auto minutes.',
-        Color(0xFF7B1FA2)),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width >= 768;
+    final l10n = AppLocalizations.of(context)!;
+    final benefits = [
+      (Icons.account_balance_outlined, l10n.benefitDigitalGramTitle, l10n.benefitDigitalGramDesc,
+          const Color(0xFF1565C0)),
+      (Icons.verified_outlined, l10n.benefitGovtPartnershipTitle, l10n.benefitGovtPartnershipDesc,
+          const Color(0xFF138808)),
+      (Icons.bar_chart, l10n.benefitDataDrivenTitle, l10n.benefitDataDrivenDesc,
+          const Color(0xFFFF9933)),
+      (Icons.groups_outlined, l10n.benefitGramSabhaTitle, l10n.benefitGramSabhaDesc,
+          const Color(0xFF7B1FA2)),
+    ];
     return Container(
       color: const Color(0xFFF0F4FF),
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 80 : 24, vertical: 80),
       child: Column(
         children: [
-          const _SectionLabel(
-              label: 'Panchayat', title: 'Strengthening Grassroots\nGovernance'),
+          _SectionLabel(
+              label: l10n.landingPanchayatLabel, title: l10n.landingPanchayatTitle),
           const SizedBox(height: 56),
           GridView.builder(
             shrinkWrap: true,
@@ -769,7 +775,7 @@ class _PanchayatSection extends StatelessWidget {
               mainAxisSpacing: 20,
               childAspectRatio: isDesktop ? 2.8 : 4.0,
             ),
-            itemCount: _benefits.length,
+            itemCount: benefits.length,
             itemBuilder: (_, i) => Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
@@ -786,10 +792,10 @@ class _PanchayatSection extends StatelessWidget {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: _benefits[i].$4.withOpacity(0.1),
+                      color: benefits[i].$4.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Icon(_benefits[i].$1, color: _benefits[i].$4, size: 28),
+                    child: Icon(benefits[i].$1, color: benefits[i].$4, size: 28),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
@@ -797,13 +803,13 @@ class _PanchayatSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(_benefits[i].$2,
+                        Text(benefits[i].$2,
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: _textPrimary)),
                         const SizedBox(height: 6),
-                        Text(_benefits[i].$3,
+                        Text(benefits[i].$3,
                             style: const TextStyle(
                                 color: _textSecondary, fontSize: 13, height: 1.5)),
                       ],
@@ -827,6 +833,7 @@ class _FooterSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width >= 768;
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Container(
@@ -842,21 +849,21 @@ class _FooterSection extends StatelessWidget {
           ),
           child: Column(
             children: [
-              const Text('Transform Your Village',
-                  style: TextStyle(
+              Text(l10n.footerEyebrow,
+                  style: const TextStyle(
                       color: _saffron,
                       fontSize: 15,
                       fontWeight: FontWeight.w600)),
               const SizedBox(height: 12),
-              const Text('Transform Your Village Today',
-                  style: TextStyle(
+              Text(l10n.footerTitle,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 36,
                       fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center),
               const SizedBox(height: 16),
               Text(
-                'Thousands of villages are already using PrajaShakti AI\nto drive real, measurable change.',
+                l10n.footerSubtitle,
                 style: TextStyle(
                     color: Colors.white.withOpacity(0.72),
                     fontSize: 16,
@@ -872,8 +879,8 @@ class _FooterSection extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: onGetStarted,
                     icon: const Icon(Icons.rocket_launch, size: 18),
-                    label: const Text('Open App Now',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    label: Text(l10n.footerOpenAppNow,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _saffron,
                       foregroundColor: Colors.white,
@@ -917,8 +924,8 @@ class _FooterSection extends StatelessWidget {
               const Text('PrajaShakti AI',
                   style: TextStyle(color: Colors.white38, fontSize: 14)),
               const Spacer(),
-              const Text('© 2026 PrajaShakti. Jai Hind.',
-                  style: TextStyle(color: Colors.white38, fontSize: 12)),
+              Text(l10n.footerCopyright,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12)),
             ],
           ),
         ),
@@ -1080,70 +1087,73 @@ class _NavLanguagePicker extends StatelessWidget {
           maxChildSize: 0.85,
           expand: false,
           builder: (_, controller) => BlocBuilder<LocaleCubit, Locale>(
-            builder: (ctx, locale) => Column(
-              children: [
-                const SizedBox(height: 12),
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2)),
-                ),
-                const SizedBox(height: 16),
-                const Text('Select Language',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text('Choose your preferred language',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                const SizedBox(height: 12),
-                const Divider(height: 1),
-                Expanded(
-                  child: ListView.builder(
-                    controller: controller,
-                    itemCount: _languages.length,
-                    itemBuilder: (context, i) {
-                      final lang = _languages[i];
-                      final selected = locale.languageCode == lang.$1;
-                      return ListTile(
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: selected
-                                ? Colors.green.shade100
-                                : Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(lang.$3,
-                              style: const TextStyle(fontSize: 22)),
-                        ),
-                        title: Text(lang.$2,
-                            style: TextStyle(
-                                fontWeight: selected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color: selected
-                                    ? Colors.green.shade800
-                                    : Colors.black87)),
-                        subtitle: Text(lang.$1.toUpperCase(),
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.grey.shade500)),
-                        trailing: selected
-                            ? Icon(Icons.check_circle,
-                                color: Colors.green.shade700)
-                            : null,
-                        onTap: () {
-                          ctx.read<LocaleCubit>().setLocale(Locale(lang.$1));
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
+            builder: (ctx, locale) {
+              final l10n = AppLocalizations.of(ctx)!;
+              return Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2)),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(height: 16),
+                  Text(l10n.selectLanguage,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(l10n.choosePreferredLanguage,
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: controller,
+                      itemCount: _languages.length,
+                      itemBuilder: (context, i) {
+                        final lang = _languages[i];
+                        final selected = locale.languageCode == lang.$1;
+                        return ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? Colors.green.shade100
+                                  : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(lang.$3,
+                                style: const TextStyle(fontSize: 22)),
+                          ),
+                          title: Text(lang.$2,
+                              style: TextStyle(
+                                  fontWeight: selected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  color: selected
+                                      ? Colors.green.shade800
+                                      : Colors.black87)),
+                          subtitle: Text(lang.$1.toUpperCase(),
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey.shade500)),
+                          trailing: selected
+                              ? Icon(Icons.check_circle,
+                                  color: Colors.green.shade700)
+                              : null,
+                          onTap: () {
+                            ctx.read<LocaleCubit>().setLocale(Locale(lang.$1));
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
