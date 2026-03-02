@@ -31,22 +31,30 @@ class ApiClient {
 
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final token = await SecureStorage.getAccessToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
+        try {
+          final token = await SecureStorage.getAccessToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+        } catch (_) {
+          // Storage unavailable (e.g. browser private mode) — continue without token
         }
         handler.next(options);
       },
       onError: (error, handler) async {
         if (error.response?.statusCode == 401) {
-          final refreshed = await _refreshToken();
-          if (refreshed) {
-            final opts = error.requestOptions;
-            final token = await SecureStorage.getAccessToken();
-            opts.headers['Authorization'] = 'Bearer $token';
-            final response = await dio.fetch(opts);
-            handler.resolve(response);
-            return;
+          try {
+            final refreshed = await _refreshToken();
+            if (refreshed) {
+              final opts = error.requestOptions;
+              final token = await SecureStorage.getAccessToken();
+              opts.headers['Authorization'] = 'Bearer $token';
+              final response = await dio.fetch(opts);
+              handler.resolve(response);
+              return;
+            }
+          } catch (_) {
+            // Token refresh failed — fall through to error handler
           }
         }
         handler.next(error);
