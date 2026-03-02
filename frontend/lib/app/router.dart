@@ -21,6 +21,7 @@ import '../features/dashboard/screens/leader_dashboard_screen.dart';
 import '../features/gram_sabha/screens/gram_sabha_screen.dart';
 import '../features/dashboard/screens/government_dashboard_screen.dart';
 import '../features/auth/screens/user_management_screen.dart';
+import '../features/projects/screens/completed_projects_screen.dart';
 
 GoRouter createRouter(AuthCubit authCubit) {
   return GoRouter(
@@ -76,6 +77,7 @@ GoRouter createRouter(AuthCubit authCubit) {
           GoRoute(path: '/gramsabha', builder: (_, __) => const GramSabhaScreen()),
           GoRoute(path: '/gov-dashboard', builder: (_, __) => const GovernmentDashboardScreen()),
           GoRoute(path: '/users', builder: (_, __) => const UserManagementScreen()),
+          GoRoute(path: '/completed', builder: (_, __) => const CompletedProjectsScreen()),
         ],
       ),
     ],
@@ -111,14 +113,16 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.mic, l10n.navReport, '/report'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.verified, l10n.navCompletedProjects, '/completed'),
   ];
   static List<_NavItem> _citizenBottomItems(AppLocalizations l10n) => [
     _NavItem(Icons.map, l10n.navMap, '/map'),
     _NavItem(Icons.mic, l10n.navReport, '/report'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
-    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
+    _NavItem(Icons.verified, l10n.navCompletedProjects, '/completed'),
   ];
   static List<_NavItem> _citizenMoreItems(AppLocalizations l10n) => [
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
     _NavItem(Icons.person, l10n.profile, '/profile'),
   ];
 
@@ -143,6 +147,7 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.construction, l10n.navProjects, '/projects'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
     _NavItem(Icons.manage_accounts, l10n.navManageUsers, '/users'),
+    _NavItem(Icons.verified, l10n.navCompletedProjects, '/completed'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
     _NavItem(Icons.person, l10n.profile, '/profile'),
   ];

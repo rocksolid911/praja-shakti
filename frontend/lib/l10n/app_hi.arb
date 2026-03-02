@@ -82,6 +82,7 @@
   "navProjects": "परियोजनाएं",
   "navSchemes": "योजनाएं",
   "navManageUsers": "उपयोगकर्ता प्रबंधन",
+  "navCompletedProjects": "पूर्ण परियोजनाएं",
   "navMore": "और",
   "reportDetails": "रिपोर्ट विवरण",
   "projectDetails": "परियोजना विवरण",
@@ -169,6 +170,10 @@
   "quickQuery5": "किसान क्रेडिट कार्ड कैसे बनवाएं?",
   "reportSubmitted": "रिपोर्ट सबमिट हुई! ID: WTR-{id}",
   "@reportSubmitted": {
-    "placeholders": {"id": {"type": "int"}}
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
   }
 }
