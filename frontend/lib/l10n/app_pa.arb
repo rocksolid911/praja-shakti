@@ -82,7 +82,6 @@
   "navProjects": "Projects",
   "navSchemes": "Schemes",
   "navManageUsers": "Manage Users",
-  "navCompletedProjects": "Completed Projects",
   "navMore": "ਹੋਰ",
   "reportDetails": "ਰਿਪੋਰਟ ਵੇਰਵੇ",
   "projectDetails": "ਪ੍ਰੋਜੈਕਟ ਵੇਰਵੇ",
@@ -170,10 +169,6 @@
   "quickQuery5": "Kisan Credit Card ਕਿਵੇਂ ਬਣਵਾਈਏ?",
   "reportSubmitted": "ਰਿਪੋਰਟ ਜਮ੍ਹਾਂ ਹੋਈ! ID: WTR-{id}",
   "@reportSubmitted": {
-    "placeholders": {
-      "id": {
-        "type": "int"
-      }
-    }
+    "placeholders": {"id": {"type": "int"}}
   }
 }
