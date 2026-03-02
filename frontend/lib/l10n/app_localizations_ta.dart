@@ -594,4 +594,201 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get choosePreferredLanguage =>
       'உங்கள் விருப்பமான மொழியை தேர்வு செய்யவும்';
+
+  @override
+  String get landingNavFeatures => 'அம்சங்கள்';
+
+  @override
+  String get landingNavHowItWorks => 'இது எப்படி செயல்படுகிறது';
+
+  @override
+  String get landingNavImpact => 'தாக்கம்';
+
+  @override
+  String get landingNavGramPanchayat => 'கிராம பஞ்சாயத்து';
+
+  @override
+  String get landingOpenApp => 'ஆப் திறக்கவும்';
+
+  @override
+  String get landingHeroBadge => 'கிராம வளர்ச்சி AI தளம்';
+
+  @override
+  String get landingHeroTitle =>
+      'உங்கள் கிராமத்தின் குரல்,\nஅரசாங்கத்தை அடைகிறது';
+
+  @override
+  String get landingHeroSubtitle =>
+      'குரல் அல்லது புகைப்படம் மூலம் கிராம பிரச்சினைகளை அறிக்கையிடுங்கள் — AI அரசு திட்டங்களுடன் பொருத்துகிறது, செயற்கைக்கோள் தரவு சரிபார்க்கிறது, பஞ்சாயத்துகள் நடவடிக்கை எடுக்கின்றன.';
+
+  @override
+  String get landingBadgeGovt => 'அரசு ஆதரவு';
+
+  @override
+  String get landingBadgeAi => 'AI-இயக்கப்படுகிறது';
+
+  @override
+  String get landingBadgePanchayats => '2.5 லட்சம்+ பஞ்சாயத்துகள்';
+
+  @override
+  String get landingGetStarted => 'இப்போதே தொடங்குங்கள்';
+
+  @override
+  String get landingWatchDemo => 'நேரலை டெமோ பாருங்கள்';
+
+  @override
+  String get landingLive => 'நேரலை';
+
+  @override
+  String get landingFeaturesLabel => 'அம்சங்கள்';
+
+  @override
+  String get landingFeaturesTitle =>
+      'கிராமங்களுக்காக கட்டப்பட்டது,\nமக்களால் இயக்கப்படுகிறது';
+
+  @override
+  String get featurePhotoReportingTitle => 'புகைப்பட அறிக்கை';
+
+  @override
+  String get featurePhotoReportingDesc =>
+      'வினாடிகளில் புகைப்படம், குரல் குறிப்பு அல்லது உரை மூலம் பிரச்சினைகளை அறிக்கையிடுங்கள்.';
+
+  @override
+  String get featureLiveTrackingTitle => 'நேரலை கண்காணிப்பு';
+
+  @override
+  String get featureLiveTrackingDesc =>
+      'ஊடாடும் கிராம வரைபடத்தில் நிகழ்நேரத்தில் பிரச்சினை நிலையை கண்காணிக்கவும்.';
+
+  @override
+  String get featureCommunityUpvotesTitle => 'சமூக அப்வோட்டுகள்';
+
+  @override
+  String get featureCommunityUpvotesDesc =>
+      'கிராம மக்கள் மிக முக்கியமான பிரச்சினைகளுக்கு முன்னுரிமை அளிக்க ஒன்றாக வாக்களிக்கிறார்கள்.';
+
+  @override
+  String get featureOfflineSupportTitle => 'ஆஃப்லைன் ஆதரவு';
+
+  @override
+  String get featureOfflineSupportDesc =>
+      'இணைய இணைப்பு இல்லாமலும் பிரச்சினைகளை அறிக்கையிடுங்கள்.';
+
+  @override
+  String get featureMultiLanguageTitle => 'பல-மொழி';
+
+  @override
+  String get featureMultiLanguageDesc =>
+      'ஆங்கிலம், இந்தி, ஒடியா, தெலுங்கு மற்றும் 8 மொழிகள் ஆதரிக்கப்படுகின்றன.';
+
+  @override
+  String get featureWhatsappAlertsTitle => 'WhatsApp எச்சரிக்கைகள்';
+
+  @override
+  String get featureWhatsappAlertsDesc =>
+      'ஒவ்வொரு நிலை புதுப்பிப்பிலும் உடனடி WhatsApp அறிவிப்புகள் பெறுங்கள்.';
+
+  @override
+  String get landingProcessLabel => 'செயல்முறை';
+
+  @override
+  String get landingProcessTitle => 'எளிய 3-படி செயல்முறை';
+
+  @override
+  String get stepReportTitle => 'அறிக்கையிடுங்கள்';
+
+  @override
+  String get stepReportSubtitle => 'உங்கள் புகாரை சமர்ப்பிக்கவும்';
+
+  @override
+  String get stepReportDesc =>
+      'குரல் குறிப்பு, புகைப்படம் அல்லது உரை பயன்படுத்தவும். AI உங்கள் மொழியை புரிந்துகொண்டு உடனடியாக பதிவு செய்கிறது.';
+
+  @override
+  String get stepRouteTitle => 'பஞ்சாயத்துக்கு திருப்புங்கள்';
+
+  @override
+  String get stepRouteSubtitle => 'AI சரியான திட்டத்தை பொருத்துகிறது';
+
+  @override
+  String get stepRouteDesc =>
+      'AI பிரச்சினையை வகைப்படுத்துகிறது, செயற்கைக்கோள் தரவுடன் சரிபார்க்கிறது, சிறந்த அரசு திட்டத்தை பொருத்துகிறது.';
+
+  @override
+  String get stepResolveTitle => 'தீர்க்கவும் & சரிபார்க்கவும்';
+
+  @override
+  String get stepResolveSubtitle => 'முடியும் வரை கண்காணிக்கவும்';
+
+  @override
+  String get stepResolveDesc =>
+      'பஞ்சாயத்து திட்டத்தை ஏற்றுக்கொள்கிறது. குடிமக்கள் முன்னேற்றத்தை கண்காணித்து, புகைப்படங்கள் பதிவேற்றி, முடிவை மதிப்பிடுகின்றனர்.';
+
+  @override
+  String get statsTitle => 'உண்மையான கிராமங்கள். உண்மையான தாக்கம்';
+
+  @override
+  String get statsSubtitle => 'உண்மையான மாற்றத்தின் கதை';
+
+  @override
+  String get statVillagesConnected => 'இணைக்கப்பட்ட கிராமங்கள்';
+
+  @override
+  String get statGrievancesFiled => 'தாக்கல் செய்யப்பட்ட புகார்கள்';
+
+  @override
+  String get statIssuesResolved => 'தீர்க்கப்பட்ட பிரச்சினைகள்';
+
+  @override
+  String get statAvgResolution => 'சராசரி தீர்வு';
+
+  @override
+  String get landingPanchayatLabel => 'பஞ்சாயத்து';
+
+  @override
+  String get landingPanchayatTitle => 'அடிமட்ட ஆட்சியை\nவலுப்படுத்துதல்';
+
+  @override
+  String get benefitDigitalGramTitle => 'டிஜிட்டல் கிராம பஞ்சாயத்து';
+
+  @override
+  String get benefitDigitalGramDesc =>
+      'தலைவர்களுக்கு AI-இயக்கப்படும் டாஷ்போர்டு பிரச்சினைகள், நிதிகள் மற்றும் திட்டங்களை நிர்வகிக்க.';
+
+  @override
+  String get benefitGovtPartnershipTitle => 'அரசு கூட்டாண்மை';
+
+  @override
+  String get benefitGovtPartnershipDesc =>
+      'eGramSwaraj, DISHA மற்றும் 12+ மத்திய திட்டங்களுடன் நேரடி ஒருங்கிணைப்பு.';
+
+  @override
+  String get benefitDataDrivenTitle => 'தரவு-இயக்கப்படும் முடிவுகள்';
+
+  @override
+  String get benefitDataDrivenDesc =>
+      'நடுநிலை AI முன்னுரிமைக்கு செயற்கைக்கோள் + மக்கள்தொகை கணக்கெடுப்பு + சமூக தரவு.';
+
+  @override
+  String get benefitGramSabhaTitle => 'கிராம சபை வலுவூட்டல்';
+
+  @override
+  String get benefitGramSabhaDesc =>
+      'நேரலை வாக்கெடுப்பு, AI படியெடுப்பு மற்றும் தன்னியக்க நிமிடங்களுடன் டிஜிட்டல் கிராம சபை.';
+
+  @override
+  String get footerEyebrow => 'உங்கள் கிராமத்தை மாற்றுங்கள்';
+
+  @override
+  String get footerTitle => 'இன்றே உங்கள் கிராமத்தை மாற்றுங்கள்';
+
+  @override
+  String get footerSubtitle =>
+      'ஆயிரக்கணக்கான கிராமங்கள் ஏற்கனவே PrajaShakti AI ஐ உண்மையான, அளவிடக்கூடிய மாற்றத்தை ஏற்படுத்த பயன்படுத்துகின்றன.';
+
+  @override
+  String get footerOpenAppNow => 'இப்போதே ஆப் திறக்கவும்';
+
+  @override
+  String get footerCopyright => '© 2026 PrajaShakti. ஜய் ஹிந்த்.';
 }

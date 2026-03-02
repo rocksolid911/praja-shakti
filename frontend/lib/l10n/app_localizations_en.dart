@@ -591,4 +591,200 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choosePreferredLanguage => 'Choose your preferred language';
+
+  @override
+  String get landingNavFeatures => 'Features';
+
+  @override
+  String get landingNavHowItWorks => 'How it Works';
+
+  @override
+  String get landingNavImpact => 'Impact';
+
+  @override
+  String get landingNavGramPanchayat => 'Gram Panchayat';
+
+  @override
+  String get landingOpenApp => 'Open App';
+
+  @override
+  String get landingHeroBadge => 'Village Development AI Platform';
+
+  @override
+  String get landingHeroTitle =>
+      'Your Village\'s Voice,\nReaching the Government';
+
+  @override
+  String get landingHeroSubtitle =>
+      'Report village problems via voice or photo — AI matches them to government schemes, satellite data validates, and panchayats act.';
+
+  @override
+  String get landingBadgeGovt => 'Govt. Supported';
+
+  @override
+  String get landingBadgeAi => 'AI-Powered';
+
+  @override
+  String get landingBadgePanchayats => '2.5 Lakh+ Panchayats';
+
+  @override
+  String get landingGetStarted => 'Get Started Now';
+
+  @override
+  String get landingWatchDemo => 'Watch Live Demo';
+
+  @override
+  String get landingLive => 'Live';
+
+  @override
+  String get landingFeaturesLabel => 'Features';
+
+  @override
+  String get landingFeaturesTitle => 'Built for Villages,\nPowered by People';
+
+  @override
+  String get featurePhotoReportingTitle => 'Photo Reporting';
+
+  @override
+  String get featurePhotoReportingDesc =>
+      'Report issues via photo, voice note, or text in seconds.';
+
+  @override
+  String get featureLiveTrackingTitle => 'Live Tracking';
+
+  @override
+  String get featureLiveTrackingDesc =>
+      'Track issue status in real-time on an interactive village map.';
+
+  @override
+  String get featureCommunityUpvotesTitle => 'Community Upvotes';
+
+  @override
+  String get featureCommunityUpvotesDesc =>
+      'Villagers vote together to prioritize the most critical issues.';
+
+  @override
+  String get featureOfflineSupportTitle => 'Offline Support';
+
+  @override
+  String get featureOfflineSupportDesc =>
+      'Report problems even without an internet connection.';
+
+  @override
+  String get featureMultiLanguageTitle => 'Multi-Language';
+
+  @override
+  String get featureMultiLanguageDesc =>
+      'Supports English, Hindi, Odia, Telugu and 8 more languages.';
+
+  @override
+  String get featureWhatsappAlertsTitle => 'WhatsApp Alerts';
+
+  @override
+  String get featureWhatsappAlertsDesc =>
+      'Get instant WhatsApp notifications on every status update.';
+
+  @override
+  String get landingProcessLabel => 'Process';
+
+  @override
+  String get landingProcessTitle => 'Simple 3-Step Process';
+
+  @override
+  String get stepReportTitle => 'Report';
+
+  @override
+  String get stepReportSubtitle => 'Submit your grievance';
+
+  @override
+  String get stepReportDesc =>
+      'Use voice note, photo or text. AI understands your language and logs it instantly.';
+
+  @override
+  String get stepRouteTitle => 'Route to Panchayat';
+
+  @override
+  String get stepRouteSubtitle => 'AI matches the right scheme';
+
+  @override
+  String get stepRouteDesc =>
+      'AI categorizes the issue, validates with satellite data, and matches the best government scheme.';
+
+  @override
+  String get stepResolveTitle => 'Resolve & Verify';
+
+  @override
+  String get stepResolveSubtitle => 'Track until completion';
+
+  @override
+  String get stepResolveDesc =>
+      'Panchayat adopts the project. Citizens track progress, upload photos, and rate the outcome.';
+
+  @override
+  String get statsTitle => 'Real Villages. Real Impact';
+
+  @override
+  String get statsSubtitle => 'A Story of Real Change';
+
+  @override
+  String get statVillagesConnected => 'Villages Connected';
+
+  @override
+  String get statGrievancesFiled => 'Grievances Filed';
+
+  @override
+  String get statIssuesResolved => 'Issues Resolved';
+
+  @override
+  String get statAvgResolution => 'Avg Resolution';
+
+  @override
+  String get landingPanchayatLabel => 'Panchayat';
+
+  @override
+  String get landingPanchayatTitle => 'Strengthening Grassroots\nGovernance';
+
+  @override
+  String get benefitDigitalGramTitle => 'Digital Gram Panchayat';
+
+  @override
+  String get benefitDigitalGramDesc =>
+      'AI-powered dashboard for leaders to manage issues, funds, and projects.';
+
+  @override
+  String get benefitGovtPartnershipTitle => 'Government Partnership';
+
+  @override
+  String get benefitGovtPartnershipDesc =>
+      'Direct integration with eGramSwaraj, DISHA, and 12+ central schemes.';
+
+  @override
+  String get benefitDataDrivenTitle => 'Data-Driven Decisions';
+
+  @override
+  String get benefitDataDrivenDesc =>
+      'Satellite + census + community data for unbiased AI prioritization.';
+
+  @override
+  String get benefitGramSabhaTitle => 'Gram Sabha Empowerment';
+
+  @override
+  String get benefitGramSabhaDesc =>
+      'Digital Gram Sabha with live voting, AI transcription, and auto minutes.';
+
+  @override
+  String get footerEyebrow => 'Transform Your Village';
+
+  @override
+  String get footerTitle => 'Transform Your Village Today';
+
+  @override
+  String get footerSubtitle =>
+      'Thousands of villages are already using PrajaShakti AI to drive real, measurable change.';
+
+  @override
+  String get footerOpenAppNow => 'Open App Now';
+
+  @override
+  String get footerCopyright => '© 2026 PrajaShakti. Jai Hind.';
 }
