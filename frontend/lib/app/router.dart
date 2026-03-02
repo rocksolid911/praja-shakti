@@ -8,6 +8,7 @@ import '../features/auth/cubit/auth_state.dart';
 import '../core/models/user.dart';
 import '../l10n/app_localizations.dart';
 import '../features/auth/screens/landing_screen.dart';
+import '../features/auth/screens/landing_page.dart';
 import '../features/auth/screens/otp_screen.dart';
 import '../features/auth/screens/profile_screen.dart';
 import '../features/map/screens/map_screen.dart';
@@ -24,22 +25,25 @@ import '../features/auth/screens/user_management_screen.dart';
 
 GoRouter createRouter(AuthCubit authCubit) {
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/',
     refreshListenable: _AuthNotifier(authCubit),
     redirect: (context, state) {
       final authState = authCubit.state;
       final isAuthenticated = authState is AuthAuthenticated ||
           authState is AuthProfileLoaded ||
           authState is AuthLoading;
-      final isOnAuthPage = state.uri.path == '/login' || state.uri.path == '/otp';
+      final isPublicPage = state.uri.path == '/' ||
+          state.uri.path == '/login' ||
+          state.uri.path == '/otp';
 
-      if (!isAuthenticated && !isOnAuthPage) return '/login';
-      if (authState is AuthAuthenticated && isOnAuthPage) {
+      if (!isAuthenticated && !isPublicPage) return '/login';
+      if (authState is AuthAuthenticated && isPublicPage) {
         return authState.user.isGovernment ? '/gov-dashboard' : '/map';
       }
       return null;
     },
     routes: [
+      GoRoute(path: '/', builder: (_, __) => const LandingPage()),
       GoRoute(path: '/login', builder: (_, __) => const LandingScreen()),
       GoRoute(
         path: '/otp',
