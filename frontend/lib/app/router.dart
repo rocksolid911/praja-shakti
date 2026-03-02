@@ -21,7 +21,6 @@ import '../features/dashboard/screens/leader_dashboard_screen.dart';
 import '../features/gram_sabha/screens/gram_sabha_screen.dart';
 import '../features/dashboard/screens/government_dashboard_screen.dart';
 import '../features/auth/screens/user_management_screen.dart';
-import '../features/projects/screens/completed_projects_screen.dart';
 
 GoRouter createRouter(AuthCubit authCubit) {
   return GoRouter(
@@ -77,7 +76,6 @@ GoRouter createRouter(AuthCubit authCubit) {
           GoRoute(path: '/gramsabha', builder: (_, __) => const GramSabhaScreen()),
           GoRoute(path: '/gov-dashboard', builder: (_, __) => const GovernmentDashboardScreen()),
           GoRoute(path: '/users', builder: (_, __) => const UserManagementScreen()),
-          GoRoute(path: '/completed', builder: (_, __) => const CompletedProjectsScreen()),
         ],
       ),
     ],
@@ -113,16 +111,14 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.mic, l10n.navReport, '/report'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
-    _NavItem(Icons.verified, l10n.navCompletedProjects, '/completed'),
   ];
   static List<_NavItem> _citizenBottomItems(AppLocalizations l10n) => [
     _NavItem(Icons.map, l10n.navMap, '/map'),
     _NavItem(Icons.mic, l10n.navReport, '/report'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
-    _NavItem(Icons.verified, l10n.navCompletedProjects, '/completed'),
+    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
   ];
   static List<_NavItem> _citizenMoreItems(AppLocalizations l10n) => [
-    _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
     _NavItem(Icons.person, l10n.profile, '/profile'),
   ];
 
@@ -135,7 +131,6 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.dashboard, l10n.navDashboard, '/dashboard'),
     _NavItem(Icons.construction, l10n.navProjects, '/projects'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
-    _NavItem(Icons.manage_accounts, l10n.navManageUsers, '/users'),
   ];
   static List<_NavItem> _leaderBottomItems(AppLocalizations l10n) => [
     _NavItem(Icons.map, l10n.navMap, '/map'),
@@ -147,7 +142,6 @@ class _AppShellState extends State<AppShell> {
     _NavItem(Icons.construction, l10n.navProjects, '/projects'),
     _NavItem(Icons.search, l10n.navSchemes, '/schemes'),
     _NavItem(Icons.manage_accounts, l10n.navManageUsers, '/users'),
-    _NavItem(Icons.verified, l10n.navCompletedProjects, '/completed'),
     _NavItem(Icons.people, l10n.navFeed, '/feed'),
     _NavItem(Icons.person, l10n.profile, '/profile'),
   ];
@@ -250,8 +244,6 @@ class _AppShellState extends State<AppShell> {
     final railItems = _railItemsFor(l10n, user);
     final selectedIndex = _railIndexFor(location, railItems);
     return Scaffold(
-      // AppBar-level header guarantees it is always above inner Scaffold AppBars
-      appBar: user != null ? _UserHeader.asAppBar(user) : null,
       body: Row(
         children: [
           NavigationRail(
@@ -281,15 +273,6 @@ class _AppShellState extends State<AppShell> {
                               const Icon(Icons.person_outline),
                               const SizedBox(height: 2),
                               Text(l10n.profile, style: const TextStyle(fontSize: 10)),
-                              if (user != null) ...[
-                                const SizedBox(height: 1),
-                                Text(
-                                  user.fullName.isNotEmpty ? user.fullName : user.phone,
-                                  style: const TextStyle(fontSize: 9, color: Colors.black54),
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
                             ],
                           ),
                         ),
@@ -330,8 +313,6 @@ class _AppShellState extends State<AppShell> {
     final bottomItems = _bottomItemsFor(l10n, user);
     final selectedIndex = _bottomIndexFor(location, bottomItems);
     return Scaffold(
-      // AppBar-level header guarantees it is always above inner Scaffold AppBars
-      appBar: user != null ? _UserHeader.asAppBar(user) : null,
       body: widget.child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex.clamp(0, bottomItems.length),
@@ -382,97 +363,6 @@ class _AppShellState extends State<AppShell> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ── User identity header — shown at top of every authenticated page ───────────
-
-class _UserHeader extends StatelessWidget implements PreferredSizeWidget {
-  final User user;
-  const _UserHeader({required this.user});
-
-  /// Returns this header as a PreferredSizeWidget for use as Scaffold.appBar.
-  static _UserHeader asAppBar(User user) => _UserHeader(user: user);
-
-  @override
-  Size get preferredSize => const Size.fromHeight(52);
-
-  @override
-  Widget build(BuildContext context) {
-    final name = user.fullName.isNotEmpty ? user.fullName : null;
-    final roleLabel = user.isLeader
-        ? 'Leader'
-        : user.isGovernment
-            ? 'Government'
-            : 'Citizen';
-    final roleColor = user.isLeader
-        ? Colors.blue.shade700
-        : user.isGovernment
-            ? Colors.purple.shade700
-            : Colors.green.shade700;
-
-    return Container(
-      width: double.infinity,
-      height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: roleColor.withOpacity(0.07),
-        border: Border(bottom: BorderSide(color: roleColor.withOpacity(0.2))),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: roleColor.withOpacity(0.15),
-            child: Icon(Icons.person, size: 18, color: roleColor),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (name != null)
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade900,
-                      height: 1.2,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                Text(
-                  user.phone,
-                  style: TextStyle(
-                    fontSize: name != null ? 11 : 13,
-                    color: name != null ? Colors.grey.shade600 : Colors.grey.shade900,
-                    fontWeight: name != null ? FontWeight.normal : FontWeight.w600,
-                    height: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: roleColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              roleLabel,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: roleColor,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

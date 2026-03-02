@@ -6,16 +6,10 @@ class ApiClient {
   late final Dio dio;
   final String baseUrl;
 
-  // Production backend URL (CloudFront HTTPS proxy → ALB)
-  static const String _productionBaseUrl =
-      'https://dtfh2tviaufi3.cloudfront.net/api/v1';
-
   // iOS Simulator + Web: 127.0.0.1 works directly
   // Android Emulator: use 10.0.2.2 instead
   static String get _defaultBaseUrl {
-    // Web always uses production URL when running as a web build
-    if (kIsWeb) return _productionBaseUrl;
-    if (defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
       return 'http://10.0.2.2:8000/api/v1';
     }
     return 'http://127.0.0.1:8000/api/v1';
@@ -31,30 +25,22 @@ class ApiClient {
 
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        try {
-          final token = await SecureStorage.getAccessToken();
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
-        } catch (_) {
-          // Storage unavailable (e.g. browser private mode) — continue without token
+        final token = await SecureStorage.getAccessToken();
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
         }
         handler.next(options);
       },
       onError: (error, handler) async {
         if (error.response?.statusCode == 401) {
-          try {
-            final refreshed = await _refreshToken();
-            if (refreshed) {
-              final opts = error.requestOptions;
-              final token = await SecureStorage.getAccessToken();
-              opts.headers['Authorization'] = 'Bearer $token';
-              final response = await dio.fetch(opts);
-              handler.resolve(response);
-              return;
-            }
-          } catch (_) {
-            // Token refresh failed — fall through to error handler
+          final refreshed = await _refreshToken();
+          if (refreshed) {
+            final opts = error.requestOptions;
+            final token = await SecureStorage.getAccessToken();
+            opts.headers['Authorization'] = 'Bearer $token';
+            final response = await dio.fetch(opts);
+            handler.resolve(response);
+            return;
           }
         }
         handler.next(error);
