@@ -79,4 +79,8 @@ class ApiClient {
       dio.put(path, data: data);
 
   Future<Response> delete(String path) => dio.delete(path);
+
+  Future<Response> postFormData(String path, FormData formData) =>
+      dio.post(path, data: formData,
+          options: Options(contentType: 'multipart/form-data'));
 }
