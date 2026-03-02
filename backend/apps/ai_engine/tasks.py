@@ -129,6 +129,15 @@ Respond ONLY with valid JSON matching this schema:
         # Fallback: keyword-based categorization
         _keyword_categorize(report, text)
 
+    # For voice-note reports: notify village users after categorization (so message has proper description).
+    # Text reports are notified immediately on creation — skip here to avoid duplicates.
+    if report.audio_s3_key:
+        try:
+            from apps.notifications.tasks import notify_village_new_report
+            notify_village_new_report.delay(report_id)
+        except Exception as e:
+            logger.warning(f"Village notification dispatch failed for report #{report_id}: {e}")
+
     # Trigger clustering
     cluster_village_reports.delay(report.village_id)
 

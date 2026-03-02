@@ -50,3 +50,64 @@ def send_whatsapp_message(phone: str, message: str):
         logger.info(f"WhatsApp message sent to {phone}")
     except Exception as e:
         logger.error(f"WhatsApp message failed: {e}")
+
+
+@shared_task
+def notify_village_new_report(report_id: int):
+    """
+    Notify all users in the same panchayat about a new community report.
+    Excludes the reporter themselves. Fires one send_whatsapp_message task per user.
+    """
+    from apps.community.models import Report
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    try:
+        report = Report.objects.select_related(
+            'village__panchayat', 'reporter'
+        ).get(id=report_id)
+    except Report.DoesNotExist:
+        logger.warning(f"notify_village_new_report: report #{report_id} not found")
+        return
+
+    panchayat = report.village.panchayat if report.village else None
+    if not panchayat:
+        logger.info(f"Report #{report_id} has no panchayat — skipping village notification")
+        return
+
+    phones = list(
+        User.objects.filter(panchayat=panchayat)
+        .exclude(id=report.reporter_id)
+        .values_list('phone', flat=True)
+    )
+    if not phones:
+        logger.info(f"No other users in panchayat #{panchayat.id} — nothing to notify")
+        return
+
+    category_labels = {
+        'water': 'Paani', 'road': 'Rasta', 'health': 'Swasthya',
+        'education': 'Shiksha', 'electricity': 'Bijli',
+        'sanitation': 'Safai', 'other': 'Anya',
+    }
+    category = category_labels.get(report.category, report.category or 'Samasya')
+    desc = (report.description_text or '').strip()
+    short_desc = (desc[:60] + '...') if len(desc) > 60 else desc
+    village_name = report.village.name if report.village else 'aapka gaon'
+
+    message = (
+        f"\U0001f195 *PrajaShakti: Nayi Samasya Report!*\n\n"
+        f"\U0001f4cb *{category}:* {short_desc}\n"
+        f"\U0001f4cd Gram: {village_name}\n"
+        f"\U0001f194 Report #{report.id}\n\n"
+        f"Is samasya ko support karne ke liye vote karein!\n"
+        f"App kholen ya reply karein:\n"
+        f"*VOTE {report.id}*"
+    )
+
+    for phone in phones:
+        send_whatsapp_message.delay(phone, message)
+
+    logger.info(
+        f"Queued WhatsApp notification for report #{report_id} "
+        f"to {len(phones)} user(s) in panchayat #{panchayat.id}"
+    )

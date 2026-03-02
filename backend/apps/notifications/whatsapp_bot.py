@@ -405,4 +405,11 @@ def handle_text_report(user, text: str) -> str:
     except Exception as e:
         logger.warning(f"Celery unavailable for categorization of report #{report.id}: {e}")
 
+    # Notify other village users about the new report
+    try:
+        from .tasks import notify_village_new_report
+        notify_village_new_report.delay(report.id)
+    except Exception as e:
+        logger.warning(f"Celery unavailable for village notification of report #{report.id}: {e}")
+
     return f"Report #{report.id} darj ho gaya! {village.name} ke log ab ise upvote kar sakte hain."
