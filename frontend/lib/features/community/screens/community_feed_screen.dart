@@ -426,6 +426,23 @@ class ReportCard extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Text(
+                                '#${report.id}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
                             _statusDot(report.status),
                           ],
                         ),
