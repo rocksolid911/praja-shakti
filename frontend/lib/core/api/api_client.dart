@@ -6,9 +6,9 @@ class ApiClient {
   late final Dio dio;
   final String baseUrl;
 
-  // Production backend URL (AWS ALB)
+  // Production backend URL (CloudFront HTTPS proxy → ALB)
   static const String _productionBaseUrl =
-      'http://prajashakti-alb-867003523.us-east-1.elb.amazonaws.com/api/v1';
+      'https://dtfh2tviaufi3.cloudfront.net/api/v1';
 
   // iOS Simulator + Web: 127.0.0.1 works directly
   // Android Emulator: use 10.0.2.2 instead
