@@ -255,6 +255,9 @@ class AppLocalizationsTe extends AppLocalizations {
   String get navManageUsers => 'Manage Users';
 
   @override
+  String get navCompletedProjects => 'Completed Projects';
+
+  @override
   String get navMore => 'మరిన్ని';
 
   @override
