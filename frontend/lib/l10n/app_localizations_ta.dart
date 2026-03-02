@@ -255,9 +255,6 @@ class AppLocalizationsTa extends AppLocalizations {
   String get navManageUsers => 'Manage Users';
 
   @override
-  String get navCompletedProjects => 'Completed Projects';
-
-  @override
   String get navMore => 'மேலும்';
 
   @override
@@ -522,4 +519,79 @@ class AppLocalizationsTa extends AppLocalizations {
   String reportSubmitted(int id) {
     return 'அறிக்கை சமர்ப்பிக்கப்பட்டது! ID: WTR-$id';
   }
+
+  @override
+  String get register => 'பதிவு';
+
+  @override
+  String get voiceOfRuralDev => 'கிராம வளர்ச்சியின் குரல்';
+
+  @override
+  String get enterMobileNumber => 'உங்கள் மொபைல் எண்ணை உள்ளிடவும்';
+
+  @override
+  String get loginWithOtp => 'OTP மூலம் உள்நுழைக — கடவுச்சொல் தேவையில்லை';
+
+  @override
+  String get mobileRequired => 'மொபைல் எண் தேவை';
+
+  @override
+  String get enterTenDigits => '10 இலக்க எண்ணை உள்ளிடவும்';
+
+  @override
+  String get forRegisteredCitizens => 'பதிவு செய்யப்பட்ட குடிமக்களுக்கு';
+
+  @override
+  String get fullName => 'முழு பெயர்';
+
+  @override
+  String get firstName => 'முதல் பெயர்';
+
+  @override
+  String get lastName => 'கடைசி பெயர்';
+
+  @override
+  String get required => 'தேவை';
+
+  @override
+  String get mobileNumberLabel => 'மொபைல் எண்';
+
+  @override
+  String get yourLocation => 'உங்கள் இடம்';
+
+  @override
+  String get registerGetOtp => 'பதிவு செய்து OTP பெறுங்கள்';
+
+  @override
+  String get stateLabel => 'மாநிலம்';
+
+  @override
+  String get districtLabel => 'மாவட்டம்';
+
+  @override
+  String get gramPanchayatLabel => 'கிராம பஞ்சாயத்து';
+
+  @override
+  String selectItem(String item) {
+    return '$item தேர்வு செய்யவும்';
+  }
+
+  @override
+  String get pleaseSelectLocation =>
+      'தயவுசெய்து உங்கள் இடத்தை தேர்வு செய்யவும்';
+
+  @override
+  String noDataForDistrict(String district) {
+    return '$district க்கு தரவு இல்லை — பெயர்களை உள்ளிடவும்';
+  }
+
+  @override
+  String get gramPanchayatName => 'கிராம பஞ்சாயத்து பெயர்';
+
+  @override
+  String get villageName => 'கிராமத்தின் பெயர்';
+
+  @override
+  String get choosePreferredLanguage =>
+      'உங்கள் விருப்பமான மொழியை தேர்வு செய்யவும்';
 }

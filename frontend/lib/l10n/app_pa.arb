@@ -170,5 +170,34 @@
   "reportSubmitted": "ਰਿਪੋਰਟ ਜਮ੍ਹਾਂ ਹੋਈ! ID: WTR-{id}",
   "@reportSubmitted": {
     "placeholders": {"id": {"type": "int"}}
-  }
+  },
+  "register": "ਰਜਿਸਟ੍ਰੇਸ਼ਨ",
+  "voiceOfRuralDev": "ਪੇਂਡੂ ਵਿਕਾਸ ਦੀ ਆਵਾਜ਼",
+  "enterMobileNumber": "ਆਪਣਾ ਮੋਬਾਈਲ ਨੰਬਰ ਦਰਜ ਕਰੋ",
+  "loginWithOtp": "OTP ਨਾਲ ਲੌਗਇਨ — ਕੋਈ ਪਾਸਵਰਡ ਨਹੀਂ",
+  "mobileRequired": "ਮੋਬਾਈਲ ਨੰਬਰ ਲਾਜ਼ਮੀ ਹੈ",
+  "enterTenDigits": "10 ਅੰਕਾਂ ਦਾ ਨੰਬਰ ਦਰਜ ਕਰੋ",
+  "forRegisteredCitizens": "ਰਜਿਸਟਰਡ ਨਾਗਰਿਕਾਂ ਲਈ",
+  "fullName": "ਪੂਰਾ ਨਾਮ",
+  "firstName": "ਪਹਿਲਾ ਨਾਮ",
+  "lastName": "ਆਖਰੀ ਨਾਮ",
+  "required": "ਲਾਜ਼ਮੀ",
+  "mobileNumberLabel": "ਮੋਬਾਈਲ ਨੰਬਰ",
+  "yourLocation": "ਤੁਹਾਡਾ ਸਥਾਨ",
+  "registerGetOtp": "ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਕਰੋ ਅਤੇ OTP ਪਾਓ",
+  "stateLabel": "ਰਾਜ",
+  "districtLabel": "ਜ਼ਿਲ੍ਹਾ",
+  "gramPanchayatLabel": "ਗ੍ਰਾਮ ਪੰਚਾਇਤ",
+  "selectItem": "{item} ਚੁਣੋ",
+  "@selectItem": {
+    "placeholders": {"item": {"type": "String"}}
+  },
+  "pleaseSelectLocation": "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਸਥਾਨ ਚੁਣੋ",
+  "noDataForDistrict": "{district} ਲਈ ਡੇਟਾ ਉਪਲਬਧ ਨਹੀਂ — ਨਾਮ ਲਿਖੋ",
+  "@noDataForDistrict": {
+    "placeholders": {"district": {"type": "String"}}
+  },
+  "gramPanchayatName": "ਗ੍ਰਾਮ ਪੰਚਾਇਤ ਦਾ ਨਾਮ",
+  "villageName": "ਪਿੰਡ ਦਾ ਨਾਮ",
+  "choosePreferredLanguage": "ਆਪਣੀ ਪਸੰਦੀਦਾ ਭਾਸ਼ਾ ਚੁਣੋ"
 }
