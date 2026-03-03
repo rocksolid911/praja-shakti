@@ -22,15 +22,18 @@ def verify_twilio_signature(request):
     if not settings.TWILIO_AUTH_TOKEN:
         return True
 
+    # Allow bypassing verification via env var (useful when behind CloudFront
+    # where the Host header seen by Django differs from the URL Twilio signed).
+    if getattr(settings, 'TWILIO_SKIP_SIGNATURE_VERIFY', False):
+        return True
+
     try:
         from twilio.request_validator import RequestValidator
         validator = RequestValidator(settings.TWILIO_AUTH_TOKEN)
 
-        # Build the URL Twilio actually called — ngrok uses https but Django
-        # may reconstruct http:// without SECURE_PROXY_SSL_HEADER set.
+        # SECURE_PROXY_SSL_HEADER is set in production, so build_absolute_uri()
+        # already returns the correct https:// URL that Twilio signed against.
         url = request.build_absolute_uri()
-        if request.META.get('HTTP_X_FORWARDED_PROTO') == 'https':
-            url = url.replace('http://', 'https://', 1)
 
         signature = request.META.get('HTTP_X_TWILIO_SIGNATURE', '')
         return validator.validate(url, request.data, signature)
