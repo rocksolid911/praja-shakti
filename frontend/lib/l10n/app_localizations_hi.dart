@@ -255,9 +255,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get navManageUsers => 'उपयोगकर्ता प्रबंधन';
 
   @override
-  String get navCompletedProjects => 'पूर्ण परियोजनाएं';
-
-  @override
   String get navMore => 'और';
 
   @override
@@ -519,4 +516,272 @@ class AppLocalizationsHi extends AppLocalizations {
   String reportSubmitted(int id) {
     return 'रिपोर्ट सबमिट हुई! ID: WTR-$id';
   }
+
+  @override
+  String get register => 'पंजीकरण';
+
+  @override
+  String get voiceOfRuralDev => 'ग्रामीण विकास की आवाज़';
+
+  @override
+  String get enterMobileNumber => 'अपना मोबाइल नंबर दर्ज करें';
+
+  @override
+  String get loginWithOtp => 'OTP से लॉगिन करें — कोई पासवर्ड नहीं';
+
+  @override
+  String get mobileRequired => 'मोबाइल नंबर आवश्यक है';
+
+  @override
+  String get enterTenDigits => '10 अंकों का नंबर दर्ज करें';
+
+  @override
+  String get forRegisteredCitizens => 'पंजीकृत नागरिकों के लिए';
+
+  @override
+  String get fullName => 'पूरा नाम';
+
+  @override
+  String get firstName => 'पहला नाम';
+
+  @override
+  String get lastName => 'अंतिम नाम';
+
+  @override
+  String get required => 'आवश्यक';
+
+  @override
+  String get mobileNumberLabel => 'मोबाइल नंबर';
+
+  @override
+  String get yourLocation => 'आपका स्थान';
+
+  @override
+  String get registerGetOtp => 'पंजीकरण करें और OTP पाएं';
+
+  @override
+  String get stateLabel => 'राज्य';
+
+  @override
+  String get districtLabel => 'जिला';
+
+  @override
+  String get gramPanchayatLabel => 'ग्राम पंचायत';
+
+  @override
+  String selectItem(String item) {
+    return '$item चुनें';
+  }
+
+  @override
+  String get pleaseSelectLocation => 'कृपया अपना स्थान चुनें';
+
+  @override
+  String noDataForDistrict(String district) {
+    return '$district के लिए डेटा उपलब्ध नहीं — नाम लिखें';
+  }
+
+  @override
+  String get gramPanchayatName => 'ग्राम पंचायत का नाम';
+
+  @override
+  String get villageName => 'गाँव का नाम';
+
+  @override
+  String get choosePreferredLanguage => 'अपनी पसंदीदा भाषा चुनें';
+
+  @override
+  String get landingNavFeatures => 'विशेषताएं';
+
+  @override
+  String get landingNavHowItWorks => 'यह कैसे काम करता है';
+
+  @override
+  String get landingNavImpact => 'प्रभाव';
+
+  @override
+  String get landingNavGramPanchayat => 'ग्राम पंचायत';
+
+  @override
+  String get landingOpenApp => 'ऐप खोलें';
+
+  @override
+  String get landingHeroBadge => 'ग्राम विकास AI प्लेटफॉर्म';
+
+  @override
+  String get landingHeroTitle => 'आपके गाँव की आवाज़,\nसरकार तक पहुँचती है';
+
+  @override
+  String get landingHeroSubtitle =>
+      'आवाज़ या फोटो से गाँव की समस्याएँ रिपोर्ट करें — AI उन्हें सरकारी योजनाओं से मिलाती है, सैटेलाइट डेटा से सत्यापित करती है, और पंचायतें कार्य करती हैं।';
+
+  @override
+  String get landingBadgeGovt => 'सरकार समर्थित';
+
+  @override
+  String get landingBadgeAi => 'AI-संचालित';
+
+  @override
+  String get landingBadgePanchayats => '2.5 लाख+ पंचायतें';
+
+  @override
+  String get landingGetStarted => 'अभी शुरू करें';
+
+  @override
+  String get landingWatchDemo => 'लाइव डेमो देखें';
+
+  @override
+  String get landingLive => 'लाइव';
+
+  @override
+  String get landingFeaturesLabel => 'विशेषताएं';
+
+  @override
+  String get landingFeaturesTitle => 'गाँवों के लिए बना,\nलोगों द्वारा संचालित';
+
+  @override
+  String get featurePhotoReportingTitle => 'फोटो रिपोर्टिंग';
+
+  @override
+  String get featurePhotoReportingDesc =>
+      'सेकंड में फोटो, वॉइस नोट या टेक्स्ट से समस्याएँ रिपोर्ट करें।';
+
+  @override
+  String get featureLiveTrackingTitle => 'लाइव ट्रैकिंग';
+
+  @override
+  String get featureLiveTrackingDesc =>
+      'इंटरैक्टिव गाँव मानचित्र पर रियल-टाइम में समस्या की स्थिति ट्रैक करें।';
+
+  @override
+  String get featureCommunityUpvotesTitle => 'सामुदायिक अपवोट';
+
+  @override
+  String get featureCommunityUpvotesDesc =>
+      'ग्रामीण मिलकर सबसे गंभीर समस्याओं को प्राथमिकता देने के लिए वोट करते हैं।';
+
+  @override
+  String get featureOfflineSupportTitle => 'ऑफलाइन सपोर्ट';
+
+  @override
+  String get featureOfflineSupportDesc =>
+      'इंटरनेट कनेक्शन के बिना भी समस्याएँ रिपोर्ट करें।';
+
+  @override
+  String get featureMultiLanguageTitle => 'बहु-भाषा';
+
+  @override
+  String get featureMultiLanguageDesc =>
+      'अंग्रेजी, हिंदी, ओड़िया, तेलुगू और 8 और भाषाओं का समर्थन।';
+
+  @override
+  String get featureWhatsappAlertsTitle => 'WhatsApp अलर्ट';
+
+  @override
+  String get featureWhatsappAlertsDesc =>
+      'हर स्टेटस अपडेट पर तत्काल WhatsApp सूचनाएँ पाएँ।';
+
+  @override
+  String get landingProcessLabel => 'प्रक्रिया';
+
+  @override
+  String get landingProcessTitle => 'सरल 3-चरण प्रक्रिया';
+
+  @override
+  String get stepReportTitle => 'रिपोर्ट करें';
+
+  @override
+  String get stepReportSubtitle => 'अपनी शिकायत दर्ज करें';
+
+  @override
+  String get stepReportDesc =>
+      'वॉइस नोट, फोटो या टेक्स्ट का उपयोग करें। AI आपकी भाषा समझती है और तुरंत दर्ज करती है।';
+
+  @override
+  String get stepRouteTitle => 'पंचायत तक पहुँचाएँ';
+
+  @override
+  String get stepRouteSubtitle => 'AI सही योजना ढूँढती है';
+
+  @override
+  String get stepRouteDesc =>
+      'AI समस्या को वर्गीकृत करती है, सैटेलाइट डेटा से सत्यापित करती है, और सर्वोत्तम सरकारी योजना मिलाती है।';
+
+  @override
+  String get stepResolveTitle => 'हल करें और सत्यापित करें';
+
+  @override
+  String get stepResolveSubtitle => 'पूर्ण होने तक ट्रैक करें';
+
+  @override
+  String get stepResolveDesc =>
+      'पंचायत प्रोजेक्ट अपनाती है। नागरिक प्रगति ट्रैक करते हैं, फोटो अपलोड करते हैं, और परिणाम रेट करते हैं।';
+
+  @override
+  String get statsTitle => 'असली गाँव। असली प्रभाव';
+
+  @override
+  String get statsSubtitle => 'असली बदलाव की कहानी';
+
+  @override
+  String get statVillagesConnected => 'गाँव जुड़े';
+
+  @override
+  String get statGrievancesFiled => 'शिकायतें दर्ज';
+
+  @override
+  String get statIssuesResolved => 'समस्याएँ हल';
+
+  @override
+  String get statAvgResolution => 'औसत समाधान';
+
+  @override
+  String get landingPanchayatLabel => 'पंचायत';
+
+  @override
+  String get landingPanchayatTitle => 'जमीनी स्तर पर\nशासन को मजबूत बनाना';
+
+  @override
+  String get benefitDigitalGramTitle => 'डिजिटल ग्राम पंचायत';
+
+  @override
+  String get benefitDigitalGramDesc =>
+      'नेताओं के लिए AI-संचालित डैशबोर्ड जो समस्याओं, धनराशि और प्रोजेक्ट प्रबंधित करता है।';
+
+  @override
+  String get benefitGovtPartnershipTitle => 'सरकारी साझेदारी';
+
+  @override
+  String get benefitGovtPartnershipDesc =>
+      'eGramSwaraj, DISHA और 12+ केंद्रीय योजनाओं के साथ सीधा एकीकरण।';
+
+  @override
+  String get benefitDataDrivenTitle => 'डेटा-आधारित निर्णय';
+
+  @override
+  String get benefitDataDrivenDesc =>
+      'निष्पक्ष AI प्राथमिकता के लिए सैटेलाइट + जनगणना + सामुदायिक डेटा।';
+
+  @override
+  String get benefitGramSabhaTitle => 'ग्राम सभा सशक्तीकरण';
+
+  @override
+  String get benefitGramSabhaDesc =>
+      'लाइव मतदान, AI ट्रांसक्रिप्शन और स्वतः मिनट्स के साथ डिजिटल ग्राम सभा।';
+
+  @override
+  String get footerEyebrow => 'अपना गाँव बदलें';
+
+  @override
+  String get footerTitle => 'आज ही अपना गाँव बदलें';
+
+  @override
+  String get footerSubtitle =>
+      'हजारों गाँव पहले से ही PrajaShakti AI का उपयोग असली, मापनीय बदलाव लाने के लिए कर रहे हैं।';
+
+  @override
+  String get footerOpenAppNow => 'अभी ऐप खोलें';
+
+  @override
+  String get footerCopyright => '© 2026 PrajaShakti. जय हिंद।';
 }

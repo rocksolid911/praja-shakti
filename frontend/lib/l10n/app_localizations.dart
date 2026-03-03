@@ -608,12 +608,6 @@ abstract class AppLocalizations {
   /// **'Manage Users'**
   String get navManageUsers;
 
-  /// No description provided for @navCompletedProjects.
-  ///
-  /// In en, this message translates to:
-  /// **'Completed Projects'**
-  String get navCompletedProjects;
-
   /// No description provided for @navMore.
   ///
   /// In en, this message translates to:
@@ -1129,6 +1123,504 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report submitted! ID: WTR-{id}'**
   String reportSubmitted(int id);
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// No description provided for @voiceOfRuralDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice of Rural Development'**
+  String get voiceOfRuralDev;
+
+  /// No description provided for @enterMobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your mobile number'**
+  String get enterMobileNumber;
+
+  /// No description provided for @loginWithOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Login with OTP — no password needed'**
+  String get loginWithOtp;
+
+  /// No description provided for @mobileRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number is required'**
+  String get mobileRequired;
+
+  /// No description provided for @enterTenDigits.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a 10-digit number'**
+  String get enterTenDigits;
+
+  /// No description provided for @forRegisteredCitizens.
+  ///
+  /// In en, this message translates to:
+  /// **'For registered citizens'**
+  String get forRegisteredCitizens;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastName;
+
+  /// No description provided for @required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// No description provided for @mobileNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Number'**
+  String get mobileNumberLabel;
+
+  /// No description provided for @yourLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Location'**
+  String get yourLocation;
+
+  /// No description provided for @registerGetOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Register & Get OTP'**
+  String get registerGetOtp;
+
+  /// No description provided for @stateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get stateLabel;
+
+  /// No description provided for @districtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get districtLabel;
+
+  /// No description provided for @gramPanchayatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram Panchayat'**
+  String get gramPanchayatLabel;
+
+  /// No description provided for @selectItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {item}'**
+  String selectItem(String item);
+
+  /// No description provided for @pleaseSelectLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your location'**
+  String get pleaseSelectLocation;
+
+  /// No description provided for @noDataForDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for {district} — please enter names'**
+  String noDataForDistrict(String district);
+
+  /// No description provided for @gramPanchayatName.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram Panchayat name'**
+  String get gramPanchayatName;
+
+  /// No description provided for @villageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Village name'**
+  String get villageName;
+
+  /// No description provided for @choosePreferredLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your preferred language'**
+  String get choosePreferredLanguage;
+
+  /// No description provided for @landingNavFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get landingNavFeatures;
+
+  /// No description provided for @landingNavHowItWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'How it Works'**
+  String get landingNavHowItWorks;
+
+  /// No description provided for @landingNavImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'Impact'**
+  String get landingNavImpact;
+
+  /// No description provided for @landingNavGramPanchayat.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram Panchayat'**
+  String get landingNavGramPanchayat;
+
+  /// No description provided for @landingOpenApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App'**
+  String get landingOpenApp;
+
+  /// No description provided for @landingHeroBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Village Development AI Platform'**
+  String get landingHeroBadge;
+
+  /// No description provided for @landingHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Village\'s Voice,\nReaching the Government'**
+  String get landingHeroTitle;
+
+  /// No description provided for @landingHeroSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report village problems via voice or photo — AI matches them to government schemes, satellite data validates, and panchayats act.'**
+  String get landingHeroSubtitle;
+
+  /// No description provided for @landingBadgeGovt.
+  ///
+  /// In en, this message translates to:
+  /// **'Govt. Supported'**
+  String get landingBadgeGovt;
+
+  /// No description provided for @landingBadgeAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-Powered'**
+  String get landingBadgeAi;
+
+  /// No description provided for @landingBadgePanchayats.
+  ///
+  /// In en, this message translates to:
+  /// **'2.5 Lakh+ Panchayats'**
+  String get landingBadgePanchayats;
+
+  /// No description provided for @landingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started Now'**
+  String get landingGetStarted;
+
+  /// No description provided for @landingWatchDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Live Demo'**
+  String get landingWatchDemo;
+
+  /// No description provided for @landingLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get landingLive;
+
+  /// No description provided for @landingFeaturesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get landingFeaturesLabel;
+
+  /// No description provided for @landingFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Built for Villages,\nPowered by People'**
+  String get landingFeaturesTitle;
+
+  /// No description provided for @featurePhotoReportingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo Reporting'**
+  String get featurePhotoReportingTitle;
+
+  /// No description provided for @featurePhotoReportingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Report issues via photo, voice note, or text in seconds.'**
+  String get featurePhotoReportingDesc;
+
+  /// No description provided for @featureLiveTrackingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Tracking'**
+  String get featureLiveTrackingTitle;
+
+  /// No description provided for @featureLiveTrackingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track issue status in real-time on an interactive village map.'**
+  String get featureLiveTrackingDesc;
+
+  /// No description provided for @featureCommunityUpvotesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Community Upvotes'**
+  String get featureCommunityUpvotesTitle;
+
+  /// No description provided for @featureCommunityUpvotesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Villagers vote together to prioritize the most critical issues.'**
+  String get featureCommunityUpvotesDesc;
+
+  /// No description provided for @featureOfflineSupportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Support'**
+  String get featureOfflineSupportTitle;
+
+  /// No description provided for @featureOfflineSupportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Report problems even without an internet connection.'**
+  String get featureOfflineSupportDesc;
+
+  /// No description provided for @featureMultiLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-Language'**
+  String get featureMultiLanguageTitle;
+
+  /// No description provided for @featureMultiLanguageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Supports English, Hindi, Odia, Telugu and 8 more languages.'**
+  String get featureMultiLanguageDesc;
+
+  /// No description provided for @featureWhatsappAlertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp Alerts'**
+  String get featureWhatsappAlertsTitle;
+
+  /// No description provided for @featureWhatsappAlertsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get instant WhatsApp notifications on every status update.'**
+  String get featureWhatsappAlertsDesc;
+
+  /// No description provided for @landingProcessLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Process'**
+  String get landingProcessLabel;
+
+  /// No description provided for @landingProcessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple 3-Step Process'**
+  String get landingProcessTitle;
+
+  /// No description provided for @stepReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get stepReportTitle;
+
+  /// No description provided for @stepReportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit your grievance'**
+  String get stepReportSubtitle;
+
+  /// No description provided for @stepReportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use voice note, photo or text. AI understands your language and logs it instantly.'**
+  String get stepReportDesc;
+
+  /// No description provided for @stepRouteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Route to Panchayat'**
+  String get stepRouteTitle;
+
+  /// No description provided for @stepRouteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI matches the right scheme'**
+  String get stepRouteSubtitle;
+
+  /// No description provided for @stepRouteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'AI categorizes the issue, validates with satellite data, and matches the best government scheme.'**
+  String get stepRouteDesc;
+
+  /// No description provided for @stepResolveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve & Verify'**
+  String get stepResolveTitle;
+
+  /// No description provided for @stepResolveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track until completion'**
+  String get stepResolveSubtitle;
+
+  /// No description provided for @stepResolveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Panchayat adopts the project. Citizens track progress, upload photos, and rate the outcome.'**
+  String get stepResolveDesc;
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Real Villages. Real Impact'**
+  String get statsTitle;
+
+  /// No description provided for @statsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A Story of Real Change'**
+  String get statsSubtitle;
+
+  /// No description provided for @statVillagesConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Villages Connected'**
+  String get statVillagesConnected;
+
+  /// No description provided for @statGrievancesFiled.
+  ///
+  /// In en, this message translates to:
+  /// **'Grievances Filed'**
+  String get statGrievancesFiled;
+
+  /// No description provided for @statIssuesResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues Resolved'**
+  String get statIssuesResolved;
+
+  /// No description provided for @statAvgResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Resolution'**
+  String get statAvgResolution;
+
+  /// No description provided for @landingPanchayatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Panchayat'**
+  String get landingPanchayatLabel;
+
+  /// No description provided for @landingPanchayatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strengthening Grassroots\nGovernance'**
+  String get landingPanchayatTitle;
+
+  /// No description provided for @benefitDigitalGramTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital Gram Panchayat'**
+  String get benefitDigitalGramTitle;
+
+  /// No description provided for @benefitDigitalGramDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-powered dashboard for leaders to manage issues, funds, and projects.'**
+  String get benefitDigitalGramDesc;
+
+  /// No description provided for @benefitGovtPartnershipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Government Partnership'**
+  String get benefitGovtPartnershipTitle;
+
+  /// No description provided for @benefitGovtPartnershipDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct integration with eGramSwaraj, DISHA, and 12+ central schemes.'**
+  String get benefitGovtPartnershipDesc;
+
+  /// No description provided for @benefitDataDrivenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data-Driven Decisions'**
+  String get benefitDataDrivenTitle;
+
+  /// No description provided for @benefitDataDrivenDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite + census + community data for unbiased AI prioritization.'**
+  String get benefitDataDrivenDesc;
+
+  /// No description provided for @benefitGramSabhaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram Sabha Empowerment'**
+  String get benefitGramSabhaTitle;
+
+  /// No description provided for @benefitGramSabhaDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital Gram Sabha with live voting, AI transcription, and auto minutes.'**
+  String get benefitGramSabhaDesc;
+
+  /// No description provided for @footerEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Transform Your Village'**
+  String get footerEyebrow;
+
+  /// No description provided for @footerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transform Your Village Today'**
+  String get footerTitle;
+
+  /// No description provided for @footerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thousands of villages are already using PrajaShakti AI to drive real, measurable change.'**
+  String get footerSubtitle;
+
+  /// No description provided for @footerOpenAppNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App Now'**
+  String get footerOpenAppNow;
+
+  /// No description provided for @footerCopyright.
+  ///
+  /// In en, this message translates to:
+  /// **'© 2026 PrajaShakti. Jai Hind.'**
+  String get footerCopyright;
 }
 
 class _AppLocalizationsDelegate

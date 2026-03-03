@@ -29,8 +29,26 @@ class _ProjectListView extends StatefulWidget {
 
 class _ProjectListViewState extends State<_ProjectListView> {
   Project? _selectedProject;
+  final _scrollController = ScrollController();
 
   static const _statusKeys = [null, 'recommended', 'adopted', 'in_progress', 'completed'];
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        context.read<ProjectCubit>().loadMoreProjects();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   String _statusFilterLabel(String? key, AppLocalizations l10n) {
     if (key == null) return l10n.filterAll;
@@ -136,7 +154,7 @@ class _ProjectListViewState extends State<_ProjectListView> {
                 flex: 3,
                 child: Scrollbar(
                   thumbVisibility: true,
-                  child: _buildGrid(context, state.projects, columns: 2, onTap: (p) {
+                  child: _buildGrid(context, state, columns: 2, onTap: (p) {
                     setState(() => _selectedProject = p);
                   }),
                 ),
@@ -161,7 +179,7 @@ class _ProjectListViewState extends State<_ProjectListView> {
           // Tablet: 2-column grid, tap navigates to detail screen
           return Scrollbar(
             thumbVisibility: true,
-            child: _buildGrid(context, state.projects, columns: 2, onTap: (p) {
+            child: _buildGrid(context, state, columns: 2, onTap: (p) {
               context.push('/project/${p.id}');
             }),
           );
@@ -169,12 +187,21 @@ class _ProjectListViewState extends State<_ProjectListView> {
 
         // Mobile: single-column list
         return ListView.builder(
+          controller: _scrollController,
           padding: const EdgeInsets.all(12),
-          itemCount: state.projects.length,
-          itemBuilder: (context, i) => ProjectCard(
-            project: state.projects[i],
-            onTap: () => context.push('/project/${state.projects[i].id}'),
-          ),
+          itemCount: state.projects.length + (state.isLoadingMore ? 1 : 0),
+          itemBuilder: (context, i) {
+            if (i == state.projects.length) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            return ProjectCard(
+              project: state.projects[i],
+              onTap: () => context.push('/project/${state.projects[i].id}'),
+            );
+          },
         );
       },
     );
@@ -182,15 +209,23 @@ class _ProjectListViewState extends State<_ProjectListView> {
 
   Widget _buildGrid(
     BuildContext context,
-    List<Project> projects, {
+    ProjectsLoaded state, {
     required int columns,
     required void Function(Project) onTap,
   }) {
+    final projects = state.projects;
     final rowCount = (projects.length / columns).ceil();
     return ListView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.all(12),
-      itemCount: rowCount,
+      itemCount: rowCount + (state.isLoadingMore ? 1 : 0),
       itemBuilder: (context, rowIdx) {
+        if (rowIdx == rowCount) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
         final start = rowIdx * columns;
         final end = (start + columns).clamp(0, projects.length);
         final rowProjects = projects.sublist(start, end);

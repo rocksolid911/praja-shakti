@@ -10,14 +10,14 @@ class CommunityCubit extends Cubit<CommunityState> {
 
   CommunityCubit(this._api) : super(CommunityInitial());
 
-  Future<void> loadReports({int villageId = 1, String? category}) async {
+  Future<void> loadReports({int? villageId, String? category}) async {
     _villageId = villageId;
     _page = 1;
     emit(CommunityLoading());
     try {
       final params = <String, dynamic>{
-        'village': villageId,
         'ordering': '-created_at',
+        if (villageId != null) 'village': villageId,
         if (category != null) 'category': category,
       };
       final resp = await _api.get('/reports/', queryParameters: params);
@@ -66,9 +66,9 @@ class CommunityCubit extends Cubit<CommunityState> {
     _page++;
     try {
       final params = <String, dynamic>{
-        'village': _villageId ?? 1,
         'ordering': '-created_at',
         'page': _page,
+        if (_villageId != null) 'village': _villageId,
         if (current.activeFilter != null) 'category': current.activeFilter,
       };
       final resp = await _api.get('/reports/', queryParameters: params);

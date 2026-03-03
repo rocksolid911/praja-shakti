@@ -213,6 +213,9 @@ DATA_GOV_IN_API_KEY = env('DATA_GOV_IN_API_KEY', default='')
 TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='')
 TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN', default='')
 TWILIO_WHATSAPP_NUMBER = env('TWILIO_WHATSAPP_NUMBER', default='whatsapp:+14155238886')
+# Set to True when behind CloudFront/proxy where Twilio's signed URL differs from
+# the internal URL Django reconstructs (avoids false 403s on webhook).
+TWILIO_SKIP_SIGNATURE_VERIFY = env.bool('TWILIO_SKIP_SIGNATURE_VERIFY', default=False)
 
 # OTP
 OTP_EXPIRY_MINUTES = env.int('OTP_EXPIRY_MINUTES', default=10)

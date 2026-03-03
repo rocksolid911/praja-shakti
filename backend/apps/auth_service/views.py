@@ -95,11 +95,13 @@ def manage_users(request):
     return Response(UserManageSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['PATCH'])
+@api_view(['PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated, IsLeader])
 def update_user(request, user_id):
-    """Update role or ward for a user in the leader's panchayat."""
+    """Update role, ward, or active status for a user in the leader's panchayat."""
     panchayat = request.user.panchayat
+    if not panchayat:
+        return Response({'error': 'You must belong to a panchayat to manage users.'}, status=400)
     try:
         user = User.objects.get(id=user_id, panchayat=panchayat)
     except User.DoesNotExist:
@@ -107,6 +109,11 @@ def update_user(request, user_id):
 
     if user.role in ('government', 'admin'):
         return Response({'error': 'Cannot modify government or admin accounts.'}, status=403)
+
+    if request.method == 'DELETE':
+        user.is_active = False
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     serializer = UserManageSerializer(user, data=request.data, partial=True, context={'request': request})
     serializer.is_valid(raise_exception=True)
