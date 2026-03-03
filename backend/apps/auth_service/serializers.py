@@ -47,7 +47,7 @@ class UserManageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'phone', 'first_name', 'last_name', 'role', 'ward']
+        fields = ['id', 'phone', 'first_name', 'last_name', 'role', 'ward', 'is_active']
         read_only_fields = ['id']
 
     def validate_role(self, value):

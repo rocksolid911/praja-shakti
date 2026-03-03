@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:go_router/go_router.dart';
 import '../cubit/project_cubit.dart';
 import '../cubit/project_state.dart';
 import '../../../core/api/api_client.dart';
@@ -28,7 +29,7 @@ class _CompletedView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.navCompletedProjects),
+        title: Text(l10n.completed),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         actions: [
@@ -291,6 +292,20 @@ class _CompletedProjectCardState extends State<_CompletedProjectCard> {
             child: Divider(),
           ),
 
+          // ── View details button ───────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: OutlinedButton.icon(
+              onPressed: () => context.push('/project/${widget.project.id}'),
+              icon: const Icon(Icons.open_in_new, size: 16),
+              label: const Text('View Full Details & Photos'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 40),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           // ── Rating form ──────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

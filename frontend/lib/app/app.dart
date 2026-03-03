@@ -14,20 +14,7 @@ class PrajaShaktiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
-        // Sync app locale to the logged-in user's language preference.
-        // This prevents one user's language from leaking into another user's session.
-        if (state is AuthAuthenticated) {
-          context.read<LocaleCubit>().setLocale(
-            Locale(state.user.languagePreference),
-          );
-        } else if (state is AuthInitial) {
-          // On logout, reset to English so the next user starts fresh.
-          context.read<LocaleCubit>().setLocale(const Locale('en'));
-        }
-      },
-      child: BlocBuilder<LocaleCubit, Locale>(
+    return BlocBuilder<LocaleCubit, Locale>(
         builder: (context, locale) {
           return MaterialApp.router(
             title: 'PrajaShakti AI',
@@ -58,7 +45,6 @@ class PrajaShaktiApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
           );
         },
-      ),
-    );
+      );
   }
 }
