@@ -113,7 +113,22 @@ Respond ONLY with valid JSON matching this schema:
     try:
         from .bedrock_client import call_bedrock_claude
         response_text = call_bedrock_claude(prompt, max_tokens=300)
-        result = json.loads(response_text)
+        # Strip markdown code fences Claude sometimes adds (```json ... ```)
+        if '```' in response_text:
+            parts = response_text.split('```')
+            for part in parts:
+                part = part.strip()
+                if part.startswith('json'):
+                    part = part[4:]
+                try:
+                    result = json.loads(part.strip())
+                    break
+                except json.JSONDecodeError:
+                    continue
+            else:
+                raise ValueError("No valid JSON found in Bedrock response")
+        else:
+            result = json.loads(response_text)
 
         report.category = result.get('category', 'other')
         report.sub_category = result.get('sub_category', '')
@@ -166,12 +181,18 @@ def _keyword_categorize(report, text):
     """Fallback keyword-based categorization when Bedrock is unavailable."""
     text_lower = text.lower()
     keyword_map = {
-        'water': ['water', 'pani', 'jal', 'borewell', 'well', 'nala', 'paani', 'handpump'],
-        'road': ['road', 'sadak', 'rasta', 'bridge', 'pul', 'path', 'footpath'],
-        'health': ['health', 'hospital', 'doctor', 'dawai', 'medicine', 'clinic', 'swasthya'],
-        'education': ['school', 'vidyalaya', 'teacher', 'shiksha', 'padhai'],
-        'electricity': ['bijli', 'electricity', 'light', 'power', 'solar', 'transformer'],
-        'sanitation': ['toilet', 'shauchalaya', 'drain', 'nali', 'garbage', 'kachra'],
+        'water': ['water', 'pani', 'jal', 'borewell', 'well', 'nala', 'paani', 'handpump',
+                  'पानी', 'जल', 'नल', 'बोरवेल', 'कुआं', 'नाला'],
+        'road': ['road', 'sadak', 'rasta', 'bridge', 'pul', 'path', 'footpath',
+                 'सड़क', 'रास्ता', 'पुल', 'गड्ढा'],
+        'health': ['health', 'hospital', 'doctor', 'dawai', 'medicine', 'clinic', 'swasthya',
+                   'स्वास्थ्य', 'अस्पताल', 'डॉक्टर', 'दवाई', 'बीमार'],
+        'education': ['school', 'vidyalaya', 'teacher', 'shiksha', 'padhai',
+                      'स्कूल', 'विद्यालय', 'शिक्षा', 'पढ़ाई', 'शिक्षक'],
+        'electricity': ['bijli', 'electricity', 'light', 'power', 'solar', 'transformer',
+                        'बिजली', 'इलेक्ट्रिसिटी', 'अँधेरा', 'अंधेरा', 'लाइट', 'ट्रांसफार्मर'],
+        'sanitation': ['toilet', 'shauchalaya', 'drain', 'nali', 'garbage', 'kachra',
+                       'शौचालय', 'नाली', 'कचरा', 'सफाई', 'गंदगी'],
     }
     for cat, keywords in keyword_map.items():
         if any(kw in text_lower for kw in keywords):
