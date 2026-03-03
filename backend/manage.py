@@ -6,6 +6,9 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    if os.name == 'nt':
+        os.environ['GDAL_LIBRARY_PATH'] = r'C:\Users\siddh\anaconda3\envs\prajatantra\Library\bin\gdal.dll'
+        os.environ['GEOS_LIBRARY_PATH'] = r'C:\Users\siddh\anaconda3\envs\prajatantra\Library\bin\geos_c.dll'
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
     try:
         from django.core.management import execute_from_command_line

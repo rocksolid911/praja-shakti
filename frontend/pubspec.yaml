@@ -26,7 +26,7 @@ dependencies:
   # Networking
   dio: ^5.4.0
   # Voice recording
-  record: ^5.0.4
+  record: ^6.2.0
   just_audio: ^0.9.36
   permission_handler: ^11.1.0
   # Location

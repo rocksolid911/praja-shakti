@@ -2,6 +2,10 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+if os.name == 'nt':
+    GDAL_LIBRARY_PATH = r'C:\Users\siddh\anaconda3\envs\prajatantra\Library\bin\gdal.dll'
+    GEOS_LIBRARY_PATH = r'C:\Users\siddh\anaconda3\envs\prajatantra\Library\bin\geos_c.dll'
+
 import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
