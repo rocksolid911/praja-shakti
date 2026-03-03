@@ -2,7 +2,12 @@ from .base import *  # noqa: F401,F403
 
 DEBUG = False
 
-SECURE_SSL_REDIRECT = True
+# Tell Django it's behind an HTTPS proxy (ALB / CloudFront).
+# Without this Django would try to redirect HTTP→HTTPS itself and
+# Twilio webhooks (which come in as HTTP internally) would get a 301.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False  # ALB handles TLS termination; internal traffic is HTTP
+
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
