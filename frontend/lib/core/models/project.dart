@@ -1,3 +1,30 @@
+class ProjectPhoto {
+  final int id;
+  final String s3Key;
+  final String caption;
+  final bool isDelayReport;
+  final DateTime createdAt;
+  final String? photoUrl;
+
+  const ProjectPhoto({
+    required this.id,
+    required this.s3Key,
+    required this.caption,
+    required this.isDelayReport,
+    required this.createdAt,
+    this.photoUrl,
+  });
+
+  factory ProjectPhoto.fromJson(Map<String, dynamic> j) => ProjectPhoto(
+    id: j['id'],
+    s3Key: j['s3_key'] ?? '',
+    caption: j['caption'] ?? '',
+    isDelayReport: j['is_delay_report'] ?? false,
+    createdAt: DateTime.parse(j['created_at']),
+    photoUrl: j['photo_url'],
+  );
+}
+
 class Project {
   final int id;
   final int? clusterId;
@@ -19,6 +46,7 @@ class Project {
   final DateTime? completedAt;
   final DateTime createdAt;
   final List<FundPlan> fundPlans;
+  final List<ProjectPhoto> photos;
   final String? proposalDownloadUrl;
   final double? lat;
   final double? lng;
@@ -32,6 +60,7 @@ class Project {
     this.avgCitizenRating, this.adoptedAt, this.startedAt,
     this.expectedCompletion, this.completedAt, required this.createdAt,
     this.fundPlans = const [],
+    this.photos = const [],
     this.proposalDownloadUrl, this.lat, this.lng,
   });
 
@@ -52,6 +81,7 @@ class Project {
     completedAt: json['completed_at'] != null ? DateTime.parse(json['completed_at']) : null,
     createdAt: DateTime.parse(json['created_at']),
     fundPlans: (json['fund_plans'] as List?)?.map((e) => FundPlan.fromJson(e)).toList() ?? [],
+    photos: (json['photos'] as List?)?.map((p) => ProjectPhoto.fromJson(p)).toList() ?? [],
     proposalDownloadUrl: json['proposal_download_url'],
     lat: json['lat']?.toDouble(),
     lng: json['lng']?.toDouble(),
