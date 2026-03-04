@@ -259,5 +259,17 @@
   "footerTitle": "आज ही अपना गाँव बदलें",
   "footerSubtitle": "हजारों गाँव पहले से ही PrajaShakti AI का उपयोग असली, मापनीय बदलाव लाने के लिए कर रहे हैं।",
   "footerOpenAppNow": "अभी ऐप खोलें",
-  "footerCopyright": "© 2026 PrajaShakti. जय हिंद।"
+  "footerCopyright": "© 2026 PrajaShakti. जय हिंद।",
+  "enterCode": "कोड दर्ज करें",
+  "otpSentTo": "{phone} पर भेजा गया 6-अंकीय OTP",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "सत्यापित करें",
+  "otpResent": "OTP फिर से भेजा गया",
+  "resendOtp": "OTP दोबारा भेजें",
+  "continueAsGuest": "अतिथि के रूप में जारी रखें",
+  "loginToReport": "रिपोर्ट जमा करने के लिए कृपया अपने फ़ोन नंबर से लॉगिन करें।",
+  "loginRequired": "लॉगिन आवश्यक",
+  "guest": "अतिथि"
 }

@@ -222,6 +222,7 @@ OTP_EXPIRY_MINUTES = env.int('OTP_EXPIRY_MINUTES', default=10)
 
 # Firebase Cloud Messaging
 FIREBASE_SERVICE_ACCOUNT_KEY = env('FIREBASE_SERVICE_ACCOUNT_KEY', default='')
+FIREBASE_PROJECT_ID = env('FIREBASE_PROJECT_ID', default='praja-shakti')
 
 # CORS
 CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=True)

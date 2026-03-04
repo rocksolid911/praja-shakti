@@ -52,7 +52,6 @@ GoRouter createRouter(AuthCubit authCubit) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           return OTPScreen(
             phone: extra['phone'] as String? ?? '',
-            otpDebug: extra['otpDebug'] as String?,
           );
         },
       ),
@@ -317,11 +316,15 @@ class _AppShellState extends State<AppShell> {
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: Column(
-              children: [
-                _UserInfoBar(user: user),
-                Expanded(child: widget.child),
-              ],
+            child: SafeArea(
+              left: false,
+              bottom: false,
+              child: Column(
+                children: [
+                  _UserInfoBar(user: user),
+                  Expanded(child: widget.child),
+                ],
+              ),
             ),
           ),
         ],
@@ -336,11 +339,14 @@ class _AppShellState extends State<AppShell> {
     final bottomItems = _bottomItemsFor(l10n, user);
     final selectedIndex = _bottomIndexFor(location, bottomItems);
     return Scaffold(
-      body: Column(
-        children: [
-          _UserInfoBar(user: user),
-          Expanded(child: widget.child),
-        ],
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _UserInfoBar(user: user),
+            Expanded(child: widget.child),
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex.clamp(0, bottomItems.length),
@@ -404,18 +410,26 @@ class _UserInfoBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (user == null) return const SizedBox.shrink();
-    final name = user!.fullName.isNotEmpty ? user!.fullName : user!.username;
-    final phone = user!.phone;
-    final roleColor = user!.isGovernment
-        ? Colors.blue.shade700
-        : user!.isLeader
-            ? Colors.orange.shade800
-            : Colors.green.shade700;
-    final roleLabel = user!.isGovernment
-        ? 'Govt'
-        : user!.isLeader
-            ? 'Leader'
-            : 'Citizen';
+    final l10n = AppLocalizations.of(context);
+    final isAnon = user!.isAnonymous;
+    final name = isAnon
+        ? l10n.guest
+        : (user!.fullName.isNotEmpty ? user!.fullName : user!.username);
+    final phone = isAnon ? '' : user!.phone;
+    final roleColor = isAnon
+        ? Colors.grey.shade600
+        : user!.isGovernment
+            ? Colors.blue.shade700
+            : user!.isLeader
+                ? Colors.orange.shade800
+                : Colors.green.shade700;
+    final roleLabel = isAnon
+        ? l10n.guest
+        : user!.isGovernment
+            ? 'Govt'
+            : user!.isLeader
+                ? 'Leader'
+                : 'Citizen';
     return Container(
       width: double.infinity,
       color: roleColor.withOpacity(0.08),

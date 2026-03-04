@@ -787,4 +787,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get footerCopyright => '© 2026 PrajaShakti. Jai Hind.';
+
+  @override
+  String get enterCode => 'Enter Code';
+
+  @override
+  String otpSentTo(String phone) {
+    return '6-digit OTP sent to $phone';
+  }
+
+  @override
+  String get verifyButton => 'Verify';
+
+  @override
+  String get otpResent => 'OTP resent successfully';
+
+  @override
+  String get resendOtp => 'Resend OTP';
+
+  @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get loginToReport =>
+      'Please sign in with your phone number to submit reports.';
+
+  @override
+  String get loginRequired => 'Login Required';
+
+  @override
+  String get guest => 'Guest';
 }

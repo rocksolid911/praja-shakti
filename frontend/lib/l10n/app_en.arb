@@ -259,5 +259,17 @@
   "footerTitle": "Transform Your Village Today",
   "footerSubtitle": "Thousands of villages are already using PrajaShakti AI to drive real, measurable change.",
   "footerOpenAppNow": "Open App Now",
-  "footerCopyright": "© 2026 PrajaShakti. Jai Hind."
+  "footerCopyright": "© 2026 PrajaShakti. Jai Hind.",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }
