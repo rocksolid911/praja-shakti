@@ -259,5 +259,17 @@
   "footerTitle": "இன்றே உங்கள் கிராமத்தை மாற்றுங்கள்",
   "footerSubtitle": "ஆயிரக்கணக்கான கிராமங்கள் ஏற்கனவே PrajaShakti AI ஐ உண்மையான, அளவிடக்கூடிய மாற்றத்தை ஏற்படுத்த பயன்படுத்துகின்றன.",
   "footerOpenAppNow": "இப்போதே ஆப் திறக்கவும்",
-  "footerCopyright": "© 2026 PrajaShakti. ஜய் ஹிந்த்."
+  "footerCopyright": "© 2026 PrajaShakti. ஜய் ஹிந்த்.",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }

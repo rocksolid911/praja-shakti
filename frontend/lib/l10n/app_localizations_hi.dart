@@ -784,4 +784,34 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get footerCopyright => '© 2026 PrajaShakti. जय हिंद।';
+
+  @override
+  String get enterCode => 'कोड दर्ज करें';
+
+  @override
+  String otpSentTo(String phone) {
+    return '$phone पर भेजा गया 6-अंकीय OTP';
+  }
+
+  @override
+  String get verifyButton => 'सत्यापित करें';
+
+  @override
+  String get otpResent => 'OTP फिर से भेजा गया';
+
+  @override
+  String get resendOtp => 'OTP दोबारा भेजें';
+
+  @override
+  String get continueAsGuest => 'अतिथि के रूप में जारी रखें';
+
+  @override
+  String get loginToReport =>
+      'रिपोर्ट जमा करने के लिए कृपया अपने फ़ोन नंबर से लॉगिन करें।';
+
+  @override
+  String get loginRequired => 'लॉगिन आवश्यक';
+
+  @override
+  String get guest => 'अतिथि';
 }

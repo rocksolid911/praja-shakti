@@ -259,5 +259,17 @@
   "footerTitle": "আজই আপনার গ্রাম পরিবর্তন করুন",
   "footerSubtitle": "হাজার হাজার গ্রাম ইতিমধ্যে PrajaShakti AI ব্যবহার করে সত্যিকারের, পরিমাপযোগ্য পরিবর্তন আনছে।",
   "footerOpenAppNow": "এখনই অ্যাপ খুলুন",
-  "footerCopyright": "© 2026 PrajaShakti. জয় হিন্দ।"
+  "footerCopyright": "© 2026 PrajaShakti. জয় হিন্দ।",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }

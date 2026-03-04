@@ -470,8 +470,8 @@ class _VillageInfoBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final village = state.selectedVillage;
     return Container(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 8,
+      padding: const EdgeInsets.only(
+        top: 8,
         left: 16, right: 16, bottom: 12,
       ),
       decoration: BoxDecoration(

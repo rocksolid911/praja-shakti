@@ -1,9 +1,12 @@
+import logging
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 
 from .serializers import (
     RegisterSerializer, OTPSendSerializer, OTPVerifySerializer,
@@ -11,7 +14,9 @@ from .serializers import (
 )
 from .permissions import IsLeader
 from .utils import send_otp, verify_otp, normalize_phone
+from .firebase_auth import verify_firebase_token, extract_phone_from_firebase
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
@@ -166,4 +171,161 @@ def village_leader(request):
         'phone': leader.phone,
         'panchayat': panchayat.name,
         'ward': leader.ward,
+    })
+
+
+# ── Firebase Authentication ──────────────────────────────────────────────────
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def firebase_login(request):
+    """Exchange a Firebase ID token for Django JWT tokens.
+
+    Request body:
+        firebase_token: str  — Firebase ID token from client
+        name: str (optional) — Display name for new users
+
+    Flow:
+    1. Verify Firebase ID token with firebase-admin SDK
+    2. Extract phone_number or anonymous UID
+    3. Find existing Django user by firebase_uid OR phone number
+    4. Create user if not found
+    5. Link firebase_uid to user if not already linked
+    6. Return Django JWT tokens
+    """
+    firebase_token = request.data.get('firebase_token')
+    if not firebase_token:
+        return Response(
+            {'error': 'firebase_token is required'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # 1. Verify token
+    decoded = verify_firebase_token(firebase_token)
+    if not decoded:
+        return Response(
+            {'error': 'Invalid or expired Firebase token'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    firebase_uid = decoded['uid']
+    sign_in_provider = decoded.get('firebase', {}).get('sign_in_provider', '')
+    is_anonymous = sign_in_provider == 'anonymous'
+    phone = extract_phone_from_firebase(decoded)
+
+    # 2. Find existing user: first by firebase_uid, then by phone
+    user = None
+    try:
+        user = User.objects.get(firebase_uid=firebase_uid)
+    except User.DoesNotExist:
+        if phone:
+            try:
+                user = User.objects.get(phone=phone)
+                # Link Firebase UID to existing phone-matched user
+                user.firebase_uid = firebase_uid
+                user.save(update_fields=['firebase_uid'])
+                logger.info(f"Linked firebase_uid to existing user {user.phone}")
+            except User.DoesNotExist:
+                pass
+
+    # 3. Create new user if not found
+    if user is None:
+        if is_anonymous:
+            # Anonymous user: generate a placeholder phone
+            try:
+                user = User.objects.create_user(
+                    username=f'anon_{firebase_uid[:12]}',
+                    phone=f'anon_{firebase_uid[:10]}',
+                    firebase_uid=firebase_uid,
+                    is_anonymous_user=True,
+                )
+                logger.info(f"Created anonymous user: {user.username}")
+            except IntegrityError:
+                # Race condition: another request already created this user
+                user = User.objects.get(firebase_uid=firebase_uid)
+        elif phone:
+            name = request.data.get('name', '')
+            first_name = name.split(' ')[0] if name else ''
+            last_name = ' '.join(name.split(' ')[1:]) if name and ' ' in name else ''
+            try:
+                user = User.objects.create_user(
+                    username=phone,
+                    phone=phone,
+                    firebase_uid=firebase_uid,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
+                logger.info(f"Created new user via Firebase: {phone}")
+            except IntegrityError:
+                # Race condition: user was just created by another request
+                user = User.objects.get(phone=phone)
+                if not user.firebase_uid:
+                    user.firebase_uid = firebase_uid
+                    user.save(update_fields=['firebase_uid'])
+        else:
+            return Response(
+                {'error': 'No phone number in Firebase token and not anonymous'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    # 4. Issue Django JWTs
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'user': UserSerializer(user).data,
+        'access': str(refresh.access_token),
+        'refresh': str(refresh),
+        'is_new_user': not bool(user.first_name),
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upgrade_anonymous(request):
+    """Upgrade an anonymous Firebase user after they link a phone number.
+
+    Called after Firebase linkWithPhoneNumber() on the client.
+    Sends a new Firebase ID token that now contains a phone_number claim.
+    """
+    firebase_token = request.data.get('firebase_token')
+    if not firebase_token:
+        return Response({'error': 'firebase_token is required'}, status=400)
+
+    decoded = verify_firebase_token(firebase_token)
+    if not decoded:
+        return Response({'error': 'Invalid Firebase token'}, status=401)
+
+    phone = extract_phone_from_firebase(decoded)
+    if not phone:
+        return Response({'error': 'No phone in token after linking'}, status=400)
+
+    user = request.user
+
+    # Check if a non-anonymous user already exists with this phone
+    existing = User.objects.filter(phone=phone).exclude(id=user.id).first()
+    if existing:
+        # Merge: transfer firebase_uid to existing user, re-assign owned objects
+        from apps.community.models import Report, Vote
+        Report.objects.filter(reporter=user).update(reporter=existing)
+        Vote.objects.filter(voter=user).update(voter=existing)
+
+        existing.firebase_uid = decoded['uid']
+        existing.save(update_fields=['firebase_uid'])
+
+        # Delete the anonymous user
+        user.delete()
+        user = existing
+        logger.info(f"Merged anonymous user into existing user {phone}")
+    else:
+        user.phone = phone
+        user.username = phone
+        user.is_anonymous_user = False
+        user.save(update_fields=['phone', 'username', 'is_anonymous_user'])
+        logger.info(f"Upgraded anonymous user to phone user: {phone}")
+
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'user': UserSerializer(user).data,
+        'access': str(refresh.access_token),
+        'refresh': str(refresh),
     })

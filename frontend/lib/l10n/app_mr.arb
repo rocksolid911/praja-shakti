@@ -259,5 +259,17 @@
   "footerTitle": "आजच तुमचे गाव बदला",
   "footerSubtitle": "हजारो गावे आधीच PrajaShakti AI वापरून खरे, मोजण्याजोगे बदल घडवत आहेत.",
   "footerOpenAppNow": "आत्ताच अॅप उघडा",
-  "footerCopyright": "© 2026 PrajaShakti. जय हिंद."
+  "footerCopyright": "© 2026 PrajaShakti. जय हिंद.",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }
