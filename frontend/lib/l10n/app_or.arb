@@ -259,5 +259,17 @@
   "footerTitle": "ଆଜି ଆପଣଙ୍କ ଗ୍ରାମ ରୂପାନ୍ତରିତ କରନ୍ତୁ",
   "footerSubtitle": "ହଜାର ହଜାର ଗ୍ରାମ ଏବଠୁ PrajaShakti AI ବ୍ୟବହାର କରି ଅସଲ, ପରିମାଣଯୋଗ୍ୟ ପରିବର୍ତ୍ତନ ଆଣୁଛି।",
   "footerOpenAppNow": "ଏବେ ଆପ୍ ଖୋଲନ୍ତୁ",
-  "footerCopyright": "© 2026 PrajaShakti. ଜୟ ହିନ୍ଦ।"
+  "footerCopyright": "© 2026 PrajaShakti. ଜୟ ହିନ୍ଦ।",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }

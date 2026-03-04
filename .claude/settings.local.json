@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/siddh/Documents/praja-shakti/backend -name \"*.py\" -type f -exec grep -l \"AUTHENTICATION_BACKENDS\\\\|BaseBackend\\\\|ModelBackend\\\\|authenticate\" {} ;)",
+      "Bash(xargs grep -l \"Authorization\\\\|Bearer\\\\|token\\\\|jwt\")",
+      "Bash(python manage.py makemigrations auth_service --name add_firebase_uid)",
+      "Bash(where python)",
+      "Bash(pip show django)",
+      "Bash(conda activate prajatantra)",
+      "Bash(python -c \"import django; print\\(django.__version__\\)\")",
+      "Bash(flutterfire --version)",
+      "Bash(dart pub global list)",
+      "Bash(dart pub global run flutterfire_cli configure --project=praja-shakti --platforms=android,ios,web --yes)",
+      "Bash(dart pub global activate flutterfire_cli)",
+      "Bash(flutterfire configure --project=praja-shakti --platforms=android,ios,web --yes)",
+      "Bash(/c/Users/siddh/AppData/Local/Pub/Cache/bin/flutterfire.bat configure --project=praja-shakti --platforms=android,ios,web --yes)",
+      "Bash(flutter pub get)",
+      "Bash(flutter gen-l10n)",
+      "Bash(flutter build web --no-tree-shake-icons)",
+      "Bash(flutter analyze)",
+      "Bash(ipconfig)",
+      "Bash(flutter analyze lib/app/router.dart lib/features/map/screens/map_screen.dart)"
+    ]
+  }
+}

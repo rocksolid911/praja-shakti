@@ -259,5 +259,17 @@
   "footerTitle": "ಇಂದೇ ನಿಮ್ಮ ಗ್ರಾಮ ಪರಿವರ್ತಿಸಿ",
   "footerSubtitle": "ಸಾವಿರಾರು ಗ್ರಾಮಗಳು ಈಗಾಗಲೇ PrajaShakti AI ಬಳಸಿ ನಿಜವಾದ, ಅಳೆಯಬಹುದಾದ ಬದಲಾವಣೆ ತರುತ್ತಿವೆ.",
   "footerOpenAppNow": "ಈಗಲೇ ಆಪ್ ತೆರೆಯಿರಿ",
-  "footerCopyright": "© 2026 PrajaShakti. ಜಯ ಹಿಂದ್."
+  "footerCopyright": "© 2026 PrajaShakti. ಜಯ ಹಿಂದ್.",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }

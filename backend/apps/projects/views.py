@@ -14,7 +14,7 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from apps.auth_service.permissions import IsLeader
+from apps.auth_service.permissions import IsLeader, IsNotAnonymous
 from .models import Project, ProjectPhoto, ProjectRating
 from .serializers import (
     ProjectSerializer, ProjectPhotoSerializer,
@@ -280,7 +280,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.save(uploaded_by=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated, IsNotAnonymous])
     def rating(self, request, pk=None):
         project = self.get_object()
         rating_val = request.data.get('rating')
@@ -494,7 +494,7 @@ def _create_project_from_cluster(cluster, user):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated, IsLeader])
+@permission_classes([IsAuthenticated, IsLeader, IsNotAnonymous])
 def adopt_project(request):
     serializer = ProjectAdoptSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)

@@ -259,5 +259,17 @@
   "footerTitle": "ഇന്നുതന്നെ നിങ്ങളുടെ ഗ്രാമം മാറ്റുക",
   "footerSubtitle": "ആയിരക്കണക്കിന് ഗ്രാമങ്ങൾ ഇതിനകം PrajaShakti AI ഉപയോഗിച്ച് യഥാർഥ, അളക്കാവുന്ന മാറ്റം കൊണ്ടുവരുന്നു.",
   "footerOpenAppNow": "ഇപ്പോൾ ആപ്പ് തുറക്കുക",
-  "footerCopyright": "© 2026 PrajaShakti. ജയ് ഹിന്ദ്."
+  "footerCopyright": "© 2026 PrajaShakti. ജയ് ഹിന്ദ്.",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }

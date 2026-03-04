@@ -15,6 +15,12 @@ class ReportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authCubit = context.read<AuthCubit>();
     final user = authCubit.currentUser;
+
+    // Anonymous guard: prompt login instead of showing report form
+    if (user != null && user.isAnonymous) {
+      return _AnonymousGuard();
+    }
+
     return BlocProvider(
       create: (_) {
         final cubit = ReportCubit(context.read<ApiClient>());
@@ -27,6 +33,57 @@ class ReportScreen extends StatelessWidget {
         return cubit;
       },
       child: const _ReportView(),
+    );
+  }
+}
+
+class _AnonymousGuard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.reportIssue)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.lock_outline, size: 64, color: Colors.orange.shade400),
+              const SizedBox(height: 16),
+              Text(
+                l10n.loginRequired,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.loginToReport,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    context.read<AuthCubit>().logout();
+                  },
+                  icon: const Icon(Icons.phone),
+                  label: Text(l10n.login),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade700,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

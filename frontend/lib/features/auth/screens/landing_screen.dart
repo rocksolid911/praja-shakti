@@ -38,7 +38,6 @@ class _LandingScreenState extends State<LandingScreen>
         if (state is AuthOtpSent) {
           context.go('/otp', extra: {
             'phone': state.phone,
-            'otpDebug': state.otpDebug,
           });
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -411,6 +410,42 @@ class _LoginTabState extends State<_LoginTab> {
                 l10n.forRegisteredCitizens,
                 style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
               ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: Divider(color: Colors.grey.shade300)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text('OR',
+                      style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
+                ),
+                Expanded(child: Divider(color: Colors.grey.shade300)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, state) {
+                final loading = state is AuthLoading;
+                return SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: loading ? null : () {
+                      context.read<AuthCubit>().signInAnonymously();
+                    },
+                    icon: const Icon(Icons.person_outline),
+                    label: Text(l10n.continueAsGuest,
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey.shade700,
+                      side: BorderSide(color: Colors.grey.shade300),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
