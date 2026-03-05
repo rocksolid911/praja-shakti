@@ -259,5 +259,17 @@
   "footerTitle": "આજે જ તમારું ગામ બદલો",
   "footerSubtitle": "હજારો ગામ પહેલેથી PrajaShakti AI ઉપયોગ કરી સાચા, માપી શકાય એવા બદલાવ લાવી રહ્યા છે.",
   "footerOpenAppNow": "હમણા જ એપ ખોલો",
-  "footerCopyright": "© 2026 PrajaShakti. જય હિંદ."
+  "footerCopyright": "© 2026 PrajaShakti. જય હિંદ.",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }

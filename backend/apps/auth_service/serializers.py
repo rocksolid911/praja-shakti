@@ -8,8 +8,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'phone', 'username', 'first_name', 'last_name', 'role',
-                  'panchayat', 'ward', 'language_preference', 'whatsapp_number']
-        read_only_fields = ['id']
+                  'panchayat', 'ward', 'language_preference', 'whatsapp_number',
+                  'firebase_uid', 'is_anonymous_user']
+        read_only_fields = ['id', 'firebase_uid', 'is_anonymous_user']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -88,5 +89,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'phone', 'username', 'first_name', 'last_name', 'role',
                   'panchayat', 'panchayat_name', 'ward', 'language_preference',
-                  'whatsapp_number', 'village_id', 'village_name']
-        read_only_fields = ['id', 'phone', 'role']
+                  'whatsapp_number', 'village_id', 'village_name',
+                  'firebase_uid', 'is_anonymous_user']
+        read_only_fields = ['id', 'phone', 'role', 'firebase_uid', 'is_anonymous_user']
