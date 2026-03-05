@@ -12,6 +12,12 @@ import '../../../l10n/app_localizations.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
 
+// ── Design constants ──────────────────────────────────────────────────────────
+const _kDeepNavy = Color(0xFF1A237E);
+const _kStateBlue = Color(0xFF3F51B5);
+const _kBgGrey = Color(0xFFF5F7FA);
+const _kCardRadius = 16.0;
+
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
 
@@ -25,13 +31,25 @@ class MapScreen extends StatelessWidget {
   }
 }
 
-class _MapView extends StatelessWidget {
+class _MapView extends StatefulWidget {
   const _MapView();
+
+  @override
+  State<_MapView> createState() => _MapViewState();
+}
+
+class _MapViewState extends State<_MapView> {
+  // Selected marker popup state
+  Report? _selectedReport;
+  Project? _selectedProject;
+
+  void _selectReport(Report r) => setState(() { _selectedReport = r; _selectedProject = null; });
+  void _selectProject(Project p) => setState(() { _selectedProject = p; _selectedReport = null; });
+  void _clearSelection() => setState(() { _selectedReport = null; _selectedProject = null; });
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
-      // Reload the map whenever the user's village changes (e.g., after report screen selection)
       listenWhen: (prev, curr) {
         int prevId = 1, currId = 1;
         if (prev is AuthAuthenticated) prevId = prev.user.villageId ?? 1;
@@ -46,33 +64,43 @@ class _MapView extends StatelessWidget {
       },
       child: Scaffold(
         body: BlocBuilder<MapCubit, MapState>(
-        builder: (context, state) {
-          if (state is MapLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is MapError) {
-            final l10n = AppLocalizations.of(context);
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 12),
-                  Text(state.message),
-                  TextButton(
-                    onPressed: () => context.read<MapCubit>().refresh(),
-                    child: Text(l10n.retry),
-                  ),
-                ],
-              ),
-            );
-          }
-          if (state is MapLoaded) {
-            return _buildMap(context, state);
-          }
-          return const SizedBox.shrink();
-        },
-      ),
+          builder: (context, state) {
+            if (state is MapLoading) {
+              return const Center(child: CircularProgressIndicator(color: _kStateBlue));
+            }
+            if (state is MapError) {
+              final l10n = AppLocalizations.of(context);
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 64, height: 64,
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.error_outline, size: 32, color: Colors.red.shade400),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(state.message, style: const TextStyle(fontSize: 15, color: Color(0xFF263238))),
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: () => context.read<MapCubit>().refresh(),
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: Text(l10n.retry),
+                      style: TextButton.styleFrom(foregroundColor: _kStateBlue),
+                    ),
+                  ],
+                ),
+              );
+            }
+            if (state is MapLoaded) {
+              return _buildMap(context, state);
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
@@ -81,136 +109,199 @@ class _MapView extends StatelessWidget {
     final village = state.selectedVillage;
     final center = village?.latitude != null
         ? LatLng(village!.latitude!, village.longitude!)
-        : const LatLng(20.5937, 78.9629); // India center fallback
+        : const LatLng(20.5937, 78.9629);
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    final markerSize = isMobile ? 28.0 : 36.0;
+    final iconSize = isMobile ? 13.0 : 16.0;
 
     return Stack(
       children: [
-        FlutterMap(
-          options: MapOptions(initialCenter: center, initialZoom: village != null ? 14 : 5),
-          children: [
-            // Base tile layer
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.prajashakti.app',
-            ),
-            // Layer 2: Satellite imagery (ESRI World Imagery — free, no CORS, works on web)
-            if (state.showSatellite)
+        // ── Map ────────────────────────────────────────────────────────────
+        GestureDetector(
+          onTap: _clearSelection,
+          child: FlutterMap(
+            options: MapOptions(initialCenter: center, initialZoom: village != null ? 17 : 5, maxZoom: 19),
+            children: [
               TileLayer(
-                urlTemplate:
-                    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.prajashakti.app',
-                maxZoom: 19,
               ),
-            // Layer 1: Report markers
-            if (state.showReports)
-              MarkerLayer(markers: _buildReportMarkers(context, state.reports)),
-            // Layer 3: Infrastructure markers
-            if (state.showInfrastructure)
-              MarkerLayer(markers: _buildInfraMarkers(context, state.infrastructure)),
-            // Layer 4: Heatmap (gap analysis circles)
-            if (state.showHeatmap)
-              CircleLayer(circles: _buildHeatmapCircles(state.heatmapPoints)),
-            // Layer 5: Project markers
-            if (state.showProjects)
-              MarkerLayer(markers: _buildProjectMarkers(context, state.projects)),
-            // Cluster circles
-            if (state.showReports)
-              CircleLayer(circles: _buildClusterCircles(state.clusters)),
-          ],
+              if (state.showSatellite)
+                TileLayer(
+                  urlTemplate:
+                      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                  userAgentPackageName: 'com.prajashakti.app',
+                  maxZoom: 19,
+                ),
+              if (state.showReports)
+                MarkerLayer(markers: _buildReportMarkers(context, state.reports, markerSize, iconSize)),
+              if (state.showInfrastructure)
+                MarkerLayer(markers: _buildInfraMarkers(context, state.infrastructure, markerSize, iconSize)),
+              if (state.showHeatmap)
+                CircleLayer(circles: _buildHeatmapCircles(state.heatmapPoints)),
+              if (state.showProjects)
+                MarkerLayer(markers: _buildProjectMarkers(context, state.projects, markerSize, iconSize)),
+              if (state.showReports)
+                CircleLayer(circles: _buildClusterCircles(state.clusters)),
+            ],
+          ),
         ),
-        // Top info bar
+
+        // ── Top: village header bar ────────────────────────────────────────
         Positioned(
           top: 0, left: 0, right: 0,
-          child: _VillageInfoBar(state: state),
+          child: _MapHeader(state: state),
         ),
-        // Layer 6: Fund Status overlay (top-left)
+
+        // ── Fund Status overlay (top-left, below header) ─────────────────
         if (state.showFundStatus && state.fundStatus.isNotEmpty)
           Positioned(
-            top: 100, left: 12,
+            top: 80, left: 12,
             child: _FundStatusOverlay(fundStatus: state.fundStatus),
           ),
-        // Layer 7: Demographics overlay (bottom-left, above layer controls)
+
+        // ── Demographics overlay (bottom-left) ───────────────────────────
         if (state.showDemographics && state.demographics.isNotEmpty)
           Positioned(
-            bottom: 100, left: 12,
+            bottom: 90, left: 12,
             child: _DemographicsOverlay(demographics: state.demographics),
           ),
-        // Bottom layer controls
-        Positioned(
-          bottom: 16, left: 16, right: 16,
-          child: _LayerControls(state: state),
-        ),
-        // Priority score badge (top right)
+
+        // ── Priority score badge (top right, below header) ───────────────
         if (state.clusters.isNotEmpty)
           Positioned(
-            top: 100, right: 12,
+            top: 80, right: 12,
             child: _PriorityBadge(topCluster: state.clusters.first),
+          ),
+
+        // ── Right-side floating controls ──────────────────────────────────
+        Positioned(
+          right: 14, bottom: 28,
+          child: _FloatingControls(
+            state: state,
+            onReport: () => context.push('/report'),
+          ),
+        ),
+
+        // ── Selected marker info card ─────────────────────────────────────
+        if (_selectedReport != null)
+          Positioned(
+            bottom: 16, left: 12, right: 76,
+            child: _MarkerInfoCard(
+              color: _markerColor(_selectedReport!.status),
+              icon: _categoryIcon(_selectedReport!.category),
+              title: _selectedReport!.category.isNotEmpty
+                  ? '${_selectedReport!.category[0].toUpperCase()}${_selectedReport!.category.substring(1)} Issue'
+                  : 'Report',
+              subtitle: _selectedReport!.descriptionText.length > 80
+                  ? '${_selectedReport!.descriptionText.substring(0, 80)}...'
+                  : _selectedReport!.descriptionText,
+              trailing: _selectedReport!.urgency.toUpperCase(),
+              trailingColor: _urgencyColor(_selectedReport!.urgency),
+              votes: _selectedReport!.voteCount,
+              onDetails: () {
+                context.push('/report/${_selectedReport!.id}');
+                _clearSelection();
+              },
+              onClose: _clearSelection,
+            ),
+          ),
+        if (_selectedProject != null)
+          Positioned(
+            bottom: 16, left: 12, right: 76,
+            child: _MarkerInfoCard(
+              color: _kStateBlue,
+              icon: Icons.construction,
+              title: _selectedProject!.title,
+              subtitle: _selectedProject!.category.isNotEmpty
+                  ? _selectedProject!.category[0].toUpperCase() + _selectedProject!.category.substring(1)
+                  : '',
+              trailing: '₹${(_selectedProject!.estimatedCostInr / 100000).toStringAsFixed(1)}L',
+              trailingColor: Colors.green.shade700,
+              status: _selectedProject!.status,
+              onDetails: () {
+                context.push('/project/${_selectedProject!.id}');
+                _clearSelection();
+              },
+              onClose: _clearSelection,
+            ),
           ),
       ],
     );
   }
 
-  List<Marker> _buildReportMarkers(BuildContext context, List<Report> reports) {
+  Color _urgencyColor(String urgency) {
+    switch (urgency) {
+      case 'critical': return const Color(0xFFB71C1C);
+      case 'high': return const Color(0xFFFF5252);
+      case 'medium': return const Color(0xFFFF9800);
+      default: return const Color(0xFF4CAF50);
+    }
+  }
+
+  // ── Marker builders (unchanged logic) ───────────────────────────────────────
+
+  List<Marker> _buildReportMarkers(BuildContext context, List<Report> reports, double size, double iconSz) {
     return reports
         .where((r) => r.latitude != null && r.longitude != null)
         .map((r) => Marker(
               point: LatLng(r.latitude!, r.longitude!),
-              width: 36,
-              height: 36,
+              width: size,
+              height: size,
               child: GestureDetector(
-                onTap: () => context.push('/report/${r.id}'),
+                onTap: () => _selectReport(r),
                 child: Container(
                   decoration: BoxDecoration(
                     color: _markerColor(r.status),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: Colors.white, width: size > 30 ? 2 : 1.5),
                     boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
                   ),
-                  child: Icon(_categoryIcon(r.category), size: 16, color: Colors.white),
+                  child: Icon(_categoryIcon(r.category), size: iconSz, color: Colors.white),
                 ),
               ),
             ))
         .toList();
   }
 
-  List<Marker> _buildProjectMarkers(BuildContext context, List<Project> projects) {
+  List<Marker> _buildProjectMarkers(BuildContext context, List<Project> projects, double size, double iconSz) {
     return projects
         .where((p) => p.lat != null && p.lng != null)
         .map((p) => Marker(
               point: LatLng(p.lat!, p.lng!),
-              width: 36,
-              height: 36,
+              width: size,
+              height: size,
               child: GestureDetector(
-                onTap: () => context.push('/project/${p.id}'),
+                onTap: () => _selectProject(p),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade700,
+                    color: _kStateBlue,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: Colors.white, width: size > 30 ? 2 : 1.5),
                     boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
                   ),
-                  child: const Icon(Icons.construction, size: 16, color: Colors.white),
+                  child: Icon(Icons.construction, size: iconSz, color: Colors.white),
                 ),
               ),
             ))
         .toList();
   }
 
-  List<Marker> _buildInfraMarkers(BuildContext context, List<Map<String, dynamic>> infrastructure) {
+  List<Marker> _buildInfraMarkers(BuildContext context, List<Map<String, dynamic>> infrastructure, double size, double iconSz) {
     return infrastructure.map((i) => Marker(
       point: LatLng(i['lat'] as double, i['lng'] as double),
-      width: 36,
-      height: 36,
+      width: size,
+      height: size,
       child: GestureDetector(
         onTap: () => _showInfraDetail(context, i),
         child: Container(
           decoration: BoxDecoration(
             color: _infraColor(i['type'] as String),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 1.5),
+            border: Border.all(color: Colors.white, width: size > 30 ? 1.5 : 1),
             boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
           ),
-          child: Icon(_infraIcon(i['type'] as String), size: 16, color: Colors.white),
+          child: Icon(_infraIcon(i['type'] as String), size: iconSz, color: Colors.white),
         ),
       ),
     )).toList();
@@ -245,8 +336,7 @@ class _MapView extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 48, height: 48,
                   decoration: BoxDecoration(
                     color: _infraColor(type),
                     shape: BoxShape.circle,
@@ -319,7 +409,7 @@ class _MapView extends StatelessWidget {
   List<CircleMarker> _buildClusterCircles(List<ReportCluster> clusters) {
     return clusters.map((c) => CircleMarker(
       point: LatLng(c.latitude, c.longitude),
-      radius: c.radiusKm * 500, // approximate pixels
+      radius: c.radiusKm * 500,
       color: _clusterColor(c.category).withOpacity(0.15),
       borderColor: _clusterColor(c.category).withOpacity(0.5),
       borderStrokeWidth: 2,
@@ -329,11 +419,11 @@ class _MapView extends StatelessWidget {
 
   Color _markerColor(String status) {
     switch (status) {
-      case 'reported': return Colors.red;
-      case 'adopted': return Colors.amber.shade700;
-      case 'in_progress': return Colors.blue;
-      case 'completed': return Colors.green;
-      case 'delayed': return Colors.red.shade900;
+      case 'reported': return const Color(0xFFFF5252);
+      case 'adopted': return const Color(0xFFFFC107);
+      case 'in_progress': return const Color(0xFF90A4AE);
+      case 'completed': return const Color(0xFF2E7D32);
+      case 'delayed': return const Color(0xFFB71C1C);
       default: return Colors.grey;
     }
   }
@@ -363,6 +453,280 @@ class _MapView extends StatelessWidget {
   }
 }
 
+// ── Map Header Bar ────────────────────────────────────────────────────────────
+
+class _MapHeader extends StatelessWidget {
+  final MapLoaded state;
+  const _MapHeader({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final village = state.selectedVillage;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 12, 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Village info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  village?.name ?? 'Village Intelligence Map',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 17, color: Color(0xFF263238),
+                  ),
+                ),
+                if (village != null)
+                  Text(
+                    '${village.panchayatName ?? ''} • ${village.districtName ?? ''}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+              ],
+            ),
+          ),
+          // Stats badges
+          _StatBadge(
+            icon: Icons.report_rounded,
+            value: '${state.reports.length}',
+            color: const Color(0xFFFF5252),
+          ),
+          const SizedBox(width: 6),
+          _StatBadge(
+            icon: Icons.construction_rounded,
+            value: '${state.projects.length}',
+            color: _kStateBlue,
+          ),
+          const SizedBox(width: 4),
+          // Refresh
+          Material(
+            color: Colors.transparent,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => context.read<MapCubit>().refresh(),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Icon(Icons.refresh_rounded, size: 22, color: Colors.grey.shade600),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Stat Badge ────────────────────────────────────────────────────────────────
+
+class _StatBadge extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final Color color;
+  const _StatBadge({required this.icon, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(value, style: TextStyle(
+            color: color, fontWeight: FontWeight.w700, fontSize: 13,
+          )),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Floating Controls (right side) ────────────────────────────────────────────
+
+class _FloatingControls extends StatelessWidget {
+  final MapLoaded state;
+  final VoidCallback onReport;
+  const _FloatingControls({required this.state, required this.onReport});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Layers button
+        _FloatingBtn(
+          icon: Icons.layers_rounded,
+          tooltip: 'Layers',
+          onTap: () => _showLayerSheet(context, state),
+        ),
+        const SizedBox(height: 10),
+        // Location button
+        _FloatingBtn(
+          icon: Icons.my_location_rounded,
+          tooltip: 'My Location',
+          onTap: () => context.read<MapCubit>().refresh(),
+        ),
+        const SizedBox(height: 10),
+        // Report button (accent)
+        _FloatingBtn(
+          icon: Icons.add_rounded,
+          tooltip: 'Report Issue',
+          onTap: onReport,
+          filled: true,
+        ),
+      ],
+    );
+  }
+
+  void _showLayerSheet(BuildContext context, MapLoaded state) {
+    final l10n = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => BlocProvider.value(
+        value: context.read<MapCubit>(),
+        child: BlocBuilder<MapCubit, MapState>(
+          builder: (ctx, mapState) {
+            if (mapState is! MapLoaded) return const SizedBox.shrink();
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40, height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Map Layers', style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF263238),
+                    )),
+                    const SizedBox(height: 4),
+                    Text('Toggle map data layers on/off',
+                        style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                    const SizedBox(height: 16),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _LayerToggle(label: l10n.layerReports, icon: Icons.report_rounded,
+                                active: mapState.showReports, layer: 'reports', color: const Color(0xFFFF5252)),
+                            _LayerToggle(label: l10n.layerProjects, icon: Icons.construction_rounded,
+                                active: mapState.showProjects, layer: 'projects', color: _kStateBlue),
+                            _LayerToggle(label: l10n.layerSatellite, icon: Icons.satellite_alt_rounded,
+                                active: mapState.showSatellite, layer: 'satellite', color: const Color(0xFF00695C)),
+                            _LayerToggle(label: l10n.layerInfra, icon: Icons.business_rounded,
+                                active: mapState.showInfrastructure, layer: 'infrastructure', color: const Color(0xFFFF9800)),
+                            _LayerToggle(label: l10n.layerHeatmap, icon: Icons.whatshot_rounded,
+                                active: mapState.showHeatmap, layer: 'heatmap', color: Colors.deepOrange),
+                            _LayerToggle(label: l10n.layerFunds, icon: Icons.account_balance_rounded,
+                                active: mapState.showFundStatus, layer: 'fund_status', color: Colors.purple),
+                            _LayerToggle(label: l10n.layerPeople, icon: Icons.people_rounded,
+                                active: mapState.showDemographics, layer: 'demographics', color: Colors.teal),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _FloatingBtn extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+  final bool filled;
+  const _FloatingBtn({
+    required this.icon, required this.tooltip, required this.onTap,
+    this.filled = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: filled ? _kStateBlue : Colors.white,
+      shape: const CircleBorder(),
+      elevation: 3,
+      shadowColor: Colors.black26,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Icon(icon, size: 22, color: filled ? Colors.white : _kDeepNavy),
+        ),
+      ),
+    );
+  }
+}
+
+class _LayerToggle extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool active;
+  final String layer;
+  final Color color;
+  const _LayerToggle({
+    required this.label, required this.icon, required this.active,
+    required this.layer, required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: SwitchListTile(
+        secondary: Container(
+          width: 36, height: 36,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 18, color: color),
+        ),
+        title: Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        value: active,
+        activeColor: color,
+        dense: true,
+        onChanged: (_) => context.read<MapCubit>().toggleLayer(layer),
+      ),
+    );
+  }
+}
+
+// ── Overlays ──────────────────────────────────────────────────────────────────
+
 class _FundStatusOverlay extends StatelessWidget {
   final Map<String, dynamic> fundStatus;
   const _FundStatusOverlay({required this.fundStatus});
@@ -375,11 +739,11 @@ class _FundStatusOverlay extends StatelessWidget {
         ? '₹${(fundInr / 100000).toStringAsFixed(1)}L'
         : '₹${(fundInr / 1000).toStringAsFixed(0)}K';
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
       ),
       child: Builder(builder: (context) {
         final l10n = AppLocalizations.of(context);
@@ -414,11 +778,11 @@ class _DemographicsOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
       ),
       child: Builder(builder: (context) {
         final l10n = AppLocalizations.of(context);
@@ -462,166 +826,6 @@ class _DemoRow extends StatelessWidget {
   }
 }
 
-class _VillageInfoBar extends StatelessWidget {
-  final MapLoaded state;
-  const _VillageInfoBar({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final village = state.selectedVillage;
-    return Container(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 8,
-        left: 16, right: 16, bottom: 12,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  village?.name ?? 'Village Intelligence Map',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                if (village != null)
-                  Text(
-                    '${village.panchayatName ?? ''} • ${village.districtName ?? ''}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-              ],
-            ),
-          ),
-          _StatChip(icon: Icons.report, value: '${state.reports.length}', color: Colors.red),
-          const SizedBox(width: 8),
-          _StatChip(icon: Icons.construction, value: '${state.projects.length}', color: Colors.blue),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<MapCubit>().refresh(),
-            visualDensity: VisualDensity.compact,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final Color color;
-  const _StatChip({required this.icon, required this.value, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(value, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
-        ],
-      ),
-    );
-  }
-}
-
-class _LayerControls extends StatelessWidget {
-  final MapLoaded state;
-  const _LayerControls({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
-      ),
-      child: Builder(builder: (context) {
-        final l10n = AppLocalizations.of(context);
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(l10n.mapLayers, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _LayerChip(label: l10n.layerReports, layer: 'reports', active: state.showReports,
-                      icon: Icons.report, color: Colors.red),
-                  _LayerChip(label: l10n.layerSatellite, layer: 'satellite', active: state.showSatellite,
-                      icon: Icons.satellite_alt, color: Colors.green),
-                  _LayerChip(label: l10n.layerInfra, layer: 'infrastructure', active: state.showInfrastructure,
-                      icon: Icons.business, color: Colors.orange),
-                  _LayerChip(label: l10n.layerHeatmap, layer: 'heatmap', active: state.showHeatmap,
-                      icon: Icons.whatshot, color: Colors.deepOrange),
-                  _LayerChip(label: l10n.layerProjects, layer: 'projects', active: state.showProjects,
-                      icon: Icons.construction, color: Colors.blue),
-                  _LayerChip(label: l10n.layerFunds, layer: 'fund_status', active: state.showFundStatus,
-                      icon: Icons.account_balance, color: Colors.purple),
-                  _LayerChip(label: l10n.layerPeople, layer: 'demographics', active: state.showDemographics,
-                      icon: Icons.people, color: Colors.teal),
-                ],
-              ),
-            ),
-          ],
-        );
-      }),
-    );
-  }
-}
-
-class _LayerChip extends StatelessWidget {
-  final String label, layer;
-  final bool active;
-  final IconData icon;
-  final Color color;
-  const _LayerChip({required this.label, required this.layer, required this.active,
-      required this.icon, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 6),
-      child: FilterChip(
-        label: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: active ? Colors.white : color),
-            const SizedBox(width: 4),
-            Text(label, style: TextStyle(
-              fontSize: 11, color: active ? Colors.white : Colors.black87,
-            )),
-          ],
-        ),
-        selected: active,
-        onSelected: (_) => context.read<MapCubit>().toggleLayer(layer),
-        selectedColor: color,
-        showCheckmark: false,
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        visualDensity: VisualDensity.compact,
-      ),
-    );
-  }
-}
-
 class _PriorityBadge extends StatelessWidget {
   final ReportCluster topCluster;
   const _PriorityBadge({required this.topCluster});
@@ -634,7 +838,7 @@ class _PriorityBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
       ),
       child: Builder(builder: (context) {
         final l10n = AppLocalizations.of(context);
@@ -646,7 +850,11 @@ class _PriorityBadge extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: score > 70 ? Colors.red : score > 40 ? Colors.orange : Colors.green,
+                color: score > 70
+                    ? const Color(0xFFFF5252)
+                    : score > 40
+                        ? const Color(0xFFFF9800)
+                        : const Color(0xFF2E7D32),
               ),
             ),
             Text(topCluster.category.toUpperCase(),
@@ -676,6 +884,124 @@ class _InfoRow extends StatelessWidget {
           child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
         ),
       ],
+    );
+  }
+}
+
+// ── Marker Info Card (floating popup) ────────────────────────────────────────
+
+class _MarkerInfoCard extends StatelessWidget {
+  final Color color;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String trailing;
+  final Color trailingColor;
+  final int? votes;
+  final String? status;
+  final VoidCallback onDetails;
+  final VoidCallback onClose;
+
+  const _MarkerInfoCard({
+    required this.color, required this.icon, required this.title,
+    required this.subtitle, required this.trailing, required this.trailingColor,
+    this.votes, this.status, required this.onDetails, required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 6,
+      shadowColor: Colors.black26,
+      borderRadius: BorderRadius.circular(14),
+      color: Colors.white,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onDetails,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+          child: Row(
+            children: [
+              // Category icon
+              Container(
+                width: 40, height: 40,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 20, color: color),
+              ),
+              const SizedBox(width: 10),
+              // Title + subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(title, style: const TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF263238),
+                    ), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    if (subtitle.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(subtitle, style: TextStyle(
+                          fontSize: 11, color: Colors.grey.shade600,
+                        ), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        // Trailing badge (urgency or cost)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: trailingColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(trailing, style: TextStyle(
+                            fontSize: 10, fontWeight: FontWeight.w700, color: trailingColor,
+                          )),
+                        ),
+                        if (votes != null && votes! > 0) ...[
+                          const SizedBox(width: 8),
+                          Icon(Icons.thumb_up_alt_outlined, size: 11, color: Colors.grey.shade500),
+                          const SizedBox(width: 2),
+                          Text('$votes', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+                        ],
+                        if (status != null) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: _kStateBlue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(status!, style: const TextStyle(
+                              fontSize: 10, fontWeight: FontWeight.w600, color: _kStateBlue,
+                            )),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Arrow + close
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: onClose,
+                    child: Icon(Icons.close, size: 16, color: Colors.grey.shade400),
+                  ),
+                  const SizedBox(height: 8),
+                  Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey.shade400),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

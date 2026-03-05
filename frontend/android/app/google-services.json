@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "346517234015",
+    "project_id": "praja-shakti",
+    "storage_bucket": "praja-shakti.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:346517234015:android:fa33ab5abb0903df4996ea",
+        "android_client_info": {
+          "package_name": "com.example.prajashakti"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV87QwIq6jeaUl7FLanuvziFHhWSTRADQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
