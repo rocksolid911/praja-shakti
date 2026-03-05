@@ -33,6 +33,8 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isWide = MediaQuery.sizeOf(context).width >= 900;
+
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthOtpSent) {
@@ -46,46 +48,107 @@ class _LandingScreenState extends State<LandingScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F7FA),
         body: SafeArea(
-          child: Column(
-            children: [
-              // ── Hero ─────────────────────────────────────────────────────
-              _HeroSection(),
+          child: isWide ? _buildWebLayout(l10n) : _buildMobileLayout(l10n),
+        ),
+      ),
+    );
+  }
 
-              // ── Tab bar ──────────────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    indicator: BoxDecoration(
-                      color: Colors.green.shade700,
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.grey.shade600,
-                    labelStyle: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14),
-                    tabs: [
-                      Tab(text: l10n.login),
-                      Tab(text: l10n.register),
-                    ],
-                  ),
+  Widget _buildMobileLayout(AppLocalizations l10n) {
+    return Center(
+      child: SingleChildScrollView(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 420),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 20, offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 32),
+              // Logo
+              Container(
+                width: 80, height: 80,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.agriculture_rounded, size: 42, color: Color(0xFF00C853)),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'PrajaShakti AI',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF1A1A2E)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'VOICE OF RURAL DEVELOPMENT',
+                style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w700,
+                  color: const Color(0xFF00C853),
+                  letterSpacing: 1.5,
                 ),
               ),
-
-              const SizedBox(height: 4),
-
-              // ── Tab content ───────────────────────────────────────────────
-              Expanded(
+              const SizedBox(height: 20),
+              // Rural image placeholder
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                height: 140,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF43A047), Color(0xFF66BB6A), Color(0xFFA5D6A7)],
+                    begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: 0, left: 0, right: 0,
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
+                          ),
+                          gradient: LinearGradient(
+                            colors: [Colors.green.shade800, Colors.green.shade600],
+                            begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.landscape_rounded, size: 48, color: Colors.white.withValues(alpha: 0.8)),
+                          const SizedBox(height: 4),
+                          Text('Smart Villages, Stronger India',
+                              style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Tab bar
+              _buildTabBar(l10n),
+              // Tab content
+              SizedBox(
+                height: 400,
                 child: TabBarView(
                   controller: _tabController,
                   children: const [
@@ -94,73 +157,258 @@ class _LandingScreenState extends State<LandingScreen>
                   ],
                 ),
               ),
+              // Language picker
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                ),
+                child: const _LanguageStrip(),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-}
 
-// ── Hero Section ─────────────────────────────────────────────────────────────
-
-class _HeroSection extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.green.shade800, Colors.green.shade600],
+  Widget _buildWebLayout(AppLocalizations l10n) {
+    return Column(
+      children: [
+        // Top nav
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+          color: Colors.white,
+          child: Row(
+            children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A237E),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.account_balance_rounded, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 10),
+              const Text('PrajaShakti AI',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF1A1A2E))),
+              const Spacer(),
+              const _LanguagePickerChip(),
+            ],
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.grass, size: 34, color: Colors.white),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'PrajaShakti AI',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.3,
-                  ),
+        // Main content
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(40),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 1000),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 24, offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-                Text(
-                  l10n.voiceOfRuralDev,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.85),
-                    fontSize: 13,
-                  ),
+                child: Row(
+                  children: [
+                    // Left: image panel
+                    Expanded(
+                      child: Container(
+                        height: 600,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(24),
+                            bottomLeft: Radius.circular(24),
+                          ),
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF1A237E).withValues(alpha: 0.9),
+                              const Color(0xFF283593),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(40),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Voice of Rural\nDevelopment',
+                                style: TextStyle(
+                                  color: Colors.white, fontSize: 32,
+                                  fontWeight: FontWeight.w800, height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Empowering rural communities through AI-driven insights and sustainable development initiatives for a better tomorrow.',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: 15, height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Right: form
+                    Expanded(
+                      child: Container(
+                        height: 600,
+                        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 40),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Welcome Back',
+                              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Color(0xFF1A1A2E)),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Join the movement for smarter rural growth.',
+                              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                            ),
+                            const SizedBox(height: 28),
+                            _buildTabBar(l10n),
+                            Expanded(
+                              child: TabBarView(
+                                controller: _tabController,
+                                children: const [
+                                  _LoginTab(),
+                                  _RegisterTab(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-          const _LanguagePickerChip(),
-        ],
+        ),
+        // Footer
+        Container(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            '\u00A9 2026 PrajaShakti AI. Empowering India\'s Heartland.',
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabBar(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(
+        height: 46,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: TabBar(
+          controller: _tabController,
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerColor: Colors.transparent,
+          indicator: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 4, offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          labelColor: const Color(0xFF1A1A2E),
+          unselectedLabelColor: Colors.grey.shade500,
+          labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+          tabs: [
+            Tab(text: l10n.login),
+            Tab(text: l10n.register),
+          ],
+        ),
       ),
     );
   }
 }
 
-// ── Compact language picker for login page ────────────────────────────────────
+// ── Language strip (horizontal row of language pills for mobile login) ────────
+
+class _LanguageStrip extends StatelessWidget {
+  const _LanguageStrip();
+
+  static const _languages = [
+    ('en', 'EN'),
+    ('hi', 'हिं'),
+    ('or', 'ଓ'),
+    ('te', 'తె'),
+    ('ta', 'த'),
+    ('mr', 'मरा'),
+    ('bn', 'বাং'),
+    ('gu', 'ગુ'),
+    ('kn', 'ಕ'),
+    ('ml', 'മ'),
+    ('pa', 'ਪ'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LocaleCubit, Locale>(
+      builder: (context, locale) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: _languages.map((lang) {
+              final selected = locale.languageCode == lang.$1;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onTap: () => context.read<LocaleCubit>().setLocale(Locale(lang.$1)),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: selected ? const Color(0xFF1A237E) : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: selected ? const Color(0xFF1A237E) : Colors.grey.shade300,
+                      ),
+                    ),
+                    child: Text(
+                      lang.$2,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                        color: selected ? Colors.white : Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ── Compact language picker for web layout ────────────────────────────────────
 
 class _LanguagePickerChip extends StatelessWidget {
   const _LanguagePickerChip();
@@ -269,7 +517,7 @@ class _LanguagePickerChip extends StatelessWidget {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: selected
-                                ? Colors.green.shade100
+                                ? const Color(0xFFEDF2FF)
                                 : Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -282,15 +530,15 @@ class _LanguagePickerChip extends StatelessWidget {
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                                 color: selected
-                                    ? Colors.green.shade800
+                                    ? const Color(0xFF1A237E)
                                     : Colors.black87)),
                         subtitle: Text(lang.$1.toUpperCase(),
                             style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade500)),
                         trailing: selected
-                            ? Icon(Icons.check_circle,
-                                color: Colors.green.shade700)
+                            ? const Icon(Icons.check_circle,
+                                color: Color(0xFF3F51B5))
                             : null,
                         onTap: () {
                           ctx.read<LocaleCubit>().setLocale(Locale(lang.$1));
@@ -337,115 +585,165 @@ class _LoginTabState extends State<_LoginTab> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.enterMobileNumber,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+            // Code + Mobile Number side by side
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Country Code
+                SizedBox(
+                  width: 100,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Code', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+                      const SizedBox(height: 6),
+                      Container(
+                        height: 52,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        alignment: Alignment.centerLeft,
+                        child: const Text('+91', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      ),
+                    ],
                   ),
+                ),
+                const SizedBox(width: 12),
+                // Mobile Number
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Mobile Number', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        style: const TextStyle(fontSize: 16),
+                        decoration: InputDecoration(
+                          hintText: 'Enter 10 digit number',
+                          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                          prefixIcon: Icon(Icons.smartphone_rounded, size: 20, color: Colors.grey.shade400),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return l10n.mobileRequired;
+                          final d = v.replaceAll(RegExp(r'\D'), '');
+                          if (d.length < 10) return l10n.enterTenDigits;
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              l10n.loginWithOtp,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                hintText: '+91 98765 43210',
-                prefixIcon: const Icon(Icons.phone_outlined),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-              ),
-              validator: (v) {
-                if (v == null || v.isEmpty) return l10n.mobileRequired;
-                final d = v.replaceAll(RegExp(r'\D'), '');
-                if (d.length < 10) return l10n.enterTenDigits;
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 22),
+            // Send OTP button (green)
             BlocBuilder<AuthCubit, AuthState>(
               builder: (context, state) {
                 final loading = state is AuthLoading;
                 final l = AppLocalizations.of(context);
                 return SizedBox(
                   width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton.icon(
+                  height: 54,
+                  child: ElevatedButton(
                     onPressed: loading ? null : _submit,
-                    icon: loading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2),
-                          )
-                        : const Icon(Icons.sms_outlined),
-                    label: Text(l.sendOtp,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade700,
+                      backgroundColor: const Color(0xFF00C853),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
                     ),
+                    child: loading
+                        ? const SizedBox(width: 22, height: 22,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(l.sendOtp, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.arrow_forward_rounded, size: 20),
+                            ],
+                          ),
                   ),
                 );
               },
             ),
             const SizedBox(height: 20),
-            Center(
-              child: Text(
-                l10n.forRegisteredCitizens,
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
-              ),
-            ),
-            const SizedBox(height: 16),
+            // OR divider
             Row(
               children: [
                 Expanded(child: Divider(color: Colors.grey.shade300)),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text('OR',
-                      style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('OR', style: TextStyle(color: Colors.grey.shade400, fontSize: 12, fontWeight: FontWeight.w600)),
                 ),
                 Expanded(child: Divider(color: Colors.grey.shade300)),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            // Continue as Guest
             BlocBuilder<AuthCubit, AuthState>(
               builder: (context, state) {
                 final loading = state is AuthLoading;
                 return SizedBox(
                   width: double.infinity,
-                  height: 48,
+                  height: 50,
                   child: OutlinedButton.icon(
                     onPressed: loading ? null : () {
                       context.read<AuthCubit>().signInAnonymously();
                     },
-                    icon: const Icon(Icons.person_outline),
+                    icon: Icon(Icons.group_outlined, size: 20, color: Colors.grey.shade700),
                     label: Text(l10n.continueAsGuest,
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.grey.shade700,
                       side: BorderSide(color: Colors.grey.shade300),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      backgroundColor: Colors.grey.shade50,
                     ),
                   ),
                 );
               },
+            ),
+            const SizedBox(height: 16),
+            // Terms text
+            Center(
+              child: Text.rich(
+                TextSpan(
+                  text: 'By continuing, you agree to our ',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                  children: [
+                    TextSpan(
+                      text: 'Terms of Service',
+                      style: TextStyle(color: const Color(0xFF00C853), fontWeight: FontWeight.w600),
+                    ),
+                    const TextSpan(text: ' and '),
+                    TextSpan(
+                      text: 'Privacy Policy',
+                      style: TextStyle(color: const Color(0xFF00C853), fontWeight: FontWeight.w600),
+                    ),
+                    const TextSpan(text: '.'),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
@@ -689,10 +987,11 @@ class _RegisterTabState extends State<_RegisterTab> {
                         style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade700,
+                      backgroundColor: const Color(0xFF00C853),
                       foregroundColor: Colors.white,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(14)),
                     ),
                   ),
                 );
@@ -708,9 +1007,9 @@ class _RegisterTabState extends State<_RegisterTab> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.green.shade50,
+        color: const Color(0xFFF5F7FA),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -840,13 +1139,13 @@ class _RegisterTabState extends State<_RegisterTab> {
       children: [
         Row(
           children: [
-            Icon(icon, size: 14, color: Colors.green.shade700),
+            Icon(icon, size: 14, color: const Color(0xFF3F51B5)),
             const SizedBox(width: 4),
             Text(label,
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Colors.green.shade800)),
+                    color: const Color(0xFF263238))),
           ],
         ),
         const SizedBox(height: 4),

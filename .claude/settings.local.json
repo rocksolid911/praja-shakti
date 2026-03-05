@@ -19,7 +19,13 @@
       "Bash(flutter build web --no-tree-shake-icons)",
       "Bash(flutter analyze)",
       "Bash(ipconfig)",
-      "Bash(flutter analyze lib/app/router.dart lib/features/map/screens/map_screen.dart)"
+      "Bash(flutter analyze lib/app/router.dart lib/features/map/screens/map_screen.dart)",
+      "Bash(flutter analyze lib/app/router.dart)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(ls -d \"C:\\\\Users\\\\siddh\\\\anaconda3\\\\envs\\\\praja\"*)",
+      "Bash(conda env list)",
+      "Bash(where flutter)",
+      "Bash(flutter analyze --no-pub)"
     ]
   }
 }

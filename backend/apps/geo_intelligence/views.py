@@ -442,6 +442,8 @@ def provision_village(request):
         'households': village.households,
         'ndvi_score': village.ndvi_score,
         'groundwater_depth_m': village.groundwater_depth_m,
+        'latitude': village.location.y if village.location else None,
+        'longitude': village.location.x if village.location else None,
         'provisioning': False,
     })
 
