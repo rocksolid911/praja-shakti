@@ -61,14 +61,168 @@ class _ProjectListViewState extends State<_ProjectListView> {
     };
   }
 
+  static String _formatCostStatic(int cost) {
+    if (cost >= 10000000) return '₹${(cost / 10000000).toStringAsFixed(1)}Cr';
+    if (cost >= 100000) return '₹${(cost / 100000).toStringAsFixed(1)}L';
+    if (cost >= 1000) return '₹${(cost / 1000).toStringAsFixed(0)}K';
+    return '₹$cost';
+  }
+
+  void _showFundDetailsSheet(BuildContext context, List<Project> projects) {
+    // Aggregate schemes across all projects
+    final schemeMap = <String, int>{};
+    int grandTotal = 0;
+    for (final p in projects) {
+      for (final fp in p.fundPlans) {
+        grandTotal += fp.totalCostInr;
+        for (final s in fp.schemesUsed) {
+          schemeMap[s.schemeName] = (schemeMap[s.schemeName] ?? 0) + s.amountInr;
+        }
+      }
+    }
+    final sortedSchemes = schemeMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40, height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text('Fund Overview', style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF263238),
+              )),
+              const SizedBox(height: 4),
+              Text('Across ${projects.length} projects',
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+              const SizedBox(height: 16),
+              // Grand total card
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1A237E), Color(0xFF3F51B5)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 28),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Total Fund', style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.7), fontSize: 12,
+                        )),
+                        Text(_formatCostStatic(grandTotal), style: const TextStyle(
+                          color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800,
+                        )),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (sortedSchemes.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text('By Scheme', style: TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey.shade700,
+                )),
+                const SizedBox(height: 8),
+                ...sortedSchemes.map((e) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8, height: 8,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF3F51B5),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(e.key, style: const TextStyle(fontSize: 13)),
+                      ),
+                      Text(
+                        _formatCostStatic(e.value),
+                        style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w700,
+                          color: Color(0xFF1A237E),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.projects),
-        backgroundColor: Colors.blue.shade700,
-        foregroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: BlocBuilder<ProjectCubit, ProjectState>(
+          builder: (context, state) {
+            int totalFund = 0;
+            List<Project> allProjects = [];
+            if (state is ProjectsLoaded) {
+              allProjects = state.projects;
+              for (final p in state.projects) {
+                for (final fp in p.fundPlans) {
+                  totalFund += fp.totalCostInr;
+                }
+              }
+            }
+            return AppBar(
+              title: Text(l10n.projects),
+              backgroundColor: const Color(0xFF1A237E),
+              foregroundColor: Colors.white,
+              actions: [
+                if (totalFund > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ActionChip(
+                      avatar: const Icon(Icons.account_balance_wallet_rounded,
+                          size: 16, color: Colors.white),
+                      label: Text(
+                        _formatCostStatic(totalFund),
+                        style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12,
+                        ),
+                      ),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      side: BorderSide.none,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      onPressed: () => _showFundDetailsSheet(context, allProjects),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
       body: Column(
         children: [

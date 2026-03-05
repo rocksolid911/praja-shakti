@@ -76,7 +76,7 @@ class MapLoaded extends MapState {
     this.demographics = const {},
     this.fundStatus = const {},
     this.showReports = true,
-    this.showSatellite = false,
+    this.showSatellite = true,
     this.showInfrastructure = false,
     this.showHeatmap = false,
     this.showProjects = true,
