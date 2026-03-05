@@ -128,7 +128,7 @@ class _OTPScreenState extends State<OTPScreen> {
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         maxLength: 1,
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
         decoration: InputDecoration(
           counterText: '',
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -137,7 +137,7 @@ class _OTPScreenState extends State<OTPScreen> {
             borderSide: BorderSide(color: Colors.green.shade700, width: 2),
           ),
           filled: true,
-          fillColor: Colors.grey.shade100,
+          fillColor: Colors.white,
         ),
         onChanged: (v) {
           if (v.isNotEmpty && index < 5) {

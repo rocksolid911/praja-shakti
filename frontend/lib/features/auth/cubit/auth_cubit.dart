@@ -271,11 +271,30 @@ class AuthCubit extends Cubit<AuthState> {
           return 'Invalid OTP code. Please try again.';
         case 'session-expired':
           return 'OTP expired. Please request a new one.';
+        case 'operation-not-allowed':
+          return 'This sign-in method is not enabled. Please use phone number login.';
+        case 'app-not-authorized':
+          return 'App is not authorised for this domain. Contact support.';
+        case 'captcha-check-failed':
+          return 'Security check failed. Please refresh the page and try again.';
+        case 'missing-phone-number':
+          return 'Phone number is required.';
+        case 'quota-exceeded':
+          return 'SMS quota exceeded. Please try again later.';
+        case 'user-disabled':
+          return 'This account has been disabled. Contact support.';
         default:
-          return e.message ?? 'Authentication failed. Please try again.';
+          final msg = e.message;
+          if (msg != null && msg.isNotEmpty) return msg;
+          return 'Authentication error (${e.code}). Please try again.';
       }
     }
     if (e is String) return e;
+    // Non-Firebase exception that escaped — show its message for easier debugging
+    try {
+      final msg = (e as dynamic).message?.toString() ?? '';
+      if (msg.isNotEmpty) return 'Authentication failed: $msg';
+    } catch (_) {}
     return 'Authentication failed. Please try again.';
   }
 
