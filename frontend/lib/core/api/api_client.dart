@@ -9,13 +9,13 @@ class ApiClient {
   static const String _prodBaseUrl =
       'https://d221yr9cp0qk9v.cloudfront.net/api/v1';
 
+  // Physical device: use machine's LAN IP
   // iOS Simulator + Web: 127.0.0.1 works directly
-  // Android Emulator: use 10.0.2.2 instead
   static String get _defaultBaseUrl {
     // In release mode always use production backend
     if (kReleaseMode) return _prodBaseUrl;
     if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
-      return 'http://10.0.2.2:8000/api/v1';
+      return 'http://192.168.1.11:8000/api/v1';
     }
     return 'http://127.0.0.1:8000/api/v1';
   }

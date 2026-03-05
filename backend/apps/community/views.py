@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import F
 
+from apps.auth_service.permissions import IsNotAnonymous
 from .models import Report, Vote, ReportCluster, GramSabhaSession, GramSabhaIssue
 from .serializers import (
     ReportSerializer, ReportCreateSerializer, ReportClusterSerializer,
@@ -24,6 +25,12 @@ class ReportViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return ReportCreateSerializer
         return ReportSerializer
+
+    def get_permissions(self):
+        """Anonymous users can read reports, but not create/vote."""
+        if self.action in ('create', 'vote', 'unvote'):
+            return [IsAuthenticated(), IsNotAnonymous()]
+        return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
         create_serializer = ReportCreateSerializer(
@@ -90,7 +97,7 @@ class ReportClusterViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class GramSabhaSessionViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotAnonymous]
     serializer_class = GramSabhaSessionSerializer
     filterset_fields = ['village', 'is_active']
 
@@ -110,7 +117,7 @@ class GramSabhaSessionViewSet(viewsets.ModelViewSet):
 
 
 class GramSabhaIssueViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsNotAnonymous]
     serializer_class = GramSabhaIssueSerializer
     filterset_fields = ['session']
 

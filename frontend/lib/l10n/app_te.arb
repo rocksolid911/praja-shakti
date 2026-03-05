@@ -259,5 +259,17 @@
   "footerTitle": "ఈరోజే మీ గ్రామాన్ని మార్చండి",
   "footerSubtitle": "వేల గ్రామాలు ఇప్పటికే PrajaShakti AI ని ఉపయోగించి నిజమైన, కొలవగల మార్పు తీసుకొస్తున్నాయి.",
   "footerOpenAppNow": "ఇప్పుడే యాప్ తెరవండి",
-  "footerCopyright": "© 2026 PrajaShakti. జై హింద్."
+  "footerCopyright": "© 2026 PrajaShakti. జై హింద్.",
+  "enterCode": "Enter Code",
+  "otpSentTo": "6-digit OTP sent to {phone}",
+  "@otpSentTo": {
+    "placeholders": {"phone": {"type": "String"}}
+  },
+  "verifyButton": "Verify",
+  "otpResent": "OTP resent successfully",
+  "resendOtp": "Resend OTP",
+  "continueAsGuest": "Continue as Guest",
+  "loginToReport": "Please sign in with your phone number to submit reports.",
+  "loginRequired": "Login Required",
+  "guest": "Guest"
 }

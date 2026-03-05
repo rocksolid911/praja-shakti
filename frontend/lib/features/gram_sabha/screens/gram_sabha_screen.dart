@@ -11,8 +11,49 @@ class GramSabhaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final villageId = context.read<AuthCubit>().currentVillageId;
-    final isLeader = context.read<AuthCubit>().currentUser?.hasFullAccess ?? false;
+    final authCubit = context.read<AuthCubit>();
+    final user = authCubit.currentUser;
+
+    // Anonymous guard
+    if (user != null && user.isAnonymous) {
+      final l10n = AppLocalizations.of(context);
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.gramSabha)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.lock_outline, size: 64, color: Colors.orange.shade400),
+                const SizedBox(height: 16),
+                Text(l10n.loginRequired,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text(l10n.loginToReport, textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 15)),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity, height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () => authCubit.logout(),
+                    icon: const Icon(Icons.phone),
+                    label: Text(l10n.login),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade700, foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final villageId = authCubit.currentVillageId;
+    final isLeader = user?.hasFullAccess ?? false;
     return BlocProvider(
       create: (_) => GramSabhaCubit(context.read<ApiClient>())..loadSessions(villageId: villageId),
       child: _GramSabhaView(villageId: villageId, isLeader: isLeader),

@@ -2,6 +2,10 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+if os.name == 'nt':
+    GDAL_LIBRARY_PATH = r'C:\Users\siddh\anaconda3\envs\prajatantra\Library\bin\gdal.dll'
+    GEOS_LIBRARY_PATH = r'C:\Users\siddh\anaconda3\envs\prajatantra\Library\bin\geos_c.dll'
+
 import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -218,6 +222,7 @@ OTP_EXPIRY_MINUTES = env.int('OTP_EXPIRY_MINUTES', default=10)
 
 # Firebase Cloud Messaging
 FIREBASE_SERVICE_ACCOUNT_KEY = env('FIREBASE_SERVICE_ACCOUNT_KEY', default='')
+FIREBASE_PROJECT_ID = env('FIREBASE_PROJECT_ID', default='praja-shakti')
 
 # CORS
 CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=True)

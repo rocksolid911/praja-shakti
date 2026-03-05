@@ -18,6 +18,7 @@ class Command(BaseCommand):
 
         self._create_geography()
         self._create_users()
+        self._link_firebase_test_phones()
         self._create_schemes()
         self._create_reports()
         self._create_clusters()
@@ -73,9 +74,14 @@ class Command(BaseCommand):
         from django.contrib.auth import get_user_model
         User = get_user_model()
 
+        # Note: phone 9876543210 is reserved for Firebase test user (Sabal Sharma)
+        # First clean up any old demo user on that phone
+        User.objects.filter(phone='9876543210', username='citizen_demo').update(
+            phone='9876500000', username='ramesh_demo',
+        )
         self.citizen, _ = User.objects.update_or_create(
-            phone='9876543210', defaults={
-                'username': 'citizen_demo',
+            phone='9876500000', defaults={
+                'username': 'ramesh_demo',
                 'first_name': 'Ramesh',
                 'last_name': 'Sahu',
                 'role': 'citizen',
@@ -135,6 +141,79 @@ class Command(BaseCommand):
             self.extra_citizens.append(user)
 
         self.stdout.write(f"  Created {3 + len(self.extra_citizens)} users")
+
+    def _link_firebase_test_phones(self):
+        """Create / update users matching the 5 Firebase Auth test phone numbers."""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        firebase_test_users = [
+            {
+                'phone': '9123456780',
+                'defaults': {
+                    'username': 'firebase_citizen_1',
+                    'first_name': 'Mahesh',
+                    'last_name': 'Raman',
+                    'role': 'citizen',
+                    'panchayat': self.panchayat,
+                    'ward': 3,
+                    'language_preference': 'hi',
+                },
+            },
+            {
+                'phone': '9876543210',
+                'defaults': {
+                    'username': 'firebase_govt_1',
+                    'first_name': 'Sabal',
+                    'last_name': 'Sharma',
+                    'role': 'government',
+                    'panchayat': self.panchayat,
+                    'language_preference': 'hi',
+                },
+            },
+            {
+                'phone': '9999911111',
+                'defaults': {
+                    'username': 'firebase_citizen_2',
+                    'first_name': 'Kunal',
+                    'last_name': 'Sharma',
+                    'role': 'citizen',
+                    'panchayat': self.panchayat,
+                    'ward': 5,
+                    'language_preference': 'hi',
+                },
+            },
+            {
+                'phone': '9090291939',
+                'defaults': {
+                    'username': 'firebase_leader',
+                    'first_name': 'Siddharth',
+                    'last_name': 'Leader',
+                    'role': 'leader',
+                    'panchayat': self.panchayat,
+                    'language_preference': 'hi',
+                },
+            },
+            {
+                'phone': '8149443114',
+                'defaults': {
+                    'username': 'firebase_govt_2',
+                    'first_name': 'Government',
+                    'last_name': 'Officer',
+                    'role': 'government',
+                    'panchayat': self.panchayat,
+                    'language_preference': 'hi',
+                },
+            },
+        ]
+
+        for entry in firebase_test_users:
+            User.objects.update_or_create(
+                phone=entry['phone'],
+                defaults=entry['defaults'],
+            )
+
+        self.stdout.write(f"  Linked {len(firebase_test_users)} Firebase test phone users")
 
     def _create_schemes(self):
         from apps.scheme_rag.models import Scheme

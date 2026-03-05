@@ -20,6 +20,14 @@ class User(AbstractUser):
     ward = models.IntegerField(null=True, blank=True)
     language_preference = models.CharField(max_length=10, default='en')
     whatsapp_number = models.CharField(max_length=15, blank=True)
+    firebase_uid = models.CharField(
+        max_length=128, unique=True, null=True, blank=True,
+        help_text='Firebase Authentication UID',
+    )
+    is_anonymous_user = models.BooleanField(
+        default=False,
+        help_text='True if created via Firebase Anonymous Auth',
+    )
 
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = ['username']

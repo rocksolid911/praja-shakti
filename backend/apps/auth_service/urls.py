@@ -11,4 +11,7 @@ urlpatterns = [
     path('users/', views.manage_users, name='manage-users'),
     path('users/<int:user_id>/', views.update_user, name='update-user'),
     path('village-leader/', views.village_leader, name='village-leader'),
+    # Firebase Authentication
+    path('firebase-login/', views.firebase_login, name='auth-firebase-login'),
+    path('upgrade-anonymous/', views.upgrade_anonymous, name='auth-upgrade-anonymous'),
 ]
