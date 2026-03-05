@@ -8,6 +8,10 @@ import '../../../core/api/api_client.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../auth/cubit/auth_cubit.dart';
 
+// ── Civic palette constants ─────────────────────────────────────────────────
+const _kDeepNavy = Color(0xFF1A237E);
+const _kStateBlue = Color(0xFF3F51B5);
+
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
 
@@ -73,7 +77,7 @@ class _AnonymousGuard extends StatelessWidget {
                   icon: const Icon(Icons.phone),
                   label: Text(l10n.login),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade700,
+                    backgroundColor: _kStateBlue,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
@@ -100,6 +104,8 @@ class _ReportViewState extends State<_ReportView> {
   String _category = 'water';
   String _urgency = 'medium';
   double? _latitude, _longitude;
+  // GPS status: 'fetching' | 'success' | 'village_fallback' | 'denied' | 'error'
+  String _gpsStatus = 'fetching';
 
   // Resolved village + ward selection (from cascade)
   int? _selectedVillageId;
@@ -137,9 +143,20 @@ class _ReportViewState extends State<_ReportView> {
 
   Future<void> _fetchGps() async {
     try {
-      final perm = await Geolocator.requestPermission();
+      final enabled = await Geolocator.isLocationServiceEnabled();
+      if (!enabled) {
+        if (mounted) setState(() => _gpsStatus = 'error');
+        _applyVillageFallback();
+        return;
+      }
+      var perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
       if (perm == LocationPermission.denied ||
           perm == LocationPermission.deniedForever) {
+        if (mounted) setState(() => _gpsStatus = 'denied');
+        _applyVillageFallback();
         return;
       }
       final pos = await Geolocator.getCurrentPosition(
@@ -148,9 +165,26 @@ class _ReportViewState extends State<_ReportView> {
         setState(() {
           _latitude = pos.latitude;
           _longitude = pos.longitude;
+          _gpsStatus = 'success';
         });
       }
-    } catch (_) {}
+    } catch (_) {
+      if (mounted) setState(() => _gpsStatus = 'error');
+      _applyVillageFallback();
+    }
+  }
+
+  /// Fallback: use the village's center coordinates when GPS is unavailable.
+  void _applyVillageFallback() {
+    if (_latitude != null) return; // Already have GPS, skip
+    final details = _villageDetails;
+    if (details != null && details.latitude != null && details.longitude != null && mounted) {
+      setState(() {
+        _latitude = details.latitude;
+        _longitude = details.longitude;
+        _gpsStatus = 'village_fallback';
+      });
+    }
   }
 
   @override
@@ -177,6 +211,10 @@ class _ReportViewState extends State<_ReportView> {
             _villageDetails = state.details;
             _selectedWard = 1;
           });
+          // If GPS failed earlier, now try village-center fallback with loaded details
+          if (_gpsStatus != 'success') {
+            _applyVillageFallback();
+          }
           // Refresh auth profile so other screens (Map, Dashboard, Feed)
           // automatically switch to the newly selected village's data.
           context.read<AuthCubit>().checkAuth();
@@ -185,7 +223,7 @@ class _ReportViewState extends State<_ReportView> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context).reportIssue),
-          backgroundColor: Colors.green.shade700,
+          backgroundColor: _kDeepNavy,
           foregroundColor: Colors.white,
         ),
         body: SingleChildScrollView(
@@ -282,31 +320,13 @@ class _ReportViewState extends State<_ReportView> {
 
               const SizedBox(height: 16),
 
-              // GPS confirmation chip
-              if (_latitude != null && _longitude != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade200),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.gps_fixed,
-                          color: Colors.green.shade700, size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        'GPS: ${_latitude!.toStringAsFixed(4)}, '
-                        '${_longitude!.toStringAsFixed(4)}',
-                        style: TextStyle(
-                            color: Colors.green.shade800, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
+              // GPS status chip
+              _GpsStatusChip(
+                status: _gpsStatus,
+                latitude: _latitude,
+                longitude: _longitude,
+                onRetry: _fetchGps,
+              ),
 
               const SizedBox(height: 28),
 
@@ -331,7 +351,7 @@ class _ReportViewState extends State<_ReportView> {
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade700,
+                        backgroundColor: _kStateBlue,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
@@ -419,6 +439,53 @@ class _LocationCascade extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ReportCubit, ReportState>(
       builder: (context, state) {
+        // When village is pre-filled (from user profile) with empty state/district lists,
+        // show compact location display with "Change" button
+        if (state is LocationVillageSelected && state.states.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8EAF6),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF9FA8DA)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.location_on_rounded, color: _kStateBlue, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        state.selectedVillage.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 14,
+                          color: _kDeepNavy,
+                        ),
+                      ),
+                      Text(
+                        '${state.selectedPanchayat.name} • ${state.selectedDistrict.name} • ${state.selectedState.name}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => context.read<ReportCubit>().loadStates(),
+                  style: TextButton.styleFrom(
+                    foregroundColor: _kStateBlue,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  ),
+                  child: const Text('Change', style: TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w600,
+                  )),
+                ),
+              ],
+            ),
+          );
+        }
+
         // When no GPs exist for the district → show manual entry form
         if (state is LocationNoPanchayatsFound || state is LocationSettingUp) {
           final isSettingUp = state is LocationSettingUp;
@@ -813,7 +880,7 @@ class _DropdownRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: value != null
-              ? Colors.green.shade400
+              ? const Color(0xFF7986CB)
               : Colors.grey.shade300,
           width: value != null ? 1.5 : 1,
         ),
@@ -822,7 +889,7 @@ class _DropdownRow extends StatelessWidget {
         children: [
           Icon(icon,
               color: enabled
-                  ? Colors.green.shade700
+                  ? _kStateBlue
                   : Colors.grey.shade400,
               size: 20),
           const SizedBox(width: 8),
@@ -849,7 +916,7 @@ class _DropdownRow extends StatelessWidget {
                     underline: const SizedBox.shrink(),
                     icon: Icon(Icons.keyboard_arrow_down,
                         color: enabled
-                            ? Colors.green.shade700
+                            ? _kStateBlue
                             : Colors.grey.shade400),
                     onChanged: enabled
                         ? (v) {
@@ -895,12 +962,12 @@ class _WardDropdown extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade400, width: 1.5),
+        border: Border.all(color: const Color(0xFF7986CB), width: 1.5),
       ),
       child: Row(
         children: [
           Icon(Icons.format_list_numbered,
-              color: Colors.green.shade700, size: 20),
+              color: _kStateBlue, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: DropdownButton<int>(
@@ -908,7 +975,7 @@ class _WardDropdown extends StatelessWidget {
               isExpanded: true,
               underline: const SizedBox.shrink(),
               icon: Icon(Icons.keyboard_arrow_down,
-                  color: Colors.green.shade700),
+                  color: _kStateBlue),
               onChanged: (v) {
                 if (v != null) onChanged(v);
               },
@@ -945,26 +1012,26 @@ class _VillageDetailsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.green.shade50, Colors.teal.shade50],
+        gradient: const LinearGradient(
+          colors: [Color(0xFFE8EAF6), Color(0xFFE3F2FD)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.green.shade200),
+        border: Border.all(color: const Color(0xFF9FA8DA)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.check_circle, color: Colors.green.shade600, size: 18),
+              Icon(Icons.check_circle, color: _kStateBlue, size: 18),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   '${details.villageName}, ${details.districtName}, ${details.stateName}',
-                  style: TextStyle(
-                      color: Colors.green.shade800,
+                  style: const TextStyle(
+                      color: _kDeepNavy,
                       fontWeight: FontWeight.bold,
                       fontSize: 14),
                 ),
@@ -976,7 +1043,7 @@ class _VillageDetailsCard extends StatelessWidget {
                     width: 14,
                     height: 14,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.green.shade600),
+                        strokeWidth: 2, color: _kStateBlue),
                   ),
                 ),
             ],
@@ -1020,7 +1087,7 @@ class _VillageDetailsCard extends StatelessWidget {
             Text(
               'Fetching schemes & fund data for ${details.districtName}...',
               style: TextStyle(
-                  color: Colors.green.shade600,
+                  color: _kStateBlue,
                   fontSize: 11,
                   fontStyle: FontStyle.italic),
             ),
@@ -1147,6 +1214,92 @@ class _UrgencyChip extends StatelessWidget {
                 fontSize: 13,
               )),
         ),
+      ),
+    );
+  }
+}
+
+// ── GPS Status Chip ──────────────────────────────────────────────────────
+
+class _GpsStatusChip extends StatelessWidget {
+  final String status;
+  final double? latitude;
+  final double? longitude;
+  final VoidCallback onRetry;
+  const _GpsStatusChip({
+    required this.status, this.latitude, this.longitude, required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color bgColor;
+    final Color borderColor;
+    final Color iconColor;
+    final IconData icon;
+    final String text;
+
+    switch (status) {
+      case 'fetching':
+        bgColor = Colors.blue.shade50;
+        borderColor = Colors.blue.shade200;
+        iconColor = Colors.blue.shade700;
+        icon = Icons.gps_not_fixed;
+        text = 'Getting GPS location...';
+      case 'success':
+        bgColor = Colors.green.shade50;
+        borderColor = Colors.green.shade200;
+        iconColor = Colors.green.shade700;
+        icon = Icons.gps_fixed;
+        text = 'GPS: ${latitude?.toStringAsFixed(4)}, ${longitude?.toStringAsFixed(4)}';
+      case 'village_fallback':
+        bgColor = Colors.orange.shade50;
+        borderColor = Colors.orange.shade200;
+        iconColor = Colors.orange.shade700;
+        icon = Icons.location_on;
+        text = 'Using village center (GPS unavailable)';
+      case 'denied':
+        bgColor = Colors.red.shade50;
+        borderColor = Colors.red.shade200;
+        iconColor = Colors.red.shade700;
+        icon = Icons.gps_off;
+        text = 'Location permission denied';
+      default: // 'error'
+        bgColor = Colors.red.shade50;
+        borderColor = Colors.red.shade200;
+        iconColor = Colors.red.shade700;
+        icon = Icons.gps_off;
+        text = latitude != null ? 'Using village center' : 'GPS unavailable';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (status == 'fetching')
+            SizedBox(
+              width: 14, height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2, color: iconColor),
+            )
+          else
+            Icon(icon, color: iconColor, size: 16),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(text, style: TextStyle(color: iconColor, fontSize: 12)),
+          ),
+          if (status == 'denied' || status == 'error') ...[
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: onRetry,
+              child: Icon(Icons.refresh, color: iconColor, size: 14),
+            ),
+          ],
+        ],
       ),
     );
   }

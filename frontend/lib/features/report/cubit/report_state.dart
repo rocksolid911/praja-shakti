@@ -170,6 +170,8 @@ class VillageDetails {
   final int? households;
   final double? ndviScore;
   final double? groundwaterDepthM;
+  final double? latitude;
+  final double? longitude;
   final bool provisioning;
 
   const VillageDetails({
@@ -186,6 +188,8 @@ class VillageDetails {
     this.households,
     this.ndviScore,
     this.groundwaterDepthM,
+    this.latitude,
+    this.longitude,
     required this.provisioning,
   });
 
@@ -203,6 +207,8 @@ class VillageDetails {
         households: j['households'] as int?,
         ndviScore: (j['ndvi_score'] as num?)?.toDouble(),
         groundwaterDepthM: (j['groundwater_depth_m'] as num?)?.toDouble(),
+        latitude: (j['latitude'] as num?)?.toDouble(),
+        longitude: (j['longitude'] as num?)?.toDouble(),
         provisioning: j['provisioning'] as bool? ?? false,
       );
 }
