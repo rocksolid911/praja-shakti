@@ -20,8 +20,9 @@ class LandingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, authState) {
-        // While checking stored token, show a splash screen instead of landing
-        if (authState is AuthLoading) {
+        // Show splash while checking auth OR while waiting for GoRouter redirect
+        // (BlocBuilder fires before GoRouter redirect, so we must cover all non-initial states)
+        if (authState is! AuthInitial) {
           return const Scaffold(
             backgroundColor: Color(0xFF1A237E),
             body: Center(
