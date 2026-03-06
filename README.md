@@ -222,13 +222,22 @@ flutter run -d chrome        # Web (leader dashboard — responsive)
 flutter run                  # iOS / Android
 ```
 
-### 5. WhatsApp Bot (optional)
+### 5. WhatsApp Bot (local machine)
 
 ```bash
 ngrok http 8000
 # Set webhook in Twilio Console → https://xxxx.ngrok-free.app/api/v1/webhooks/whatsapp/
 # Message +1 415 523 8886 on WhatsApp: "GAON Tusra"
 ```
+
+### 6. WhatsApp Bot (production)
+
+The WhatsApp bot is live in production via Twilio Sandbox. To try it:
+
+1. Save **+1 415 523 8886** in your contacts
+2. Send **`join fifth-depth`** on WhatsApp to this number to join the sandbox
+3. Send **`GAON Tusra`** to select your village
+4. Send a **voice note in Hindi** to report a need — AI will transcribe, categorise, and geo-tag it automatically
 
 > 📖 See [RUNNING.md](RUNNING.md) for full setup, credentials, troubleshooting, and all API endpoints.
 
@@ -291,40 +300,6 @@ praja-shakti/
 |---|---|---|
 | Leader | `+919078277159` | See Django terminal or `otp_debug` field |
 | Citizen | Any new number | Register via OTP flow |
-
----
-
-## 🎬 90-Second Demo Flow
-
-```
-0:00  Open Flutter web app → Village Intelligence Map
-      → 65 red markers on Tusra village
-
-0:10  Send WhatsApp voice note in Hindi ("paani nahi aa raha")
-      → AI transcribes → categorises as water/critical
-      → new red marker appears on map live
-
-0:25  Toggle Satellite layer
-      → Bhuvan NDVI overlay → red stress zone matches water reports
-
-0:35  Leader Dashboard → AI Priority Ranking
-      → Water cluster: Priority Score 94/100
-        (Community: 38 + Data: 38 + Urgency: 18)
-
-0:50  See AI Recommendation
-      → Solar borewell, ₹4.5L
-      → PM-KUSUM 60% + MGNREGA 20% + Jal Jeevan 10% = 90% funded
-
-1:05  Tap "Adopt" → Confirm → loading spinner
-      → PDF proposal generated & uploaded to S3
-      → Fund breakdown appears inline:
-        "Govt Schemes Cover: 90%  |  Panchayat Pays: ₹45,000"
-      → "Download PDF" button opens proposal in browser
-
-1:20  Map marker: Red → Yellow → Blue
-      Dashboard "Active Projects" shows Solar Borewell
-      Citizen receives WhatsApp: "आपकी रिपोर्ट पर काम शुरू हो गया!"
-```
 
 ---
 
