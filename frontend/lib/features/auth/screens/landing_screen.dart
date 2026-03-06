@@ -100,47 +100,29 @@ class _LandingScreenState extends State<LandingScreen>
                 ),
               ),
               const SizedBox(height: 20),
-              // Rural image placeholder
+              // Hero image
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 24),
-                height: 140,
+                height: 160,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF43A047), Color(0xFF66BB6A), Color(0xFFA5D6A7)],
-                    begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/village-hero.jpg'),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      bottom: 0, left: 0, right: 0,
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                          gradient: LinearGradient(
-                            colors: [Colors.green.shade800, Colors.green.shade600],
-                            begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                          ),
-                        ),
-                      ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      colors: [Colors.black.withValues(alpha: 0.5), Colors.transparent],
+                      begin: Alignment.bottomCenter, end: Alignment.center,
                     ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.landscape_rounded, size: 48, color: Colors.white.withValues(alpha: 0.8)),
-                          const SizedBox(height: 4),
-                          Text('Smart Villages, Stronger India',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13, fontWeight: FontWeight.w600)),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
+                  alignment: Alignment.bottomCenter,
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: const Text('Smart Villages, Stronger India',
+                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                 ),
               ),
               const SizedBox(height: 20),
@@ -216,7 +198,7 @@ class _LandingScreenState extends State<LandingScreen>
                 ),
                 child: Row(
                   children: [
-                    // Left: image panel
+                    // Left: hero image panel
                     Expanded(
                       child: Container(
                         height: 600,
@@ -225,16 +207,26 @@ class _LandingScreenState extends State<LandingScreen>
                             topLeft: Radius.circular(24),
                             bottomLeft: Radius.circular(24),
                           ),
-                          gradient: LinearGradient(
-                            colors: [
-                              const Color(0xFF1A237E).withValues(alpha: 0.9),
-                              const Color(0xFF283593),
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/village-hero.jpg'),
+                            fit: BoxFit.cover,
                           ),
                         ),
-                        child: Padding(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(24),
+                              bottomLeft: Radius.circular(24),
+                            ),
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.black.withValues(alpha: 0.65),
+                                Colors.black.withValues(alpha: 0.1),
+                              ],
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                            ),
+                          ),
                           padding: const EdgeInsets.all(40),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -245,14 +237,16 @@ class _LandingScreenState extends State<LandingScreen>
                                 style: TextStyle(
                                   color: Colors.white, fontSize: 32,
                                   fontWeight: FontWeight.w800, height: 1.2,
+                                  shadows: [Shadow(blurRadius: 8, color: Colors.black54)],
                                 ),
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 'Empowering rural communities through AI-driven insights and sustainable development initiatives for a better tomorrow.',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.8),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 15, height: 1.5,
+                                  shadows: [Shadow(blurRadius: 6, color: Colors.black54)],
                                 ),
                               ),
                             ],
