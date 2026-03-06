@@ -420,13 +420,15 @@ class ProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      shape: isSelected
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Colors.blue.shade700, width: 2),
-            )
-          : null,
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      elevation: isSelected ? 3 : 1.5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isSelected ? Colors.blue.shade700 : Colors.grey.shade400,
+          width: isSelected ? 2 : 1,
+        ),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
