@@ -119,29 +119,41 @@ class _OTPScreenState extends State<OTPScreen> {
   }
 
   Widget _buildDigitBox(int index) {
-    return SizedBox(
-      width: 48,
-      height: 56,
-      child: TextFormField(
+    return Container(
+      width: 50,
+      height: 58,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: _focusNodes[index].hasFocus ? Colors.green.shade700 : Colors.grey.shade400,
+          width: _focusNodes[index].hasFocus ? 2 : 1.5,
+        ),
+        boxShadow: [
+          if (_focusNodes[index].hasFocus)
+            BoxShadow(color: Colors.green.withValues(alpha: 0.15), blurRadius: 6, spreadRadius: 1),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: TextField(
         controller: _controllers[index],
         focusNode: _focusNodes[index],
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
+        textAlignVertical: TextAlignVertical.center,
         maxLength: 1,
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
-        decoration: InputDecoration(
+        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.black87, height: 1.0),
+        decoration: const InputDecoration(
           counterText: '',
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.green.shade700, width: 2),
-          ),
-          filled: true,
-          fillColor: Colors.white,
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+          isDense: true,
         ),
         onChanged: (v) {
           if (v.isNotEmpty && index < 5) {
             _focusNodes[index + 1].requestFocus();
+          } else if (v.isEmpty && index > 0) {
+            _focusNodes[index - 1].requestFocus();
           }
           setState(() {});
           if (_otp.length == 6) _verify();
