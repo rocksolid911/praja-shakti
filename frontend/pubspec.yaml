@@ -51,9 +51,28 @@ dev_dependencies:
   flutter_lints: ^3.0.1
   build_runner: ^2.4.8
   json_serializable: ^6.7.1
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/icon/praja_shakti_icon.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/praja_shakti_icon.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icon/praja_shakti_icon.png"
+    background_color: "#FFFFFF"
+    theme_color: "#1A237E"
+  windows:
+    generate: true
+    image_path: "assets/icon/praja_shakti_icon.png"
 
 flutter:
   uses-material-design: true
   generate: true
   assets:
     - assets/images/
+    - assets/icon/
