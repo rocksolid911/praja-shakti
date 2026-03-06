@@ -684,24 +684,20 @@ class _ReportCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+                  // Show on Map button
+                  if (hasLocation)
+                    _ActionIconBtn(
+                      icon: Icons.map_outlined,
+                      tooltip: 'Show on Map',
+                      onPressed: () => context.go('/map', extra: report.id),
+                    ),
+                  if (hasLocation) const SizedBox(width: 6),
                   // Navigate button
                   if (hasLocation)
-                    TextButton.icon(
+                    _ActionIconBtn(
+                      icon: Icons.navigation_rounded,
+                      tooltip: 'Navigate',
                       onPressed: () => _openNavigation(report.latitude!, report.longitude!),
-                      icon: Icon(Icons.navigation_rounded, size: 16, color: _kIndigo),
-                      label: Text(
-                        'Navigate',
-                        style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w600, color: _kIndigo,
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          side: BorderSide(color: _kIndigo.withValues(alpha: 0.3)),
-                        ),
-                      ),
                     ),
                 ],
               ),
@@ -746,6 +742,34 @@ class _ReportCard extends StatelessWidget {
     if (diff.inDays > 0) return '${diff.inDays}d ago';
     if (diff.inHours > 0) return '${diff.inHours}h ago';
     return '${diff.inMinutes}m ago';
+  }
+}
+
+// ── Compact Action Icon Button ────────────────────────────────────────────────
+
+class _ActionIconBtn extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+  const _ActionIconBtn({required this.icon, required this.tooltip, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: _kIndigo.withValues(alpha: 0.3)),
+          ),
+          child: Icon(icon, size: 18, color: _kIndigo),
+        ),
+      ),
+    );
   }
 }
 
