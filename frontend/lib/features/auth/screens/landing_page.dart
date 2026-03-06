@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/cubit/locale_cubit.dart';
 import '../../../l10n/app_localizations.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 
 // ─── Theme constants ───────────────────────────────────────────────────────────
 const _primary = Color(0xFF1565C0);
@@ -16,19 +18,52 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          _LandingNavBar(onGetStarted: () => context.go('/login')),
-          SliverToBoxAdapter(child: _HeroSection(onGetStarted: () => context.go('/login'))),
-          const SliverToBoxAdapter(child: _FeaturesSection()),
-          const SliverToBoxAdapter(child: _HowItWorksSection()),
-          const SliverToBoxAdapter(child: _StatsSection()),
-          const SliverToBoxAdapter(child: _PanchayatSection()),
-          SliverToBoxAdapter(child: _FooterSection(onGetStarted: () => context.go('/login'))),
-        ],
-      ),
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, authState) {
+        // Show splash while checking auth OR while waiting for GoRouter redirect
+        // (BlocBuilder fires before GoRouter redirect, so we must cover all non-initial states)
+        if (authState is! AuthInitial) {
+          return const Scaffold(
+            backgroundColor: Color(0xFF1A237E),
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.how_to_vote_rounded, size: 64, color: Colors.white),
+                  SizedBox(height: 16),
+                  Text('PrajaShakti', style: TextStyle(
+                    fontSize: 28, fontWeight: FontWeight.w800,
+                    color: Colors.white, letterSpacing: 0.5,
+                  )),
+                  SizedBox(height: 24),
+                  SizedBox(
+                    width: 24, height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5, color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Show the actual landing page for unauthenticated users
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: CustomScrollView(
+            slivers: [
+              _LandingNavBar(onGetStarted: () => context.go('/login')),
+              SliverToBoxAdapter(child: _HeroSection(onGetStarted: () => context.go('/login'))),
+              const SliverToBoxAdapter(child: _FeaturesSection()),
+              const SliverToBoxAdapter(child: _HowItWorksSection()),
+              const SliverToBoxAdapter(child: _StatsSection()),
+              const SliverToBoxAdapter(child: _PanchayatSection()),
+              SliverToBoxAdapter(child: _FooterSection(onGetStarted: () => context.go('/login'))),
+            ],
+          ),
+        );
+      },
     );
   }
 }
