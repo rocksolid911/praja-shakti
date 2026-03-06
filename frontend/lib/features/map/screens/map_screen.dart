@@ -19,20 +19,22 @@ const _kBgGrey = Color(0xFFF5F7FA);
 const _kCardRadius = 16.0;
 
 class MapScreen extends StatelessWidget {
-  const MapScreen({super.key});
+  final int? focusReportId;
+  const MapScreen({super.key, this.focusReportId});
 
   @override
   Widget build(BuildContext context) {
     final villageId = context.read<AuthCubit>().currentVillageId;
     return BlocProvider(
       create: (_) => MapCubit(context.read<ApiClient>())..loadVillageData(villageId),
-      child: const _MapView(),
+      child: _MapView(focusReportId: focusReportId),
     );
   }
 }
 
 class _MapView extends StatefulWidget {
-  const _MapView();
+  final int? focusReportId;
+  const _MapView({this.focusReportId});
 
   @override
   State<_MapView> createState() => _MapViewState();
@@ -42,10 +44,30 @@ class _MapViewState extends State<_MapView> {
   // Selected marker popup state
   Report? _selectedReport;
   Project? _selectedProject;
+  final _mapController = MapController();
+  bool _hasFocused = false;
 
   void _selectReport(Report r) => setState(() { _selectedReport = r; _selectedProject = null; });
   void _selectProject(Project p) => setState(() { _selectedProject = p; _selectedReport = null; });
   void _clearSelection() => setState(() { _selectedReport = null; _selectedProject = null; });
+
+  /// Auto-focus on a specific report when navigating from feed
+  void _tryFocusReport(List<Report> reports) {
+    if (_hasFocused || widget.focusReportId == null) return;
+    _hasFocused = true;
+    final target = reports.cast<Report?>().firstWhere(
+      (r) => r!.id == widget.focusReportId,
+      orElse: () => null,
+    );
+    if (target != null && target.latitude != null && target.longitude != null) {
+      // Defer setState to after the current build frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _selectReport(target);
+        _mapController.move(LatLng(target.latitude!, target.longitude!), 18);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +128,9 @@ class _MapViewState extends State<_MapView> {
   }
 
   Widget _buildMap(BuildContext context, MapLoaded state) {
+    // Auto-focus on a report if navigating from feed with focusReportId
+    _tryFocusReport(state.reports);
+
     final village = state.selectedVillage;
     final center = village?.latitude != null
         ? LatLng(village!.latitude!, village.longitude!)
@@ -120,6 +145,7 @@ class _MapViewState extends State<_MapView> {
         GestureDetector(
           onTap: _clearSelection,
           child: FlutterMap(
+            mapController: _mapController,
             options: MapOptions(initialCenter: center, initialZoom: village != null ? 17 : 5, maxZoom: 19),
             children: [
               TileLayer(
