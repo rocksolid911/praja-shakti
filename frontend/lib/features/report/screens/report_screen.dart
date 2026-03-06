@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -142,25 +143,83 @@ class _ReportViewState extends State<_ReportView> {
   }
 
   Future<void> _fetchGps() async {
+    if (kIsWeb) {
+      // On web, skip location service check and go straight to permission
+      _fetchGpsWeb();
+    } else {
+      // On mobile (Android/iOS), use full Geolocator flow
+      _fetchGpsMobile();
+    }
+  }
+
+  /// Web: Skip location service check, try to get position directly
+  /// Browser will show permission prompt if needed
+  void _fetchGpsWeb() {
+    if (mounted) setState(() => _gpsStatus = 'fetching');
+
+    // Web: Geolocator.getCurrentPosition skips isLocationServiceEnabled check
+    // and directly requests browser geolocation permission
+    Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.best,
+      timeLimit: const Duration(seconds: 15),
+    ).then((position) {
+      if (mounted) {
+        setState(() {
+          _latitude = position.latitude;
+          _longitude = position.longitude;
+          _gpsStatus = 'success';
+        });
+      }
+    }).onError<LocationServiceDisabledException>((error, stackTrace) {
+      // Location service disabled (mobile only)
+      if (mounted) setState(() => _gpsStatus = 'error');
+      _applyVillageFallback();
+    }).onError<PermissionDeniedException>((error, stackTrace) {
+      // User denied permission
+      if (mounted) setState(() => _gpsStatus = 'denied');
+      _applyVillageFallback();
+    }).onError((error, stackTrace) {
+      // Other errors (timeout, network, etc.)
+      if (mounted) setState(() => _gpsStatus = 'error');
+      _applyVillageFallback();
+    });
+  }
+
+  /// Mobile: Use Geolocator with full permission handling
+  Future<void> _fetchGpsMobile() async {
     try {
+      if (mounted) setState(() => _gpsStatus = 'fetching');
+
+      // Check if location service is enabled
       final enabled = await Geolocator.isLocationServiceEnabled();
       if (!enabled) {
         if (mounted) setState(() => _gpsStatus = 'error');
         _applyVillageFallback();
         return;
       }
+
+      // Check permission status
       var perm = await Geolocator.checkPermission();
+
+      // If denied, request it (shows Android/iOS system dialog)
       if (perm == LocationPermission.denied) {
         perm = await Geolocator.requestPermission();
       }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) {
+
+      // Handle different permission states
+      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
+        // User tapped "Deny" or "Don't Allow" or disabled in settings
         if (mounted) setState(() => _gpsStatus = 'denied');
         _applyVillageFallback();
         return;
       }
+
+      // Permission granted — get current position
       final pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium);
+        desiredAccuracy: LocationAccuracy.best,
+        timeLimit: const Duration(seconds: 10),
+      );
+
       if (mounted) {
         setState(() {
           _latitude = pos.latitude;
@@ -168,8 +227,16 @@ class _ReportViewState extends State<_ReportView> {
           _gpsStatus = 'success';
         });
       }
-    } catch (_) {
-      if (mounted) setState(() => _gpsStatus = 'error');
+    } catch (e) {
+      // Handle different error types
+      if (e is LocationServiceDisabledException) {
+        if (mounted) setState(() => _gpsStatus = 'error');
+      } else if (e is PermissionDeniedException) {
+        if (mounted) setState(() => _gpsStatus = 'denied');
+      } else {
+        // Timeout or other error
+        if (mounted) setState(() => _gpsStatus = 'error');
+      }
       _applyVillageFallback();
     }
   }
