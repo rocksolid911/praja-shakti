@@ -1155,6 +1155,9 @@ class _CategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.sizeOf(context).width >= 600;
+    final iconSize = isWide ? 36.0 : 28.0;
+    final labelSize = isWide ? 13.0 : 10.0;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -1166,11 +1169,11 @@ class _CategoryTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: selected ? color : Colors.grey, size: 28),
-            const SizedBox(height: 4),
+            Icon(icon, color: selected ? color : Colors.grey, size: iconSize),
+            const SizedBox(height: 6),
             Text(label,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: labelSize,
                   color: selected ? color : Colors.grey.shade700,
                   fontWeight:
                       selected ? FontWeight.bold : FontWeight.normal,
