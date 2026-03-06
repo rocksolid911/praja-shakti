@@ -27,6 +27,8 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthInitial());
       return;
     }
+    // Token exists — show splash while validating
+    emit(AuthLoading());
     try {
       final resp = await _api.get('/auth/profile/');
       emit(AuthAuthenticated(User.fromJson(resp.data)));
