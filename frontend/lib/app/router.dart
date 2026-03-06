@@ -31,15 +31,24 @@ GoRouter createRouter(AuthCubit authCubit) {
     redirect: (context, state) {
       final authState = authCubit.state;
       final isAuthenticated = authState is AuthAuthenticated ||
-          authState is AuthProfileLoaded ||
-          authState is AuthLoading;
+          authState is AuthProfileLoaded;
+      final isCheckingAuth = authState is AuthLoading;
       final isPublicPage = state.uri.path == '/' ||
           state.uri.path == '/login' ||
           state.uri.path == '/otp';
 
+      // While checking stored token on startup, stay on '/' (splash)
+      // Don't redirect to login — checkAuth() will emit the real state
+      if (isCheckingAuth) return null;
+
       if (!isAuthenticated && !isPublicPage) return '/login';
-      if (authState is AuthAuthenticated && isPublicPage) {
-        return authState.user.isGovernment ? '/gov-dashboard' : '/map';
+
+      // Redirect authenticated users away from public pages to their home
+      if (isAuthenticated && isPublicPage) {
+        final user = authState is AuthAuthenticated
+            ? authState.user
+            : (authState as AuthProfileLoaded).user;
+        return user.isGovernment ? '/gov-dashboard' : '/map';
       }
       return null;
     },
