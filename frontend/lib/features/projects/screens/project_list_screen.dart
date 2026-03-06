@@ -205,15 +205,15 @@ class _ProjectListViewState extends State<_ProjectListView> {
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ActionChip(
-                      avatar: const Icon(Icons.account_balance_wallet_rounded,
-                          size: 16, color: Colors.white),
+                      avatar: Icon(Icons.account_balance_wallet_rounded,
+                          size: 16, color: Colors.green.shade700),
                       label: Text(
                         _formatCostStatic(totalFund),
-                        style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12,
+                        style: TextStyle(
+                          color: Colors.green.shade800, fontWeight: FontWeight.w800, fontSize: 13,
                         ),
                       ),
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      backgroundColor: Colors.white,
                       side: BorderSide.none,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       onPressed: () => _showFundDetailsSheet(context, allProjects),
