@@ -432,11 +432,11 @@ class _LanguagePickerChip extends StatelessWidget {
         return GestureDetector(
           onTap: () => _showPicker(context),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: const Color(0xFFF0F2F5),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.3)),
+              border: Border.all(color: Colors.grey.shade300),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -445,11 +445,11 @@ class _LanguagePickerChip extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(current.$1.toUpperCase(),
                     style: const TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFF1A1A2E),
                         fontSize: 12,
                         fontWeight: FontWeight.bold)),
                 const SizedBox(width: 4),
-                const Icon(Icons.expand_more, color: Colors.white, size: 16),
+                Icon(Icons.expand_more, color: Colors.grey.shade600, size: 16),
               ],
             ),
           ),
