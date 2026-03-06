@@ -68,7 +68,10 @@ GoRouter createRouter(AuthCubit authCubit) {
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
-          GoRoute(path: '/map', builder: (_, __) => const MapScreen()),
+          GoRoute(
+            path: '/map',
+            builder: (_, state) => MapScreen(focusReportId: state.extra as int?),
+          ),
           GoRoute(path: '/report', builder: (_, __) => const ReportScreen()),
           GoRoute(
             path: '/report/:id',

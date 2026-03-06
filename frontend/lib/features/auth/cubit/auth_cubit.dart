@@ -17,7 +17,7 @@ class AuthCubit extends Cubit<AuthState> {
   /// Firebase verification ID for mobile OTP flow.
   String? _verificationId;
 
-  AuthCubit(this._api, this._firebaseAuth) : super(AuthInitial());
+  AuthCubit(this._api, this._firebaseAuth) : super(AuthLoading());
 
   // ── Auth check ─────────────────────────────────────────────────────────
 
