@@ -15,10 +15,12 @@ class ApiClient {
     // In release mode always use production backend
     if (kReleaseMode) return _prodBaseUrl;
     if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
-      return 'http://192.168.1.11:8000/api/v1';
+      // return 'http://10.27.251.221:8000/api/v1';
+       return 'http://127.0.0.1:8000/api/v1';
     }
     return 'http://127.0.0.1:8000/api/v1';
   }
+
 
   ApiClient({String? baseUrl}) : baseUrl = baseUrl ?? _defaultBaseUrl {
     dio = Dio(BaseOptions(

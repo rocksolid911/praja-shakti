@@ -17,7 +17,7 @@ class AuthCubit extends Cubit<AuthState> {
   /// Firebase verification ID for mobile OTP flow.
   String? _verificationId;
 
-  AuthCubit(this._api, this._firebaseAuth) : super(AuthInitial());
+  AuthCubit(this._api, this._firebaseAuth) : super(AuthLoading());
 
   // ── Auth check ─────────────────────────────────────────────────────────
 
@@ -27,6 +27,8 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthInitial());
       return;
     }
+    // Token exists — show splash while validating
+    emit(AuthLoading());
     try {
       final resp = await _api.get('/auth/profile/');
       emit(AuthAuthenticated(User.fromJson(resp.data)));
