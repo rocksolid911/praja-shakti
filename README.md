@@ -222,7 +222,16 @@ flutter run -d chrome        # Web (leader dashboard — responsive)
 flutter run                  # iOS / Android
 ```
 
-### 5. WhatsApp Bot (local machine)
+### 5. Demo Login
+
+Use these credentials to test the app:
+
+| Role | Phone | OTP |
+|---|---|---|
+| **Leader** | `9090291939` | `333333` |
+| **Admin (Government)** | `9876543210` | `111111` |
+
+### 6. WhatsApp Bot (local machine)
 
 ```bash
 ngrok http 8000
@@ -230,7 +239,7 @@ ngrok http 8000
 # Message +1 415 523 8886 on WhatsApp: "GAON Tusra"
 ```
 
-### 6. WhatsApp Bot (production)
+### 7. WhatsApp Bot (production)
 
 The WhatsApp bot is live in production via Twilio Sandbox. To try it:
 
