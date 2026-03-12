@@ -2,8 +2,8 @@
 
 # 🌾 PrajaShakti AI
 
-### *जहाँ किसान की आवाज़ बदलाव बनती है*
-### *Where a farmer's voice becomes change*
+### *जहाँ नागरिक की आवाज़ बदलाव बनती है*
+### *Where a citizen's voice becomes change*
 
 **The only platform where a voice note becomes a satellite-confirmed, scheme-matched, trackable development project.**
 
